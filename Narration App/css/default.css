@@ -61,7 +61,8 @@ body, html{
 	width:100px;
 	height:100px; 
 	border-radius:50px; 
-	background:orange;
+	background:#D5DA26;
+	font-family: RobotoCR;
 }
 .homePageOuterMostDiv {
 	height: 100%;
@@ -81,8 +82,10 @@ body, html{
 	font-weight: bold;
 	color: purple;
 }
-.CreateNarrationText{
+.createNarrationText {
 	font-family: BowlbyOne;
 }
 
-
+.mainLogo{
+	margin-bottom: -19px;
+}
