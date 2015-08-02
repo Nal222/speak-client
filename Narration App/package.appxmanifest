@@ -29,8 +29,12 @@
   <Applications>
     <Application
       Id="App"
-      StartPage="default.html">
+      StartPage="ms-appx-web:///default.html">
 
+      <uap:ApplicationContentUriRules>
+        <uap:Rule Type="include" Match ="ms-appx-web:///" WindowsRuntimeAccess="allowForWebOnly"/>
+      </uap:ApplicationContentUriRules>
+      
       <uap:VisualElements
         DisplayName="Narration App"
         Description="Narration App"
