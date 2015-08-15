@@ -63,6 +63,38 @@ body, html{
 	border-radius:50px; 
 	background:#D5DA26;
 	font-family: RobotoCR;
+	transition: background 1s, color 1s;
+	align-self: center;
+}
+.redSmallButton{
+	background: red;
+}
+.redRecordButton{
+	background: red;
+	width: 50px;
+	height: 50px;
+}
+.circleButton:hover{
+	background: green;
+	color: white;
+}
+
+.small {
+	width: 75px;
+	height: 75px;
+}
+.extraSmall{
+	width: 50px;
+	height: 50px;
+}
+.alignSelfFlexStart{
+	align-self: flex-start;
+}
+.alignSelfFlexEnd{
+	align-self: flex-end;
+}
+.alignSelfFlexCenter{
+	align-self: center;
 }
 .homePageOuterMostDiv {
 	height: 100%;
@@ -88,4 +120,42 @@ body, html{
 
 .mainLogo{
 	margin-bottom: -19px;
+}
+.page2{
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+.browseDiv{
+	display: flex;
+	flex-direction: row;
+}
+
+.imageGallery{
+	display:flex;
+	flex-direction:row;
+	align-items:center;
+	flex-wrap: wrap;
+}
+
+.galleryImage{
+	width:100px;
+	height:70px;
+	margin: 5px;
+}
+.absolutePositionGoBackButton{
+	position: absolute;
+	right: 20px;
+	top: 20px;
+}
+.roundedCornersBorder{
+	border-radius: 25px;
+	border: 2px solid #8AC007;
+	padding: 20px;
+	width: 1000px;
+	height: 50px;
+}
+.videoBorderNewSize{
+	width: 500px;
+	height: 225px;
+	align-self: center;
 }
