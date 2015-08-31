@@ -29,7 +29,7 @@
             </div>
             <div class="circleButton" onclick="{startButtonClicked}">START</div>
         </div>
-        <div class="bottom page2" if={ startButtonWasClicked && confirmButtonWasClicked==false }>
+        <div class="bottom page2" if="{ startButtonWasClicked && confirmButtonWasClicked==false }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 1</div>
             <p style="font-family: RobotoCR">Enter title or <a href="" style="font-family: RobotoCR;color: hotpink">I'll do this later</a></p>
             <input type="text" size="60" maxlength="100"/>
@@ -37,21 +37,21 @@
             <p></p>
             <div class="circleButton" onclick="{confirmButtonClicked}" style="font-size: 25px">CONFIRM</div>
         </div>
-        <div class="bottom page2" if={ confirmButtonWasClicked && nextButtonWasClicked==false }>
+        <div class="bottom page2" if="{ confirmButtonWasClicked && nextButtonWasClicked==false }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 2</div>
             <div style="font-family: RobotoCR">Insert images to illustrate your narration</div>
-            <div class="browseDiv"><div class="circleButton extraSmall alignSelfFlexStart" style="font-size: 15px">Browse</div>&nbsp;<input type="file" name="pic" accept="image/*"><div class="circleButton extraSmall" style="font-size: 15px;color: red">Add</div></div>
+            <div class="browseDiv"><div class="circleButton extraSmall alignSelfFlexStart" style="font-size: 15px">Browse</div><input type="file" name="pic" accept="image/*"><div class="circleButton extraSmall" style="font-size: 15px;color: red">Add</div></div>
             <imagegallery imagelist="{images}"></imagegallery>
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
             </div>-->
-            <div style="display: flex; flex-direction: row"><div style="font-family: RobotoCR">If you want to delete an image select it and click the delete button</div>&nbsp;<div class="circleButton extraSmall" style="font-family: RobotoCR; font-size: 15px">Delete</div></div>
+            <div style="display: flex; flex-direction: row"><div style="font-family: RobotoCR">If you want to delete an image select it and click the delete button</div><div class="circleButton extraSmall" style="font-family: RobotoCR; font-size: 15px">Delete</div></div>
             <div style="font-family: RobotoCR">Drag and drop individual images for ordering images the way you want to show in your narration</div>
             <div class="circleButton" onclick="{nextButtonClicked}">NEXT</div>
         </div>
-        <div class="bottom page2" if={ nextButtonWasClicked }>
+        <div class="bottom page2" if="{ nextButtonWasClicked }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
-            <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px">Record &nbsp;<div class="circleButton redRecordButton"></div></div>
+            <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px">Record <div class="circleButton redRecordButton"></div></div>
             <div style="font-family: RobotoCR">Click on thumbnail to switch image while recording</div>
             <imagegallery imagelist="{images}" style="margin-bottom: 5px"></imagegallery>
             <div class="roundedCornersBorder videoBorderNewSize"></div>
@@ -69,7 +69,7 @@
         }
         confirmButtonClicked(e){
             app.confirmButtonWasClicked = true;
-            $(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
+            //$(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
         }
         nextButtonClicked(e){
             app.nextButtonWasClicked = true;
@@ -107,7 +107,6 @@
         <div class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">Should we believe in God by Nalini Chawla</div>
         <img class="galleryImage" each="{opts.imagelist}" src="{url}">
     </div>
-
 </imagegallery>
 
 
