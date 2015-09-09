@@ -41,7 +41,7 @@
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 2</div>
             <div style="font-family: RobotoCR">Insert images to illustrate your narration</div>
             <div class="browseDiv"><div class="circleButton extraSmall alignSelfFlexStart" style="font-size: 15px">Browse</div><input type="file" name="pic" accept="image/*"><div class="circleButton extraSmall" style="font-size: 15px;color: red">Add</div></div>
-            <imagegallery imagelist="{images}"></imagegallery>
+            <imagegallery imagelist="{images}" columnorrow="{'row'}"></imagegallery>
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
             </div>-->
@@ -49,14 +49,20 @@
             <div style="font-family: RobotoCR">Drag and drop individual images for ordering images the way you want to show in your narration</div>
             <div class="circleButton" onclick="{nextButtonClicked}">NEXT</div>
         </div>
-        <div class="bottom page2" if="{ nextButtonWasClicked }">
-            <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
-            <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px">Record <div class="circleButton redRecordButton"></div></div>
-            <div style="font-family: RobotoCR">Click on thumbnail to switch image while recording</div>
-            <imagegallery imagelist="{images}" style="margin-bottom: 5px"></imagegallery>
-            <div class="roundedCornersBorder videoBorderNewSize"></div>
+        <div class="bottom page2 rowLayout" if="{ nextButtonWasClicked }">
+                <div class="columnLayout">
+                    <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
+                    <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px">Record <div class="circleButton redRecordButton"></div></div>
+                    <div style="font-family: RobotoCR; flex-grow: 0; width: 400px">Click on thumbnail to switch image while recording</div>
+                    <div class="imageGalleryTag">
+                        <imagegallery imagelist="{images}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
+                    </div>
+                 </div>
+                <div class="roundedCornersBorder videoBorderNewSize"></div>
         </div>
+
     </div>
+
 
 
     <script>
@@ -103,9 +109,10 @@
 </speak>
 
 <imagegallery>
-    <div class="imageGallery roundedCornersBorder">
+    <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}">
         <div class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">Should we believe in God by Nalini Chawla</div>
         <img class="galleryImage" each="{opts.imagelist}" src="{url}">
+        
     </div>
 </imagegallery>
 

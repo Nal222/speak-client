@@ -40,7 +40,7 @@ body, html{
 	flex-shrink: 0;
 	/*height: 30%;*/
 	width: 100%;
-	margin-bottom: 20px;
+	margin-bottom: 0px;
 	align-items: center;
 	padding: 0px;
 	border-bottom: solid 2px black;
@@ -132,9 +132,19 @@ body, html{
 
 .imageGallery{
 	display:flex;
-	flex-direction:row;
-	align-items:center;
+	align-items:flex-start;
 	flex-wrap: wrap;
+	background: rgba(255,0,0,0.3);
+	flex-grow: 1;
+	flex-shrink: 1;
+}
+
+.imageGalleryTag{
+	flex-grow: 1;
+	flex-shrink: 1;
+	height: 370px;
+	width: 500px;
+	background: rgba(255,255,0,0.3);
 }
 
 .galleryImage{
@@ -150,12 +160,38 @@ body, html{
 .roundedCornersBorder{
 	border-radius: 25px;
 	border: 2px solid #8AC007;
-	padding: 20px;
-	width: 1000px;
-	height: 50px;
+	padding: 0px;
+
 }
 .videoBorderNewSize{
-	width: 500px;
-	height: 178px;
+	width: 800px;
+	height: 450px;
 	align-self: center;
+}
+.containerDivRecordPage{
+	display: flex;
+	flex-direction: row;
+	height: 400px;
+}
+.containerDivTextandImagesRecordPage{
+	display: flex;
+	flex-direction: column;
+	background: rgba(0,255,0,0.3);
+
+
+}
+.leftRecordPageContainerDiv{
+	display: flex;
+	flex-direction: column;
+	padding:12px;
+}
+.rowLayout{
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	background: rgba(0,0,255,0.3);
+}
+.columnLayout{
+	display: flex;
+	flex-direction: column;
 }
