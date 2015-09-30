@@ -58,7 +58,9 @@
                         <imagegallery imagelist="{images}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
                     </div>
                  </div>
-                <div class="roundedCornersBorder videoBorderNewSize"></div>
+                <div class="roundedCornersBorder videoBorderNewSize">
+                    <img src="{image.url}" each="{image, i in images}" show="{currentImageIndex==i}" width="800" height="450">
+                </div>
         </div>
 
     </div>
@@ -66,7 +68,7 @@
 
 
     <script>
-        var app = this;
+        app = this;
         app.startButtonWasClicked = false;
         app.confirmButtonWasClicked = false;
         app.nextButtonWasClicked = false;
@@ -103,6 +105,7 @@
                 url: "http://www.gettyimages.co.uk/gi-resources/images/Homepage/Category-Creative/UK/UK_Creative_462809583.jpg"
             }
         ];
+        app.currentImageIndex = 0;
     </script>
 
 
@@ -111,7 +114,10 @@
 <imagegallery>
     <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}">
         <div class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">Should we believe in God by Nalini Chawla</div>
-        <img class="galleryImage" each="{opts.imagelist}" src="{url}">
+        <img class="galleryImage" each="{image, i in opts.imagelist}" src="{image.url}" onclick="javascript:galleryImageClicked({i})">
+
+
+
         
     </div>
 </imagegallery>

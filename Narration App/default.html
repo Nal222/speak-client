@@ -14,7 +14,18 @@
     <!-- Narration_App references -->
     <link href="stylus/speakapp.css" rel="stylesheet" />
     <!--<script src="js/default.js"></script>-->
+    <script>
+        var app;
 
+
+        function galleryImageClicked(i){
+            //alert("Image Clicked! " +  i);
+            app.currentImageIndex = i;
+            app.update();
+
+        }
+
+    </script>
 
 
 </head>
