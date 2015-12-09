@@ -52,7 +52,10 @@
         <div class="bottom page2 rowLayout" if="{ nextButtonWasClicked }">
                 <div class="columnLayout">
                     <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
-                    <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px">Record <div class="circleButton redRecordButton"></div></div>
+                    <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px">
+                        <div if="{ !recording }"class="circleButton redRecordButton" onclick="{recordButtonClicked}" style="font-size: 25px">Record</div>
+                        <div if="{ recording }"class="circleButton redRecordButton stopButton" onclick="{stopButtonClicked}">Stop</div>
+                    </div>
                     <div style="font-family: RobotoCR; flex-grow: 0; width: 400px">Click on thumbnail to switch image while recording</div>
                     <div class="imageGalleryTag">
                         <imagegallery imagelist="{images}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
@@ -81,6 +84,26 @@
         }
         nextButtonClicked(e){
             app.nextButtonWasClicked = true;
+        }
+        recordButtonClicked(e){
+            Fr.voice.record();
+            app.recording = true;
+        }
+        stopButtonClicked(e){
+            console.log("Stop button clicked");
+            Fr.voice.stop();
+            app.recording = false;
+
+            /*
+            Fr.voice.export(
+                function(url){
+                    console.log("url =" + url);
+                    $("<audio src='"+ url +"'></audio>").appendTo("body");
+                    $("body audio:last")[0].play();
+                },
+                "URL"
+            );
+            */
         }
         app.images = [
             {
