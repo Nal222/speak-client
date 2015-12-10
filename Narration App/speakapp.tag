@@ -85,14 +85,47 @@
         nextButtonClicked(e){
             app.nextButtonWasClicked = true;
         }
+        var recordRTC;
         recordButtonClicked(e){
-            Fr.voice.record();
             app.recording = true;
+            function successCallback(mediaStream) {
+                console.log("Stream obtained. It is " + mediaStream);
+                recordRTC = RecordRTC(
+                    mediaStream,
+                    {
+                        type: 'audio',
+                        mimeType: 'video/webm',
+                        bufferSize: 1024,
+                        sampleRate: 44100,
+                        leftChannel: false,
+                        disableLogs: false,
+                        recorderType: null
+                        //recorderType: webrtcDetectedBrowser === 'edge' ? StereoAudioRecorder : null
+                    }
+                );
+                console.log("recordRTC IS " + recordRTC);
+                recordRTC.startRecording();
+                // RecordRTC usage goes here
+            }
+
+            function errorCallback(errror) {
+                // maybe another application is using the device
+            }
+
+            var mediaConstraints = { video: false, audio: true };
+
+            navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
         }
         stopButtonClicked(e){
             console.log("Stop button clicked");
-            Fr.voice.stop();
             app.recording = false;
+            recordRTC.stopRecording(
+                function(url) {
+                    console.log("url =" + url);
+                    $("<audio src='"+ url +"'></audio>").appendTo("body");
+                    $("body audio:last")[0].play();
+                }
+            );
 
             /*
             Fr.voice.export(
