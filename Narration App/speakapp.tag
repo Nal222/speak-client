@@ -1,9 +1,4 @@
 <speak>
-    <style>
-
-
-
-    </style>
     <!-- html here -->
     <div class="homePageOuterMostDiv" >
         <div class="top" style="background: #d5da26">
@@ -53,19 +48,18 @@
                 <div class="columnLayout">
                     <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
                     <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px">
-                        <div if="{ !recording }"class="circleButton redRecordButton" onclick="{recordButtonClicked}" style="font-size: 25px">Record</div>
-                        <div if="{ recording }"class="circleButton redRecordButton stopButton" onclick="{stopButtonClicked}">Stop</div>
+                        <div if="{ !recordingButtonClicked }"class="circleButton redRecordButton" onclick="{recordButtonClicked}" style="font-size: 25px">Record</div>
+                        <div if="{ recordingButtonClicked }"class="circleButton redRecordButton stopButton" onclick="{stopButtonClicked}">Stop</div>
                     </div>
                     <div style="font-family: RobotoCR; flex-grow: 0; width: 400px">Click on thumbnail to switch image while recording</div>
                     <div class="imageGalleryTag">
                         <imagegallery imagelist="{images}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
                     </div>
                  </div>
-                <div class="roundedCornersBorder videoBorderNewSize">
-                    <img src="{image.url}" each="{image, i in images}" show="{currentImageIndex==i}" width="800" height="450">
+                <div id="videoPlace" class="roundedCornersBorder videoBorderNewSize">
+                    <img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">
                 </div>
         </div>
-
     </div>
 
 
@@ -85,10 +79,13 @@
         nextButtonClicked(e){
             app.nextButtonWasClicked = true;
         }
+
         var recordRTC;
         recordButtonClicked(e){
-            app.recording = true;
+            app.recordingButtonClicked = true;
             function successCallback(mediaStream) {
+                app.startTime = Date.now();
+
                 console.log("Stream obtained. It is " + mediaStream);
                 recordRTC = RecordRTC(
                     mediaStream,
@@ -105,6 +102,7 @@
                 );
                 console.log("recordRTC IS " + recordRTC);
                 recordRTC.startRecording();
+                app.recording = true;
                 // RecordRTC usage goes here
             }
 
@@ -116,16 +114,68 @@
 
             navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
         }
+        app.setTimeoutIDArray = [];
+        function onAudioStart(){
+            app.slideSwitches.forEach(
+                function(slideSwitch){
+                    if(slideSwitch.millisecondsfromStart>totalDurationAudioPlayed){
+                        app.setTimeoutIDArray.push(
+                            setTimeout(
+                                function(){
+                                    //$("#videoPlace").add(slideSwitch.imageUrl);
+                                    //app.currentImageIndex = i;
+                                    app.currentImageUrl = slideSwitch.imageUrl;
+                                    app.update();
+
+                                },
+                                slideSwitch.millisecondsfromStart - totalDurationAudioPlayed
+                            )
+                        );
+                    }
+                }
+            );
+        }
+        function onAudioStop(){
+            app.setTimeoutIDArray.forEach(
+                function(setTimeoutID){
+                    clearTimeout(setTimeoutID);
+                }
+            );
+            app.setTimeoutIDArray.length = 0;
+        }
+        var audioStartTime = 0;
+        var audioStopTime = 0;
+        function playEvent(){
+            audioStartTime = Date.now();
+            console.log("PLAY EVENT USED");
+            onAudioStart();
+
+        }
+        var lastDuration = 0;
+        var totalDurationAudioPlayed = 0;
+        function stopEvent(){
+            onAudioStop();
+            audioStopTime = Date.now();
+            lastDuration = audioStopTime - audioStartTime;
+            totalDurationAudioPlayed += lastDuration;
+
+        }
         stopButtonClicked(e){
             console.log("Stop button clicked");
+            app.recordingButtonClicked = false;
             app.recording = false;
             recordRTC.stopRecording(
                 function(url) {
                     console.log("url =" + url);
-                    $("<audio src='"+ url +"'></audio>").appendTo("body");
+                    $("<audio src='"+ url +"' id='myAudio'></audio>").appendTo("body");
                     $("body audio:last")[0].play();
+                    var aud = document.getElementById("myAudio");
+                    aud.onplay = playEvent;
+                    aud.onplaying = playEvent;
+                    aud.onpause = aud.onsuspend = aud.onabort = aud.onerror = aud.onstalled = aud.onwaiting = stopEvent;
                 }
             );
+
 
             /*
             Fr.voice.export(
@@ -138,6 +188,8 @@
             );
             */
         }
+
+
         app.images = [
             {
                 url: "http://blog.jimdo.com/wp-content/uploads/2014/01/tree-247122.jpg"
@@ -170,12 +222,29 @@
 <imagegallery>
     <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}">
         <div class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">Should we believe in God by Nalini Chawla</div>
-        <img class="galleryImage" each="{image, i in opts.imagelist}" src="{image.url}" onclick="javascript:galleryImageClicked({i})">
-
-
-
-        
+        <img class="galleryImage" each="{image, i in opts.imagelist}" src="{image.url}" onclick="{galleryImageClicked}">
     </div>
+    <script>
+        app.slideSwitches = [];
+        galleryImageClicked(e){
+            //alert("Image Clicked! " +  i);
+            app.currentImageUrl = e.item.image.url;
+            app.update();
+
+            if(app.recording){
+
+                app.slideSwitches.push(
+                    {
+                        "imageUrl": e.item.image.url,
+                        "millisecondsfromStart" : Date.now() - app.startTime
+                    }
+                );
+
+
+
+            }
+            console.log(" slideswitches is " + JSON.stringify(app.slideSwitches));
+        }
+
+    </script>
 </imagegallery>
-
-
