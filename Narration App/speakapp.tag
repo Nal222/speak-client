@@ -101,6 +101,7 @@
                     }
                 );
                 console.log("recordRTC IS " + recordRTC);
+                app.slideSwitches.length = 0;
                 recordRTC.startRecording();
                 app.recording = true;
                 // RecordRTC usage goes here
@@ -114,28 +115,9 @@
 
             navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
         }
-        app.setTimeoutIDArray = [];
-        function onAudioStart(){
-            app.slideSwitches.forEach(
-                function(slideSwitch){
-                    if(slideSwitch.millisecondsfromStart>totalDurationAudioPlayed){
-                        app.setTimeoutIDArray.push(
-                            setTimeout(
-                                function(){
-                                    //$("#videoPlace").add(slideSwitch.imageUrl);
-                                    //app.currentImageIndex = i;
-                                    app.currentImageUrl = slideSwitch.imageUrl;
-                                    app.update();
 
-                                },
-                                slideSwitch.millisecondsfromStart - totalDurationAudioPlayed
-                            )
-                        );
-                    }
-                }
-            );
-        }
         function onAudioStop(){
+            console.log("setTimeoutIDArray is " + JSON.stringify(app.setTimeoutIDArray));
             app.setTimeoutIDArray.forEach(
                 function(setTimeoutID){
                     clearTimeout(setTimeoutID);
@@ -143,23 +125,7 @@
             );
             app.setTimeoutIDArray.length = 0;
         }
-        var audioStartTime = 0;
-        var audioStopTime = 0;
-        function playEvent(){
-            audioStartTime = Date.now();
-            console.log("PLAY EVENT USED");
-            onAudioStart();
 
-        }
-        var lastDuration = 0;
-        var totalDurationAudioPlayed = 0;
-        function stopEvent(){
-            onAudioStop();
-            audioStopTime = Date.now();
-            lastDuration = audioStopTime - audioStartTime;
-            totalDurationAudioPlayed += lastDuration;
-
-        }
         stopButtonClicked(e){
             console.log("Stop button clicked");
             app.recordingButtonClicked = false;
@@ -167,12 +133,20 @@
             recordRTC.stopRecording(
                 function(url) {
                     console.log("url =" + url);
-                    $("<audio src='"+ url +"' id='myAudio'></audio>").appendTo("body");
-                    $("body audio:last")[0].play();
+                    //$("<audio src='"+ url +"' id='myAudio'></audio>").appendTo("body");
+                    //$("body audio:last")[0].play();
                     var aud = document.getElementById("myAudio");
+                    console.log("audio variable = " + aud);
                     aud.onplay = playEvent;
+                    console.log("onplay event reached");
                     aud.onplaying = playEvent;
-                    aud.onpause = aud.onsuspend = aud.onabort = aud.onerror = aud.onstalled = aud.onwaiting = stopEvent;
+                    console.log("onplaying event reached");
+                    aud.onpause = aud.onsuspend = aud.onabort = aud.onerror = aud.onstalled = aud.onwaiting = aud.onended = stopEvent;
+                    console.log("stop events reached");
+                    aud.src = url;
+                    totalDurationAudioPlayed = 0;
+                    console.log("total duration audio played RESET " + totalDurationAudioPlayed);
+                    aud.play();
                 }
             );
 
@@ -187,6 +161,52 @@
                 "URL"
             );
             */
+        }
+        var audioStartTime = 0;
+        var playing = false;
+        function playEvent(){
+            audioStartTime = Date.now();
+            playing = true;
+            console.log("PLAY EVENT USED");
+            onAudioStart();
+
+        }
+        var totalDurationAudioPlayed = 0;
+        function stopEvent(){
+            onAudioStop();
+            if(playing){
+                var lastDurationAudioPlayedToAdd = Date.now() - audioStartTime;
+                totalDurationAudioPlayed += lastDurationAudioPlayedToAdd;
+            }
+            playing = false;
+        }
+        app.setTimeoutIDArray = [];
+        function onAudioStart(){
+            console.log("onAudioStart() entered");
+            app.slideSwitches.forEach(
+                function(slideSwitch){
+                console.log("forEach entered");
+                if(slideSwitch.millisecondsfromStart>totalDurationAudioPlayed){
+                    console.log("If statement entered");
+                    console.log("milliseconds from START is " + slideSwitch.millisecondsfromStart);
+                    console.log("Total duration audio played is " + totalDurationAudioPlayed);
+                    app.setTimeoutIDArray.push(
+                        setTimeout(
+                            function(){
+                                console.log("setTimeout function entered");
+            //$("#videoPlace").add(slideSwitch.imageUrl);
+            //app.currentImageIndex = i;
+                                app.currentImageUrl = slideSwitch.imageUrl;
+                                console.log("slide image url is " + slideSwitch.imageUrl);
+                                app.update();
+
+                            },
+                            slideSwitch.millisecondsfromStart - totalDurationAudioPlayed
+                            )
+                        );
+                    }
+                }
+            );
         }
 
 
@@ -241,10 +261,9 @@
                 );
 
 
-
-            }
             console.log(" slideswitches is " + JSON.stringify(app.slideSwitches));
-        }
+            }
 
+        }
     </script>
 </imagegallery>
