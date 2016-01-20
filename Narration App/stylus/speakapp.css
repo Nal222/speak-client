@@ -132,6 +132,33 @@ html {
   display: flex;
   flex-direction: row;
 }
+.fileInputs {
+  position: relative;
+}
+input.fileInputy {
+  position: relative;
+  -moz-opacity: 0;
+  filter: alpha(opacity: 0);
+  opacity: 0;
+  z-index: 2;
+}
+.fakeFileInput {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 1;
+}
+div.upload  {
+  overflow: hidden;
+}
+
+div.upload input {
+  display: block;
+  width: 50px;
+  height: 50px;
+  opacity: 0;
+  overflow: hidden;
+}
 .imageGallery {
   display: flex;
   align-items: flex-start;

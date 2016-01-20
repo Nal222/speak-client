@@ -35,7 +35,7 @@
         <div class="bottom page2" if="{ confirmButtonWasClicked && nextButtonWasClicked==false }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 2</div>
             <div style="font-family: RobotoCR">Insert images to illustrate your narration</div>
-            <div class="browseDiv"><div class="circleButton extraSmall alignSelfFlexStart" style="font-size: 15px">Browse</div><input type="file" name="pic" accept="image/*"><div class="circleButton extraSmall" style="font-size: 15px;color: red">Add</div></div>
+            <div class="browseDiv"><div class="circleButton extraSmall alignSelfFlexStart upload" style="font-size: 15px"><input type="file" name="pic" accept="image/*" />browse</div><div class="circleButton extraSmall" style="font-size: 15px;color: red">Add</div></div>
             <imagegallery imagelist="{images}" columnorrow="{'row'}"></imagegallery>
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
