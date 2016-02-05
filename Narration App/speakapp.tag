@@ -26,9 +26,22 @@
         </div>
         <div class="bottom page2" if="{ startButtonWasClicked && confirmButtonWasClicked==false }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 1</div>
-            <p style="font-family: RobotoCR">Enter title or <a href="" style="font-family: RobotoCR;color: hotpink">I'll do this later</a></p>
-            <input type="text" size="60" maxlength="100"/>
-            <p style="font-family: RobotoCR">Enter your name</p><input type="text" size="40" maxlength="100"/>
+            <div style="display: flex; flex-direction: row; margin-bottom: -50px">
+                <p style="font-family: RobotoCR">Enter title or <a href="" style="font-family: RobotoCR;color: hotpink">I'll do this later</a></p>&nbsp
+                <div class="inputTextDiv"><input type="text" size="40" maxlength="100"/></div>
+            </div>
+            <div style="display: flex; flex-direction: row; margin-bottom: -50px">
+                <p style="font-family: RobotoCR">Enter your name</p>&nbsp
+                <div class="inputTextDiv"><input type="text" size="40" maxlength="100"/></div>
+            </div>
+            <div style="display: flex; flex-direction: row; margin-bottom: -50px">
+                <p style="font-family: RobotoCR">Enter your password</p>&nbsp
+                <div class="inputTextDiv"><input type="text" size="40" maxlength="100"/></div>
+            </div>
+            <div style="display: flex; flex-direction: row; margin-bottom: -50px">
+                <p style="font-family: RobotoCR">Enter your password again</p>&nbsp
+                <div class="inputTextDiv"><input type="text" size="40" maxlength="100"/></div>
+            </div>
             <p></p>
             <div class="circleButton" onclick="{confirmButtonClicked}" style="font-size: 25px">CONFIRM</div>
         </div>
@@ -208,6 +221,7 @@
                 }
             );
         }
+
 
 
         app.images = [

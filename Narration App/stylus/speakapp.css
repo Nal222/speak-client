@@ -192,3 +192,7 @@ html {
   display: flex;
   flex-direction: column;
 }
+.inputTextDiv {
+  width: 200px;
+  margin: auto;
+}
