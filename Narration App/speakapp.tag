@@ -48,7 +48,23 @@
         <div class="bottom page2" if="{ confirmButtonWasClicked && nextButtonWasClicked==false }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 2</div>
             <div style="font-family: RobotoCR">Insert images to illustrate your narration</div>
-            <div class="browseDiv"><div class="circleButton extraSmall alignSelfFlexStart" style="font-size: 15px">Browse</div><input type="file" name="pic" accept="image/*"><div class="circleButton extraSmall" style="font-size: 15px;color: red">Add</div></div>
+            <div class="fileinputs">
+                    <input type="file" name="pic" accept="image/*" class="file" onchange={makeFileNameShowFromFakeInput}>
+                    <div class="fakefile">
+                            <!--
+                            <div>{fileName}</div>
+                            -->
+                            <!--<img src="{fileName}" width="200"/>-->
+                            <div class="circleButton extraSmall" style="font-size: 15px">Browse</div>
+                            <!--<input id="fakeInput" value="{fileName}" style="height:15px; width:200px"/>-->
+
+                            <img src="{previewImgSrc}" style="width: 50px; height: 50px"/>
+
+                            <div if="{previewImgSrc}" class="circleButton extraSmall" style="font-size: 15px;color: red">Add</div>
+                    </div>
+
+
+            </div>
             <imagegallery imagelist="{images}" columnorrow="{'row'}"></imagegallery>
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
@@ -221,8 +237,27 @@
                 }
             );
         }
+        makeFileNameShowFromFakeInput(e){
+            var input = e.target;
+            app.fileName = input.value;
 
+            if (input.files && input.files[0]) {
+                console.log("if input.files... staement entered");
+                var reader = new FileReader();
 
+                reader.onload = function (e) {
+                    console.log("onload entered RESULT IS " + e.target.result);
+                    //$('#blah').attr('src', e.target.result);
+                    app.previewImgSrc = e.target.result;
+                    app.update();
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+
+            //var inputFake = document.getElementById("fakeInput");
+            //inputFake.value = e.target.value;
+            //app.update();
+        }
 
         app.images = [
             {

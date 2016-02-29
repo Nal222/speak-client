@@ -93,6 +93,7 @@ html {
 }
 .alignSelfFlexStart {
   align-self: flex-start;
+  font-size: 15px;
 }
 .alignSelfFlexEnd {
   align-self: flex-end;
@@ -128,7 +129,7 @@ html {
   justify-content: flex-start;
   align-items: flex-start;
 }
-.browseDiv {
+.browseDiv.flexRowLayout {
   display: flex;
   flex-direction: row;
 }
@@ -139,6 +140,7 @@ html {
   background: rgba(255,0,0,0.3);
   flex-grow: 1;
   flex-shrink: 1;
+  margin-top: 19px;
 }
 .imageGalleryTag {
   flex-grow: 1;
@@ -195,4 +197,27 @@ html {
 .inputTextDiv {
   width: 200px;
   margin: auto;
+}
+div.fileinputs {
+  position: relative;
+}
+div.fakefile {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  webkit-align-items: center;
+  align-items: center;
+}
+input.file {
+  position: relative;
+  text-align: right;
+  /*background: rgb(0, 0, 0);
+  background: rgba(0, 0, 0, 0);*/
+  -moz-opacity: 0;
+  filter: alpha(opacity: 0);
+  opacity: 0;
+  z-index: 2;
 }
