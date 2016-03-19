@@ -1,5 +1,4 @@
 <speak>
-    <!-- html here -->
     <div class="homePageOuterMostDiv" >
         <div class="top" style="background: #d5da26">
             <div>
@@ -284,8 +283,6 @@
         ];
         app.currentImageIndex = 0;
     </script>
-
-
 </speak>
 
 <imagegallery>
