@@ -27,19 +27,19 @@
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 1</div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
                 <p style="font-family: RobotoCR">Enter title or <a href="" style="font-family: RobotoCR;color: hotpink">I'll do this later</a></p>&nbsp
-                <div class="inputTextDiv"><input type="text" size="40" maxlength="100"/></div>
+                <div class="inputTextDiv"><input type="text" size="40" maxlength="100" id="titleInput"/></div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
-                <p style="font-family: RobotoCR">Enter your name</p>&nbsp
-                <div class="inputTextDiv"><input type="text" size="40" maxlength="100"/></div>
+                <p style="font-family: RobotoCR">Enter your username</p>&nbsp
+                <div class="inputTextDiv"><input type="text" size="40" maxlength="100" id="usernameInput"/></div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
                 <p style="font-family: RobotoCR">Enter your password</p>&nbsp
-                <div class="inputTextDiv"><input type="text" size="40" maxlength="100"/></div>
+                <div class="inputTextDiv"><input type="text" size="40" maxlength="100" id="passwordInputFirst"/></div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
                 <p style="font-family: RobotoCR">Enter your password again</p>&nbsp
-                <div class="inputTextDiv"><input type="text" size="40" maxlength="100"/></div>
+                <div class="inputTextDiv"><input type="text" size="40" maxlength="100" id="passwordInputSecond"/></div>
             </div>
             <p></p>
             <div class="circleButton" onclick="{confirmButtonClicked}" style="font-size: 25px">CONFIRM</div>
@@ -103,7 +103,16 @@
         confirmButtonClicked(e){
             app.confirmButtonWasClicked = true;
             //$(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
+            var title = $("#titleInput").val();
+            var username = $("#usernameInput").val();
+            $.post(
+                "http://localhost:5000/login",
+                function( data ) {
+                    alert( "Data Loaded: " + data );
+                }
+            );
         }
+
         nextButtonClicked(e){
             app.nextButtonWasClicked = true;
         }
