@@ -102,8 +102,8 @@
       <file leaf-file-name="speakapp.tag" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/speakapp.tag">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.29588607">
-              <caret line="107" column="39" selection-start-line="107" selection-start-column="39" selection-end-line="107" selection-end-column="39" />
+            <state vertical-scroll-proportion="0.49525318">
+              <caret line="127" column="12" selection-start-line="127" selection-start-column="12" selection-end-line="127" selection-end-column="12" />
               <folding />
             </state>
           </provider>
@@ -355,7 +355,13 @@
       <option name="project" value="LOCAL" />
       <updated>1461866963629</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="console.log var title and var refactor in confirmButtonClicked(e)">
+      <created>1462110369168</created>
+      <option name="number" value="00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1462110369168</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -420,7 +426,8 @@
     <MESSAGE value="Fixed git ignore" />
     <MESSAGE value="Changed the ignored list" />
     <MESSAGE value="server working using with client returning a message in alert box which was sent from the server. url import changed to local file - gumadapter.js to get the required code" />
-    <option name="LAST_COMMIT_MESSAGE" value="server working using with client returning a message in alert box which was sent from the server. url import changed to local file - gumadapter.js to get the required code" />
+    <MESSAGE value="console.log var title and var refactor in confirmButtonClicked(e)" />
+    <option name="LAST_COMMIT_MESSAGE" value="console.log var title and var refactor in confirmButtonClicked(e)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -843,8 +850,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/speakapp.tag">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.29588607">
-          <caret line="107" column="39" selection-start-line="107" selection-start-column="39" selection-end-line="107" selection-end-column="39" />
+        <state vertical-scroll-proportion="0.49525318">
+          <caret line="127" column="12" selection-start-line="127" selection-start-column="12" selection-end-line="127" selection-end-column="12" />
           <folding />
         </state>
       </provider>

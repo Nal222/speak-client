@@ -26,20 +26,36 @@
         <div class="bottom page2" if="{ startButtonWasClicked && confirmButtonWasClicked==false }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 1</div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
-                <p style="font-family: RobotoCR">Enter title or <a href="" style="font-family: RobotoCR;color: hotpink">I'll do this later</a></p>&nbsp
-                <div class="inputTextDiv"><input type="text" size="40" maxlength="100" id="titleInput"/></div>
+                <p style="font-family: RobotoCR">
+                    Enter title or <a href="" style="font-family: RobotoCR;color: hotpink">I'll do this later</a>
+                </p>&nbsp
+                <div class="inputTextDiv">
+                    <input type="text" size="40" maxlength="100" id="titleInput"/>
+                </div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
-                <p style="font-family: RobotoCR">Enter your username</p>&nbsp
-                <div class="inputTextDiv"><input type="text" size="40" maxlength="100" id="usernameInput"/></div>
+                <p style="font-family: RobotoCR">
+                    Enter your username
+                </p>&nbsp
+                <div class="inputTextDiv">
+                    <input type="text" size="40" maxlength="100" id="usernameInput"/>
+                </div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
-                <p style="font-family: RobotoCR">Enter your password</p>&nbsp
-                <div class="inputTextDiv"><input type="text" size="40" maxlength="100" id="passwordInputFirst"/></div>
+                <p style="font-family: RobotoCR">
+                    Enter your password
+                </p>&nbsp
+                <div class="inputTextDiv">
+                    <input type="text" size="40" maxlength="100" id="passwordInputFirst"/>
+                </div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
-                <p style="font-family: RobotoCR">Enter your password again</p>&nbsp
-                <div class="inputTextDiv"><input type="text" size="40" maxlength="100" id="passwordInputSecond"/></div>
+                <p style="font-family: RobotoCR">
+                    Enter your password again
+                </p>&nbsp
+                <div class="inputTextDiv">
+                    <input type="text" size="40" maxlength="100" id="passwordInputSecond"/>
+                </div>
             </div>
             <p></p>
             <div class="circleButton" onclick="{confirmButtonClicked}" style="font-size: 25px">CONFIRM</div>
@@ -103,8 +119,13 @@
         confirmButtonClicked(e){
             app.confirmButtonWasClicked = true;
             //$(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
-            var title = $("#titleInput").val(),
-            username = $("#usernameInput").val();
+            var
+                title = $("#titleInput").val(),
+                username = $("#usernameInput").val(),
+                passwordFirst = $("#passwordInputFirst").val(),
+                passwordSecond = $("#passwordInputSecond").val()
+            ;
+
             console.log("title is: " + title);
             $.post(
                 "http://localhost:5000/login",
