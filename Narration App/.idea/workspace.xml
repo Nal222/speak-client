@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a359ccbc-3838-47bd-a6bd-118dd3454055" name="Default" comment="variables for inputs for validation. Tidying up">
+    <list default="true" id="a359ccbc-3838-47bd-a6bd-118dd3454055" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Narration App.iws" />
@@ -329,7 +329,13 @@
       <option name="project" value="LOCAL" />
       <updated>1462125572351</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Change to workspace.xml">
+      <created>1462129323208</created>
+      <option name="number" value="00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1462129323208</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -396,7 +402,8 @@
     <MESSAGE value="server working using with client returning a message in alert box which was sent from the server. url import changed to local file - gumadapter.js to get the required code" />
     <MESSAGE value="console.log var title and var refactor in confirmButtonClicked(e)" />
     <MESSAGE value="variables for inputs for validation. Tidying up" />
-    <option name="LAST_COMMIT_MESSAGE" value="variables for inputs for validation. Tidying up" />
+    <MESSAGE value="Change to workspace.xml" />
+    <option name="LAST_COMMIT_MESSAGE" value="Change to workspace.xml" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
