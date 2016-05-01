@@ -103,8 +103,9 @@
         confirmButtonClicked(e){
             app.confirmButtonWasClicked = true;
             //$(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
-            var title = $("#titleInput").val();
-            var username = $("#usernameInput").val();
+            var title = $("#titleInput").val(),
+            username = $("#usernameInput").val();
+            console.log("title is: " + title);
             $.post(
                 "http://localhost:5000/login",
                 function( data ) {
