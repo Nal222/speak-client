@@ -115,22 +115,47 @@
             app.pageName = "registerPage";
         }
         confirmButtonClicked(e){
-            app.pageName = "chooseImagesFromImageGalleryPage";
+
             //$(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
             var
                 title = $("#titleInput").val(),
                 username = $("#usernameInput").val(),
                 passwordFirst = $("#passwordInputFirst").val(),
-                passwordSecond = $("#passwordInputSecond").val()
+                passwordSecond = $("#passwordInputSecond").val(),
+                badInputFound = false
             ;
 
+            if(!username){
+                //TODO: please enter a username
+                badInputFound = true;
+            }
+
+            if(!passwordFirst){
+                //TODO: please enter a password
+                badInputFound = true;
+            }
+            else if(!passwordSecond){
+                //TODO: please confirm password
+                badInputFound = true;
+            }
+            //TODO: Message to request user to enter password with letters and numbers of 8 characters minimum
+
+
             console.log("title is: " + title);
-            $.post(
-                "http://localhost:5000/login",
-                function( data ) {
-                    alert( "Data Loaded: " + data );
-                }
-            );
+
+            //TODO: Only do $.post if client-side is validated
+
+            if(!badInputFound){
+                $.post(
+                    "http://localhost:5000/login",
+                    function( data ) {
+                        alert( "Data Loaded: " + data );
+                        //TODO: only do this if server-side has found user name to be not taken.
+                        app.pageName = "chooseImagesFromImageGalleryPage";
+                    }
+                );
+            }
+
         }
 
         nextButtonClicked(e){
