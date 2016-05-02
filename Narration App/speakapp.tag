@@ -11,7 +11,7 @@
                 <div style="font-family: RobotoCB;font-style: italic;color: red">Get your voice heard</div>
             </div>
         </div>
-        <div class="bottom" if="{startButtonWasClicked==false}">
+        <div class="bottom" if="{pageName == 'introPage'}">
             <div class="createNarrationText">CREATE NEW NARRATION</div>
             <div class="easyStepsText">
                 In 3 easy steps:
@@ -23,7 +23,7 @@
             </div>
             <div class="circleButton" onclick="{startButtonClicked}">START</div>
         </div>
-        <div class="bottom page2" if="{ startButtonWasClicked && confirmButtonWasClicked==false }">
+        <div class="bottom page2" if="{ app.pageName == 'registerPage' }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 1</div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
                 <p style="font-family: RobotoCR">
@@ -60,7 +60,7 @@
             <p></p>
             <div class="circleButton" onclick="{confirmButtonClicked}" style="font-size: 25px">CONFIRM</div>
         </div>
-        <div class="bottom page2" if="{ confirmButtonWasClicked && nextButtonWasClicked==false }">
+        <div class="bottom page2" if="{ app.pageName == 'chooseImagesFromImageGalleryPage' }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 2</div>
             <div style="font-family: RobotoCR">Insert images to illustrate your narration</div>
             <div class="fileinputs">
@@ -88,7 +88,7 @@
             <div style="font-family: RobotoCR">Drag and drop individual images for ordering images the way you want to show in your narration</div>
             <div class="circleButton" onclick="{nextButtonClicked}">NEXT</div>
         </div>
-        <div class="bottom page2 rowLayout" if="{ nextButtonWasClicked }">
+        <div class="bottom page2 rowLayout" if="{ app.pageName == 'recordNarrationPage' }">
                 <div class="columnLayout">
                     <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
                     <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px">
@@ -110,14 +110,12 @@
 
     <script>
         app = this;
-        app.startButtonWasClicked = false;
-        app.confirmButtonWasClicked = false;
-        app.nextButtonWasClicked = false;
+        app.pageName = "introPage";
         startButtonClicked(e){
-            app.startButtonWasClicked = true;
+            app.pageName = "registerPage";
         }
         confirmButtonClicked(e){
-            app.confirmButtonWasClicked = true;
+            app.pageName = "chooseImagesFromImageGalleryPage";
             //$(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
             var
                 title = $("#titleInput").val(),
@@ -136,7 +134,7 @@
         }
 
         nextButtonClicked(e){
-            app.nextButtonWasClicked = true;
+            app.pageName = "recordNarrationPage";
         }
 
         var recordRTC;
