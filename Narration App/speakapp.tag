@@ -141,20 +141,26 @@
             //TODO: Message to request user to enter password with letters and numbers of 8 characters minimum
 
 
-            console.log("title is: " + title);
+            console.log("title is: " + title + " username is " + username);
 
             //TODO: Only do $.post if client-side is validated
 
-            if(!badInputFound){
+            //if(!badInputFound)
                 $.post(
                     "http://localhost:5000/login",
+                    {
+                        title: title,
+                        username: username,
+                        password: passwordSecond
+
+                    },
                     function( data ) {
-                        alert( "Data Loaded: " + data );
-                        //TODO: only do this if server-side has found user name to be not taken.
+                        alert( "Data Loaded: " + JSON.stringify(data) );
+                        //TODO: only do this if server-side has found user name or password to be not taken.
                         app.pageName = "chooseImagesFromImageGalleryPage";
                     }
                 );
-            }
+
 
         }
 
