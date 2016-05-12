@@ -158,8 +158,23 @@
                         alert( "Data Loaded: " + JSON.stringify(data) );
                         //TODO: only do this if server-side has found user name or password to be not taken.
                         app.pageName = "chooseImagesFromImageGalleryPage";
+                        app.update();
                     }
                 );
+                /*
+                var client = new XMLHttpRequest();
+                client.open('POST', 'http://localhost:5000/login');
+                client.send(
+                    [
+                        {
+                            title: title,
+                            username: username,
+                            password: passwordSecond
+
+                        }
+                    ]
+                );
+                */
 
 
         }
