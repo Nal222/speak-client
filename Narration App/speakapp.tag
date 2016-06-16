@@ -63,23 +63,22 @@
         <div class="bottom page2" if="{ app.pageName == 'chooseImagesFromImageGalleryPage' }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 2</div>
             <div style="font-family: RobotoCR">Insert images to illustrate your narration</div>
-            <div class="fileinputs">
-                    <input type="file" name="pic" accept="image/*" class="file" onchange={makeFileNameShowFromFakeInput}>
-                    <div class="fakefile">
+            <div class="enterImageAddImageToGalleryFunctionality">
+                    <!--<input type="file" name="pic" accept="image/*" class="file" onchange={makeFileNameShowFromFakeInput}>-->
+                <div>Enter image URL</div>
+                <div><input type="text" id="picture"/></div>
                             <!--
                             <div>{fileName}</div>
                             -->
                             <!--<img src="{fileName}" width="200"/>-->
-                            <div class="circleButton extraSmall" style="font-size: 15px">Browse</div>
+                            <!--<div class="circleButton extraSmall" style="font-size: 15px">Browse</div>-->
                             <!--<input id="fakeInput" value="{fileName}" style="height:15px; width:200px"/>-->
 
-                            <img src="{previewImgSrc}" style="width: 50px; height: 50px"/>
+                            <!--<img src="{previewImgSrc}" style="width: 50px; height: 50px"/>-->
 
-                            <div if="{previewImgSrc}" class="circleButton extraSmall" style="font-size: 15px;color: red">Add</div>
-                    </div>
-
-
+                <div class="circleButton extraSmall" style="font-size: 15px;color: red" onclick="{addImageToImagegallery}">Add</div>
             </div>
+
             <imagegallery imagelist="{images}" columnorrow="{'row'}"></imagegallery>
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
@@ -177,6 +176,12 @@
                 */
 
 
+        }
+        app.currentImageIndex = 0;
+        app.images = [];
+        addImageToImagegallery(e){
+            app.images.push({url: $('#picture').val()});
+            app.update();
         }
 
         nextButtonClicked(e){
@@ -311,6 +316,7 @@
                 }
             );
         }
+        /*
         makeFileNameShowFromFakeInput(e){
             var input = e.target;
             app.fileName = input.value;
@@ -331,7 +337,8 @@
             //var inputFake = document.getElementById("fakeInput");
             //inputFake.value = e.target.value;
             //app.update();
-        }
+        }*/
+
 
         app.images = [
             {
@@ -356,7 +363,7 @@
                 url: "http://www.gettyimages.co.uk/gi-resources/images/Homepage/Category-Creative/UK/UK_Creative_462809583.jpg"
             }
         ];
-        app.currentImageIndex = 0;
+
     </script>
 </speak>
 
