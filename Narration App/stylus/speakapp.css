@@ -221,3 +221,7 @@ input.file {
   opacity: 0;
   z-index: 2;
 }
+.enterImageAddImageToGalleryFunctionality{
+  display: flex;
+  flex-direction: row;
+}

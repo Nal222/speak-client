@@ -6293,7 +6293,7 @@ define('WinJS/Utilities/_ElementUtilities',[
         setAdjustedScrollPosition(element, position.scrollLeft, position.scrollTop);
     }
 
-    // navigator.msManipulationViewsEnabled tells us whether snap points work or not regardless of whether the style properties exist, however,
+    // recordRTCNavigator.msManipulationViewsEnabled tells us whether snap points work or not regardless of whether the style properties exist, however,
     // on Phone WWAs, this check returns false even though snap points are supported. To work around this bug, we check for the presence of
     // 'MSAppHost' in the user agent string which indicates that we are in a WWA environment; all WWA environments support snap points.
     var supportsSnapPoints = _Global.navigator.msManipulationViewsEnabled || _Global.navigator.userAgent.indexOf("MSAppHost") >= 0;

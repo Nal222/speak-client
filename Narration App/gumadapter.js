@@ -270,7 +270,7 @@ if (typeof window === 'undefined' || !window.navigator) {
             return requestUserMedia(constraints);
         };
     } else {
-        // Even though Chrome 45 has navigator.mediaDevices and a getUserMedia
+        // Even though Chrome 45 has recordRTCNavigator.mediaDevices and a getUserMedia
         // function which returns a Promise, it does not accept spec-style
         // constraints.
         var origGetUserMedia = navigator.mediaDevices.getUserMedia.

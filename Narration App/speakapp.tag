@@ -63,23 +63,21 @@
         <div class="bottom page2" if="{ app.pageName == 'chooseImagesFromImageGalleryPage' }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 2</div>
             <div style="font-family: RobotoCR">Insert images to illustrate your narration</div>
-            <div class="fileinputs">
-                    <input type="file" name="pic" accept="image/*" class="file" onchange={makeFileNameShowFromFakeInput}>
-                    <div class="fakefile">
+            <div class="enterImageAddImageToGalleryFunctionality">
+                    <!--<input type="file" name="pic" accept="image/*" class="file" onchange={makeFileNameShowFromFakeInput}>-->
+                <div style="font-family: RobotoCR">Enter image URL</div>
+                <div><input type="text" id="picture" style="width: 500px;"/></div>
+                <div class="circleButton extraSmall" style="font-size: 15px;color: red" onclick="{addImageToImagegallery}">Add</div>
                             <!--
                             <div>{fileName}</div>
                             -->
                             <!--<img src="{fileName}" width="200"/>-->
-                            <div class="circleButton extraSmall" style="font-size: 15px">Browse</div>
+                            <!--<div class="circleButton extraSmall" style="font-size: 15px">Browse</div>-->
                             <!--<input id="fakeInput" value="{fileName}" style="height:15px; width:200px"/>-->
 
-                            <img src="{previewImgSrc}" style="width: 50px; height: 50px"/>
-
-                            <div if="{previewImgSrc}" class="circleButton extraSmall" style="font-size: 15px;color: red">Add</div>
-                    </div>
-
-
+                            <!--<img src="{previewImgSrc}" style="width: 50px; height: 50px"/>-->
             </div>
+
             <imagegallery imagelist="{images}" columnorrow="{'row'}"></imagegallery>
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
@@ -147,7 +145,7 @@
 
             //if(!badInputFound)
                 $.post(
-                    "http://localhost:5000/login",
+                    "http://192.168.1.182:5000/login",
                     {
                         title: title,
                         username: username,
@@ -311,6 +309,7 @@
                 }
             );
         }
+        /*
         makeFileNameShowFromFakeInput(e){
             var input = e.target;
             app.fileName = input.value;
@@ -331,7 +330,8 @@
             //var inputFake = document.getElementById("fakeInput");
             //inputFake.value = e.target.value;
             //app.update();
-        }
+        }*/
+
 
         app.images = [
             {
@@ -357,6 +357,11 @@
             }
         ];
         app.currentImageIndex = 0;
+        app.images = [];
+        addImageToImagegallery(e){
+            app.images.push({url: $('#picture').val()});
+            app.update();
+        }
     </script>
 </speak>
 
