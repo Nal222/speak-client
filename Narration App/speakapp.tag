@@ -82,7 +82,7 @@
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
             </div>-->
-            <div style="display: flex; flex-direction: row"><div style="font-family: RobotoCR">If you want to delete an image select it and click the delete button</div><div class="circleButton extraSmall" style="font-family: RobotoCR; font-size: 15px">Delete</div></div>
+            <div style="display: flex; flex-direction: row"><div style="font-family: RobotoCR">If you want to delete an image select it and click the delete button</div><div class="circleButton extraSmall" style="font-family: RobotoCR; font-size: 15px" onclick="{deleteImage}">Delete</div></div>
             <div style="font-family: RobotoCR">Drag and drop individual images for ordering images the way you want to show in your narration</div>
             <div class="circleButton" onclick="{nextButtonClicked}">NEXT</div>
         </div>
@@ -332,7 +332,11 @@
             //app.update();
         }*/
 
-
+        deleteImage(e){
+            if(app.imageSelected==true){
+                $("#imageGalleryImage").remove();
+            }
+        }
         app.images = [
             {
                 url: "http://blog.jimdo.com/wp-content/uploads/2014/01/tree-247122.jpg"
@@ -368,28 +372,37 @@
 <imagegallery>
     <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}">
         <div class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">Should we believe in God by Nalini Chawla</div>
-        <img class="galleryImage" each="{image, i in opts.imagelist}" src="{image.url}" onclick="{galleryImageClicked}">
+        <img class="galleryImage {highlight:image.selected}" id="imageGalleryImage" each="{image, i in opts.imagelist}" src="{image.url}" onclick="{galleryImageClicked}" onmousedown="{selectImageandHighlight}" onmousedown="{deselectImage}">
     </div>
     <script>
         app.slideSwitches = [];
         galleryImageClicked(e){
             //alert("Image Clicked! " +  i);
-            app.currentImageUrl = e.item.image.url;
-            app.update();
+            if(app.pageName=="recordNarrationPage"){
+                app.currentImageUrl = e.item.image.url;
+                app.update();
 
-            if(app.recording){
+                if(app.recording){
 
-                app.slideSwitches.push(
-                    {
-                        "imageUrl": e.item.image.url,
-                        "millisecondsfromStart" : Date.now() - app.startTime
-                    }
-                );
+                    app.slideSwitches.push(
+                        {
+                            "imageUrl": e.item.image.url,
+                            "millisecondsfromStart" : Date.now() - app.startTime
+                        }
+                    );
 
 
-            console.log(" slideswitches is " + JSON.stringify(app.slideSwitches));
+                    console.log(" slideswitches is " + JSON.stringify(app.slideSwitches));
+                }
             }
+            else if(app.pageName=="chooseImagesFromImageGalleryPage"){
+                //app.pageNumberFromImageGallery=e.item.i;
+                e.item.image.selected = true;
+                app.imageSelected = true;
 
+
+            }
         }
+
     </script>
 </imagegallery>

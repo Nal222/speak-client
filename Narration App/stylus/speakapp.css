@@ -225,3 +225,6 @@ input.file {
   display: flex;
   flex-direction: row;
 }
+.highlight{
+  border: solid 5px red;
+}
