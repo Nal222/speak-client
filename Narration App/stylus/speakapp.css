@@ -34,6 +34,11 @@ html {
   padding: 0;
   font-size: 30px;
 }
+
+input{
+  height:20px;
+}
+
 .top {
   display: flex;
   flex-direction: row;
@@ -59,13 +64,14 @@ html {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
+  width: 112px;
+  height: 112px;
+  border-radius: 70px;
   background: #d5da26;
   font-family: RobotoCR;
   transition: background 1s, color 1s;
   align-self: center;
+  cursor: pointer;
 }
 .redSmallButton {
   background: #f00;
@@ -109,6 +115,7 @@ html {
   flex-direction: column;
   justify-content: center;
 }
+
 .bannerText {
   display: flex;
   flex-direction: column;

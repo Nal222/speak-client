@@ -13,6 +13,7 @@
         </div>
         <div class="bottom" if="{pageName == 'introPage'}">
             <div class="createNarrationText">CREATE NEW NARRATION</div>
+            <!--<flashinghello></flashinghello>-->
             <div class="easyStepsText">
                 In 3 easy steps:
                 <ol>
@@ -29,32 +30,37 @@
                 <p style="font-family: RobotoCR">
                     Enter title or <a href="" style="font-family: RobotoCR;color: hotpink">I'll do this later</a>
                 </p>&nbsp
-                <div class="inputTextDiv">
+                <!-- TODO: Factor these out into a separate tag -->
+                <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input type="text" size="40" maxlength="100" id="titleInput"/>
+                    <div if="{confirmClicked && !title}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter your title</div>
                 </div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
                 <p style="font-family: RobotoCR">
                     Enter your username
                 </p>&nbsp
-                <div class="inputTextDiv">
+                <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input type="text" size="40" maxlength="100" id="usernameInput"/>
+                    <div if="{confirmClicked && !username}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter username</div>
                 </div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
                 <p style="font-family: RobotoCR">
                     Enter your password
                 </p>&nbsp
-                <div class="inputTextDiv">
+                <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input type="text" size="40" maxlength="100" id="passwordInputFirst"/>
+                    <div if="{confirmClicked && !passwordFirst}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a password</div>
                 </div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
                 <p style="font-family: RobotoCR">
                     Enter your password again
                 </p>&nbsp
-                <div class="inputTextDiv">
+                <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input type="text" size="40" maxlength="100" id="passwordInputSecond"/>
+                    <div if="{confirmClicked && passwordFirst && !passwordSecond}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please confirm password</div>
                 </div>
             </div>
             <p></p>
@@ -82,7 +88,7 @@
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
             </div>-->
-            <div style="display: flex; flex-direction: row"><div style="font-family: RobotoCR">If you want to delete an image select it and click the delete button</div><div class="circleButton extraSmall" style="font-family: RobotoCR; font-size: 15px" onclick="{deleteImage}">Delete</div></div>
+            <div style="display: flex; flex-direction: row"><div style="font-family: RobotoCR">If you want to delete an image select it and click the delete button</div><div class="circleButton extraSmall" style="font-family: RobotoCR; font-size: 15px" onclick="{deleteSelectedImages}">Delete</div></div>
             <div style="font-family: RobotoCR">Drag and drop individual images for ordering images the way you want to show in your narration</div>
             <div class="circleButton" onclick="{nextButtonClicked}">NEXT</div>
         </div>
@@ -115,41 +121,26 @@
         confirmButtonClicked(e){
 
             //$(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
-            var
-                title = $("#titleInput").val(),
-                username = $("#usernameInput").val(),
-                passwordFirst = $("#passwordInputFirst").val(),
-                passwordSecond = $("#passwordInputSecond").val(),
-                badInputFound = false
-            ;
+            app.confirmClicked = true;
+            app.title = $("#titleInput").val();
+            app.username = $("#usernameInput").val();
+            app.passwordFirst = $("#passwordInputFirst").val();
+            app.passwordSecond = $("#passwordInputSecond").val();
 
-            if(!username){
-                //TODO: please enter a username
-                badInputFound = true;
-            }
 
-            if(!passwordFirst){
-                //TODO: please enter a password
-                badInputFound = true;
-            }
-            else if(!passwordSecond){
-                //TODO: please confirm password
-                badInputFound = true;
-            }
             //TODO: Message to request user to enter password with letters and numbers of 8 characters minimum
 
 
-            console.log("title is: " + title + " username is " + username);
-
             //TODO: Only do $.post if client-side is validated
 
-            //if(!badInputFound)
+            if(app.title && app.username && app.passwordFirst && app.passwordSecond){
+                console.log("I have reached where post is");
                 $.post(
-                    "http://192.168.1.182:5000/login",
+                    "http://192.168.1.246:5000/login",
                     {
-                        title: title,
-                        username: username,
-                        password: passwordSecond
+                        title: app.title,
+                        username: app.username,
+                        password: app.passwordSecond
 
                     },
                     function( data ) {
@@ -174,7 +165,10 @@
                 );
                 */
 
-
+            }
+            else{
+                console.log("some empty input");
+            }
         }
 
         nextButtonClicked(e){
@@ -332,10 +326,14 @@
             //app.update();
         }*/
 
-        deleteImage(e){
-            if(app.imageSelected==true){
-                $("#imageGalleryImage").remove();
+        deleteSelectedImages(e){
+            temporaryImageArrayWithSelectedImages = [];
+            for(var i=0;i<app.images.length;i++){
+                if(app.images[i].selected){
+                    temporaryImageArrayWithSelectedImages.push(app.images[i].selected);
+                }
             }
+            app.images = temporaryImageArrayWithSelectedImages;
         }
         app.images = [
             {
@@ -368,6 +366,28 @@
         }
     </script>
 </speak>
+<!--<flashinghello>
+    <div if="{isOn}">hello</div>
+    <button onclick="{stopflashing}">Stop</button>
+    <script>
+        var flashingHello = this;
+        flashingHello.isOn = true;
+        var myVar =
+        setInterval(
+            function(){
+                //console.log("setInterval reached");
+                flashingHello.isOn = !flashingHello.isOn;
+                flashingHello.update();
+            },
+            1000
+        );
+
+        stopflashing(e){
+            clearInterval(myVar);
+        }
+    </script>
+</flashinghello>-->
+
 
 <imagegallery>
     <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}">
@@ -398,7 +418,6 @@
             else if(app.pageName=="chooseImagesFromImageGalleryPage"){
                 //app.pageNumberFromImageGallery=e.item.i;
                 e.item.image.selected = true;
-                app.imageSelected = true;
 
 
             }
