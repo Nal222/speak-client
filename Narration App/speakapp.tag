@@ -84,7 +84,7 @@
                             <!--<img src="{previewImgSrc}" style="width: 50px; height: 50px"/>-->
             </div>
 
-            <imagegallery imagelist="{images}" columnorrow="{'row'}"></imagegallery>
+            <imagegallery imagelist="{app.images}" columnorrow="{'row'}"></imagegallery>
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
             </div>-->
@@ -101,7 +101,7 @@
                     </div>
                     <div style="font-family: RobotoCR; flex-grow: 0; width: 400px">Click on thumbnail to switch image while recording</div>
                     <div class="imageGalleryTag">
-                        <imagegallery imagelist="{images}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
+                        <imagegallery imagelist="{app.images}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
                     </div>
                  </div>
                 <div id="videoPlace" class="roundedCornersBorder videoBorderNewSize">
@@ -136,7 +136,7 @@
             if(app.username && app.passwordFirst && app.passwordSecond){
                 console.log("I have reached where post is");
                 $.post(
-                    "http://192.168.1.246:5000/login",
+                    "http://192.168.1.248:5000/login",
                     {
                         title: app.title,
                         username: app.username,
@@ -409,7 +409,7 @@
 
 <imagegallery>
     <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}" id="sortable">
-        <div if="{app.title!=''}" class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid" class="unsortableandNotDropTarget">{app.title}</div>
+        <div if="{app.title!=''}" class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">{app.title}</div>
         <img class="galleryImage {highlight:image.selected}" id="imageGalleryImage" each="{image, i in opts.imagelist}" src="{image.url}" onclick="{galleryImageClicked}" onmousedown="{selectImageandHighlight}" onmousedown="{deselectImage}">
     </div>
     <script>
@@ -445,33 +445,39 @@
         this.on(
             "updated",
             function(){
-                $( "#sortable" ).sortable({
-                    items: "img:not(.unsortableandNotDropTarget)"
-                });
+
+                var startIndex;
+                $( "#sortable" ).sortable(
+                    {
+                        items: ">img",
+                        start: function(event, ui){
+                            startIndex = ui.item.index();
+                            //console.log("Start called, New position: " + startIndex);
+                        },
+                        stop: function(event, ui){
+                            console.log("Stop called, old position was " + startIndex + ", New position: " + ui.item.index());
+
+                            /*
+                            app.images = [];
+
+                            app.images.push({url: $('#picture').val()});
+                            app.update();
+                            $.post(
+                                "http://192.168.1.248:5000/chooseImagesAndImageOrder",
+                                {
+                                    url: app.images.url
+                                },
+                                function( data ) {
+                                    alert( "Data Loaded: " + JSON.stringify(data) );
+                                    app.update();
+                                }
+                            );
+                            */
+                        }
+                    }
+                );
                 $( "#sortable").disableSelection();
             }
         );
-        nextButtonClicked(e){
-            alert("reached within next button clicked within image gallery tag");
-            app.images = [];
-            app.images.push({url: $('#picture').val()});
-            app.update();
-            $.post(
-                "http://192.168.1.246:5000/chooseImagesAndImageOrder",
-                {
-                    title: app.title,
-                    images: app.images
-
-                },
-                function( data ) {
-                    alert( "Data Loaded: " + JSON.stringify(data) );
-                    //TODO: only do this if server-side has found user name or password to be not taken.
-                    app.pageName = "recordNarrationPage";
-                    app.update();
-                }
-            );
-
-        }
-
     </script>
 </imagegallery>
