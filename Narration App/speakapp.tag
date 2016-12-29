@@ -447,36 +447,52 @@
             function(){
 
                 var startIndex;
-                $( "#sortable" ).sortable(
-                    {
-                        items: ">img",
-                        start: function(event, ui){
-                            startIndex = ui.item.index();
-                            //console.log("Start called, New position: " + startIndex);
-                        },
-                        stop: function(event, ui){
-                            console.log("Stop called, old position was " + startIndex + ", New position: " + ui.item.index());
+                if(app.pageName=="chooseImagesFromImageGalleryPage"){
+                    $( "#sortable" ).sortable(
+                        {
+                            items: ">img",
+                            start: function(event, ui){
+                                startIndex = ui.item.index();
+                                //console.log("Start called, start position: " + startIndex);
+                            },
+                            stop: function(event, ui){
+                                var stopIndex = ui.item.index();
+                                console.log("Stop called, old position was " + startIndex + ", New position: " + stopIndex);
+                                /*console.log("App.images array before splice method applied " + JSON.stringify(app.images));
+                                app.images.splice(ui.item.index()-1, 0, app.images[startIndex-1]);
+                                app.images.splice(startIndex-1, 0, app.images[ui.item.index()]);
+                                app.images.splice(startIndex, 1);
+                                app.images.splice(ui.item.index(), 1);
 
-                            /*
-                            app.images = [];
-
-                            app.images.push({url: $('#picture').val()});
-                            app.update();
-                            $.post(
-                                "http://192.168.1.248:5000/chooseImagesAndImageOrder",
-                                {
-                                    url: app.images.url
-                                },
-                                function( data ) {
-                                    alert( "Data Loaded: " + JSON.stringify(data) );
-                                    app.update();
-                                }
-                            );
+                                console.log("App.images array after splice method applied " + JSON.stringify(app.images));
                             */
+                                var arrayClone = app.images.slice();
+                                arrayClone.splice(startIndex-1, 1);
+                                arrayClone.splice(stopIndex-1, 0, app.images[startIndex-1]);
+                                return arrayClone;
+
+
+                                /*
+                                app.images = [];
+
+                                app.images.push({url: $('#picture').val()});
+                                app.update();
+                                $.post(
+                                    "http://192.168.1.248:5000/chooseImagesAndImageOrder",
+                                    {
+                                        url: app.images.url
+                                    },
+                                    function( data ) {
+                                        alert( "Data Loaded: " + JSON.stringify(data) );
+                                        app.update();
+                                    }
+                                );
+                                */
+                            }
                         }
-                    }
-                );
-                $( "#sortable").disableSelection();
+                    );
+                    $( "#sortable").disableSelection();
+                }
             }
         );
     </script>
