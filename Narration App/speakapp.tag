@@ -84,7 +84,7 @@
                             <!--<img src="{previewImgSrc}" style="width: 50px; height: 50px"/>-->
             </div>
 
-            <imagegallery imagelist="{app.images}" columnorrow="{'row'}"></imagegallery>
+            <imagegallery sortable="{true}" imagelist="{app.images}" columnorrow="{'row'}"></imagegallery>
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
             </div>-->
@@ -408,7 +408,7 @@
 
 
 <imagegallery>
-    <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}" id="sortable">
+    <div class="imageGallery roundedCornersBorder {sortable: opts.sortable}" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}">
         <div if="{app.title!=''}" class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">{app.title}</div>
         <img class="galleryImage {highlight:image.selected}" id="imageGalleryImage" each="{image, i in opts.imagelist}" src="{image.url}" onclick="{galleryImageClicked}" onmousedown="{selectImageandHighlight}" onmousedown="{deselectImage}">
     </div>
@@ -447,52 +447,50 @@
             function(){
 
                 var startIndex;
-                if(app.pageName=="chooseImagesFromImageGalleryPage"){
-                    $( "#sortable" ).sortable(
-                        {
-                            items: ">img",
-                            start: function(event, ui){
-                                startIndex = ui.item.index();
-                                //console.log("Start called, start position: " + startIndex);
-                            },
-                            stop: function(event, ui){
-                                var stopIndex = ui.item.index();
-                                console.log("Stop called, old position was " + startIndex + ", New position: " + stopIndex);
-                                /*console.log("App.images array before splice method applied " + JSON.stringify(app.images));
-                                app.images.splice(ui.item.index()-1, 0, app.images[startIndex-1]);
-                                app.images.splice(startIndex-1, 0, app.images[ui.item.index()]);
-                                app.images.splice(startIndex, 1);
-                                app.images.splice(ui.item.index(), 1);
+                $( ".sortable" ).sortable(
+                    {
+                        items: ">img",
+                        start: function(event, ui){
+                            startIndex = ui.item.index();
+                            //console.log("Start called, start position: " + startIndex);
+                        },
+                        stop: function(event, ui){
+                            var stopIndex = ui.item.index();
+                            console.log("Stop called, old position was " + startIndex + ", New position: " + stopIndex);
+                            /*console.log("App.images array before splice method applied " + JSON.stringify(app.images));
+                            app.images.splice(ui.item.index()-1, 0, app.images[startIndex-1]);
+                            app.images.splice(startIndex-1, 0, app.images[ui.item.index()]);
+                            app.images.splice(startIndex, 1);
+                            app.images.splice(ui.item.index(), 1);
 
-                                console.log("App.images array after splice method applied " + JSON.stringify(app.images));
+                            console.log("App.images array after splice method applied " + JSON.stringify(app.images));
+                        */
+                            var arrayClone = app.images.slice();
+                            arrayClone.splice(startIndex-1, 1);
+                            arrayClone.splice(stopIndex-1, 0, app.images[startIndex-1]);
+                            return arrayClone;
+
+
+                            /*
+                            app.images = [];
+
+                            app.images.push({url: $('#picture').val()});
+                            app.update();
+                            $.post(
+                                "http://192.168.1.248:5000/chooseImagesAndImageOrder",
+                                {
+                                    url: app.images.url
+                                },
+                                function( data ) {
+                                    alert( "Data Loaded: " + JSON.stringify(data) );
+                                    app.update();
+                                }
+                            );
                             */
-                                var arrayClone = app.images.slice();
-                                arrayClone.splice(startIndex-1, 1);
-                                arrayClone.splice(stopIndex-1, 0, app.images[startIndex-1]);
-                                return arrayClone;
-
-
-                                /*
-                                app.images = [];
-
-                                app.images.push({url: $('#picture').val()});
-                                app.update();
-                                $.post(
-                                    "http://192.168.1.248:5000/chooseImagesAndImageOrder",
-                                    {
-                                        url: app.images.url
-                                    },
-                                    function( data ) {
-                                        alert( "Data Loaded: " + JSON.stringify(data) );
-                                        app.update();
-                                    }
-                                );
-                                */
-                            }
                         }
-                    );
-                    $( "#sortable").disableSelection();
-                }
+                    }
+                );
+                $( "#sortable").disableSelection();
             }
         );
     </script>
