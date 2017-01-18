@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>Speak</title>
@@ -69,9 +69,11 @@
     </div>
     -->
 <script src="speakapp.tag" type="riot/tag"></script>
-<script src="riot+compiler.min.js"></script>
+<script src="riotcompiler.min.js"></script>
 <script>
-    riot.mount('*');
+riot.compile(function(){
+    var tags = riot.mount('*')
+});
 </script>
 </body>
 </html>

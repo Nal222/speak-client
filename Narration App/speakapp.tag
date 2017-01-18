@@ -465,10 +465,13 @@
 
                             console.log("App.images array after splice method applied " + JSON.stringify(app.images));
                         */
+                            console.log("App.images array before slice and splice method applied " + JSON.stringify(app.images));
+
                             var arrayClone = app.images.slice();
                             arrayClone.splice(startIndex-1, 1);
                             arrayClone.splice(stopIndex-1, 0, app.images[startIndex-1]);
-                            return arrayClone;
+
+                            console.log("arrayClone array after splice method applied " + JSON.stringify(arrayClone));
 
 
                             /*
