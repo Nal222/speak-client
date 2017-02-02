@@ -52,6 +52,7 @@
                 <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input type="text" size="40" maxlength="100" id="passwordInputFirst"/>
                     <div if="{confirmClicked && !passwordFirst}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a password</div>
+                    <div if="{confirmClicked && app.wrongPassword}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Password should be between 6 and 20 characters long and contain at least 1 lowercase letter, at least 1 uppercase letter and at least 1 number</div>
                 </div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
@@ -61,6 +62,7 @@
                 <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input type="text" size="40" maxlength="100" id="passwordInputSecond"/>
                     <div if="{confirmClicked && passwordFirst && !passwordSecond}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please confirm password</div>
+                    <div if="{confirmClicked && !app.passwordsMatching}"style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Passwords don't match. Please re-enter.</div>
                 </div>
             </div>
             <p></p>
@@ -129,14 +131,26 @@
 
 
             //TODO: Message to request user to enter password with letters and numbers of 8 characters minimum
-
+            var regularExpression = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,20})/;
+            if(!regularExpression.test(app.passwordFirst)){
+                console.log(app.passwordFirst);
+                app.wrongPassword = true;
+            }
+            else{
+                app.wrongPassword = false;
+                console.log(app.passwordFirst);
+            }
+            console.log("Is password incorrect? " + app.wrongPassword);
 
             //TODO: Only do $.post if client-side is validated
+            if(app.passwordFirst == app.passwordSecond){
+                app.passwordsMatching = true;
+            }
 
-            if(app.username && app.passwordFirst && app.passwordSecond){
+            if(app.username && app.passwordFirst && app.passwordSecond && app.passwordsMatching){
                 console.log("I have reached where post is");
                 $.post(
-                    "http://192.168.1.248:5000/login",
+                    "http://192.168.1.48:5000/login",
                     {
                         title: app.title,
                         username: app.username,
@@ -470,8 +484,9 @@
                             var arrayClone = app.images.slice();
                             arrayClone.splice(startIndex-1, 1);
                             arrayClone.splice(stopIndex-1, 0, app.images[startIndex-1]);
+                            app.images = arrayClone;
 
-                            console.log("arrayClone array after splice method applied " + JSON.stringify(arrayClone));
+                            console.log("app.images array after splice method applied " + JSON.stringify(app.images));
 
 
                             /*
@@ -479,17 +494,19 @@
 
                             app.images.push({url: $('#picture').val()});
                             app.update();
+                            */
                             $.post(
-                                "http://192.168.1.248:5000/chooseImagesAndImageOrder",
+                                "http://192.168.1.48:5000/chooseImagesAndImageOrder",
                                 {
-                                    url: app.images.url
+                                    title: app.title,
+                                    urls: app.images
                                 },
                                 function( data ) {
                                     alert( "Data Loaded: " + JSON.stringify(data) );
                                     app.update();
                                 }
                             );
-                            */
+
                         }
                     }
                 );
