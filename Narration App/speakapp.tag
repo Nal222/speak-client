@@ -158,10 +158,15 @@
 
                     },
                     function( data ) {
-                        alert( "Data Loaded: " + JSON.stringify(data) );
                         //TODO: only do this if server-side has found user name or password to be not taken.
-                        app.pageName = "chooseImagesFromImageGalleryPage";
-                        app.update();
+                        if(!data){
+                            app.usernameorpasswordtaken = false;
+                            app.pageName = "chooseImagesFromImageGalleryPage";
+                            app.update();
+                        }
+                        else if(data){
+                            alert( "Data Loaded: " + data ); 
+                        }
                     }
                 );
                 /*
@@ -499,7 +504,7 @@
                                 "http://192.168.1.48:5000/chooseImagesAndImageOrder",
                                 {
                                     title: app.title,
-                                    urls: app.images
+                                    urls: JSON.stringify(app.images)
                                 },
                                 function( data ) {
                                     alert( "Data Loaded: " + JSON.stringify(data) );
