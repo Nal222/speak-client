@@ -41,8 +41,9 @@
                     Enter your username
                 </p>&nbsp
                 <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
-                    <input type="text" size="40" maxlength="100" id="usernameInput"/>
+                    <input oninput="{onLogInInput}" type="text" size="40" maxlength="100" id="usernameInput"/>
                     <div if="{confirmClicked && !username}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter username</div>
+                    <div if="{confirmClicked && app.usernameTaken}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Username taken, please enter another</div>
                 </div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
@@ -50,9 +51,10 @@
                     Enter your password
                 </p>&nbsp
                 <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
-                    <input type="text" size="40" maxlength="100" id="passwordInputFirst"/>
+                    <input oninput="{onLogInInput}" type="text" size="40" maxlength="100" id="passwordInputFirst"/>
                     <div if="{confirmClicked && !passwordFirst}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a password</div>
                     <div if="{confirmClicked && app.wrongPassword}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Password should be between 6 and 20 characters long and contain at least 1 lowercase letter, at least 1 uppercase letter and at least 1 number</div>
+                    <div if="{confirmClicked && app.passwordTaken}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Password taken, please enter another</div>
                 </div>
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
@@ -120,6 +122,10 @@
         startButtonClicked(e){
             app.pageName = "registerPage";
         }
+        onLogInInput(e){
+            app.passwordTaken = app.usernameTaken = false;
+
+        }
         confirmButtonClicked(e){
 
             //$(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
@@ -147,26 +153,50 @@
                 app.passwordsMatching = true;
             }
 
-            if(app.username && app.passwordFirst && app.passwordSecond && app.passwordsMatching){
+            if(app.username && app.passwordFirst && app.passwordSecond && app.passwordsMatching && !app.wrongPassword){
                 console.log("I have reached where post is");
                 $.post(
                     "http://192.168.1.48:5000/login",
                     {
                         title: app.title,
                         username: app.username,
-                        password: app.passwordSecond
+                        password: app.passwordFirst
 
                     },
-                    function( data ) {
+                    function(data) {
+                        console.log("Inside funtion(data)")
+                        //alert("data " + data);
                         //TODO: only do this if server-side has found user name or password to be not taken.
-                        if(!data){
-                            app.usernameorpasswordtaken = false;
+                        if(data.includes("ImageGalleryPage")){
+                            //app.usernameorpasswordtaken == false;
                             app.pageName = "chooseImagesFromImageGalleryPage";
-                            app.update();
                         }
-                        else if(data){
-                            alert( "Data Loaded: " + data ); 
+
+                        /*
+                        if(data.includes("Username")){
+                            //alert( "Data Loaded: " + data );
+                            app.usernameTaken = true; 
+                            console.log("Username taken " + data);
                         }
+                        else{
+                            app.usernameTaken = false; 
+                            console.log("Inside else app.usernameTaken = false");
+                        }
+                        */
+                        
+                        app.usernameTaken = data.includes("Username");
+                        app.passwordTaken = data.includes("Password");
+                        /*
+                        if(data.includes("Password")){
+                            app.passwordTaken = true;  
+                            console.log("Password taken " + data);
+                        }
+                        else{
+                            app.passwordTaken = false;
+                            console.log("Inside else app.passwordTaken = false");
+                        }
+                        */
+                        app.update();
                     }
                 );
                 /*
