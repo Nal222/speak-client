@@ -4,7 +4,8 @@
   "description": "Narration App",
   "main": "jquery-1.11.3.js",
   "scripts": {
-    "test": "app"
+    "test": "app",
+    "start": "lite-server"
   },
   "author": "Nalini Chawla",
   "license": "ISC",
@@ -13,6 +14,7 @@
     "grunt-contrib-stylus": "^0.22.0"
   },
   "dependencies": {
+    "lite-server": "^2.3.0",
     "recordrtc": "^5.4.0"
   }
 }

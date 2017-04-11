@@ -118,6 +118,7 @@
 
     <script>
         app = this;
+        app.rootUrlWithSlashAtEnd = "http://192.168.0.103:5000/";
         app.pageName = "introPage";
         startButtonClicked(e){
             app.pageName = "registerPage";
@@ -156,7 +157,7 @@
             if(app.username && app.passwordFirst && app.passwordSecond && app.passwordsMatching && !app.wrongPassword){
                 console.log("I have reached where post is");
                 $.post(
-                    "http://192.168.1.48:5000/login",
+                    app.rootUrlWithSlashAtEnd + "login",
                     {
                         title: app.title,
                         username: app.username,
@@ -171,7 +172,6 @@
                             //app.usernameorpasswordtaken == false;
                             app.pageName = "chooseImagesFromImageGalleryPage";
                         }
-
                         /*
                         if(data.includes("Username")){
                             //alert( "Data Loaded: " + data );
@@ -183,7 +183,7 @@
                             console.log("Inside else app.usernameTaken = false");
                         }
                         */
-                        
+
                         app.usernameTaken = data.includes("Username");
                         app.passwordTaken = data.includes("Password");
                         /*
@@ -195,13 +195,13 @@
                             app.passwordTaken = false;
                             console.log("Inside else app.passwordTaken = false");
                         }
-                        */
+                         */
                         app.update();
                     }
                 );
                 /*
                 var client = new XMLHttpRequest();
-                client.open('POST', 'http://localhost:5000/login');
+                client.open('POST', app.rootUrlWithSlashAtEnd + 'login');
                 client.send(
                     [
                         {
@@ -289,6 +289,7 @@
                     console.log("stop events reached");
                     aud.src = url;
                     totalDurationAudioPlayed = 0;
+                    console.log("Audio URL = " + url)
                     console.log("total duration audio played RESET " + totalDurationAudioPlayed);
                     aud.play();
                 }
@@ -464,6 +465,7 @@
     <script>
 
         app.slideSwitches = [];
+
         galleryImageClicked(e){
             //alert("Image Clicked! " +  i);
             if(app.pageName=="recordNarrationPage"){
@@ -531,7 +533,7 @@
                             app.update();
                             */
                             $.post(
-                                "http://192.168.1.48:5000/chooseImagesAndImageOrder",
+                                app.rootUrlWithSlashAtEnd + "chooseImagesAndImageOrder",
                                 {
                                     title: app.title,
                                     urls: JSON.stringify(app.images)
