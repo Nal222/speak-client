@@ -61,6 +61,32 @@ input{
   flex-grow: 1;
   justify-content: center;
 }
+.loginAndViewNarrations{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.login{
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: left;
+}
+
+.circleButton2{
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 70px;
+  background: #d5da26;
+  font-family: RobotoCR;
+  transition: background 1s, color 1s;
+  cursor: pointer;
+  align-self: center;
+}
+
 .circleButton {
   display: flex;
   align-items: center;
@@ -109,8 +135,6 @@ input{
   align-self: center;
 }
 .homePageOuterMostDiv {
-  height: 100%;
-  width: 100%;
   align-items: center;
   display: flex;
   flex-direction: column;

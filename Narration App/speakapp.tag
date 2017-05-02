@@ -24,6 +24,33 @@
             </div>
             <div class="circleButton" onclick="{startButtonClicked}">START</div>
         </div>
+        </div>
+        <div class="loginAndViewNarrations" if="{pageName == 'introPage'}">
+            <div class="login">
+                <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
+                <div style="display: flex; flex-direction: row; margin-bottom: -50px; align-items: center">
+                    <p style="font-family: RobotoCR; font-size: 24px">
+                    Enter username
+                    </p>&nbsp
+                    <div>
+                        <input type="text" size="40" maxlength="100" id="usernameLoginInput"/>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: row; margin-bottom: -50px; align-items: center">
+                    <p style="font-family: RobotoCR; font-size: 24px">
+                    Enter password
+                    </p>&nbsp
+                    <div>
+                        <input type="text" size="40" maxlength="100" id="passwordLoginInput"/>
+                    </div>
+                    <div class="circleButton2" onclick="{loginButtonClicked}" style="font-size: 19px">Login</div>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column">
+                <div>&nbsp &nbsp &nbsp &nbsp</div>
+                <div class="circleButton2" onclick="{viewNarrationsButtonClicked}" style="font-size: 19px; text-align: center">View Narrations</div>
+            </div>
+        </div>
         <div class="bottom page2" if="{ app.pageName == 'registerPage' }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 1</div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
