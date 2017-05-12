@@ -26,7 +26,8 @@
         </div>
         </div>
         <div class="loginAndViewNarrations" if="{pageName == 'introPage'}">
-            <div class="login">
+        <div class="circleButton2" onclick="{loginButtonClicked}">Login</div>
+            <div class="login loginForm">
                 <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
                 <div style="display: flex; flex-direction: row; margin-bottom: -50px; align-items: center">
                     <p style="font-family: RobotoCR; font-size: 24px">
@@ -43,7 +44,7 @@
                     <div>
                         <input type="text" size="40" maxlength="100" id="passwordLoginInput"/>
                     </div>
-                    <div class="circleButton2" onclick="{loginButtonClicked}" style="font-size: 19px">Login</div>
+                    <div class="circleButton2" onclick="{loginConfirmedButtonClicked}" style="font-size: 19px">Confirm</div>
                 </div>
             </div>
             <div style="display: flex; flex-direction: column">
@@ -149,6 +150,10 @@
         app.pageName = "introPage";
         startButtonClicked(e){
             app.pageName = "registerPage";
+        }
+        loginButtonClicked(e){
+            if($('.loginForm').css('opacity')==0) $('.loginForm').css('opacity', 1);
+            else $('.loginForm').css('opacity', 0);
         }
         onLogInInput(e){
             app.passwordTaken = app.usernameTaken = false;
