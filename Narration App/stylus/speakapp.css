@@ -119,6 +119,19 @@ input{
   border-radius: 0;
   background: hsl(249,100%,50%);
 }
+.arrow-right {
+  width: 0; 
+  height: 0; 
+  border-top: 40px solid transparent;
+  border-bottom: 40px solid transparent;
+  border-left: 40px solid green;
+}
+.pause {
+  width: 8px;
+  height: 32px;
+  border-right: 8px solid #000;
+  border-left: 8px solid #000;
+}
 .circleButton:hover {
   background: #008000;
   color: #fff;

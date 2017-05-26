@@ -1,6 +1,7 @@
 <speak>
+<!--Written by Nalini Chawla 14/05/2017-->
     <div class="homePageOuterMostDiv" >
-        <div class="top" style="background: #d5da26">
+        <div hide="{app.pageName == 'recordNarrationPage'}" class="top" style="background: #d5da26">
             <div>
                 <!--<img src="images/logotransp.jpg" height="100" width="100">-->
                 <img class="mainLogo" src="images/logo_svg.svg" height="175" width="175"/>
@@ -81,7 +82,7 @@
                 <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input oninput="{onLogInInput}" type="text" size="40" maxlength="100" id="passwordInputFirst"/>
                     <div if="{confirmClicked && !passwordFirst}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a password</div>
-                    <div if="{confirmClicked && app.wrongPassword}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Password should be between 6 and 20 characters long and contain at least 1 lowercase letter, at least 1 uppercase letter and at least 1 number</div>
+                    <div if="{confirmClicked && app.wrongPassword}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Password should be between 8 and 20 characters long and contain at least 1 lowercase letter, at least 1 uppercase letter and at least 1 number</div>
                     <div if="{confirmClicked && app.passwordTaken}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Password taken, please enter another</div>
                 </div>
             </div>
@@ -127,9 +128,12 @@
         <div class="bottom page2 rowLayout" if="{ app.pageName == 'recordNarrationPage' }">
                 <div class="columnLayout">
                     <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
-                    <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px">
+                    <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px; flex-wrap: nowrap">
                         <div if="{ !recordingButtonClicked }"class="circleButton redRecordButton" onclick="{recordButtonClicked}" style="font-size: 25px">Record</div>
                         <div if="{ recordingButtonClicked }"class="circleButton redRecordButton stopButton" onclick="{stopButtonClicked}">Stop</div>
+                        <div>&nbsp&nbsp</div>
+                        <div if="{ !playingButtonClicked }" class="arrow-right" onclick="{playButtonClicked}"></div>
+                        <div if="{ playingButtonClicked }" class="pause" onclick="{pauseButtonClicked}"></div>
                     </div>
                     <div style="font-family: RobotoCR; flex-grow: 0; width: 400px">Click on thumbnail to switch image while recording</div>
                     <div class="imageGalleryTag">
@@ -146,7 +150,7 @@
 
     <script>
         app = this;
-        app.rootUrlWithSlashAtEnd = "http://192.168.0.103:5000/";
+        app.rootUrlWithSlashAtEnd = "http://192.168.0.100:5000/";
         app.pageName = "introPage";
         startButtonClicked(e){
             app.pageName = "registerPage";
@@ -338,6 +342,13 @@
                 "URL"
             );
             */
+        }
+        playButtonClicked(e){
+            app.playingButtonClicked = true;
+        }
+        pauseButtonClicked(e){
+            app.playingButtonClicked = false;
+            app.pausingButtonClicked = true;
         }
         var audioStartTime = 0;
         var playing = false;
