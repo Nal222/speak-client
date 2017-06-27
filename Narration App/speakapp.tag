@@ -127,13 +127,14 @@
         </div>
         <div class="bottom page2 rowLayout" if="{ app.pageName == 'recordNarrationPage' }">
                 <div class="columnLayout">
+                    <audio id="myAudio"></audio>
                     <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
                     <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px; flex-wrap: nowrap">
-                        <div if="{ !recordingButtonClicked }"class="circleButton redRecordButton" onclick="{recordButtonClicked}" style="font-size: 25px">Record</div>
-                        <div if="{ recordingButtonClicked }"class="circleButton redRecordButton stopButton" onclick="{stopButtonClicked}">Stop</div>
+                        <div if="{ !app.recordingButtonClicked }"class="circleButton redRecordButton" onclick="{app.recordButtonClicked}" style="font-size: 25px">Record</div>
+                        <div if="{ app.recordingButtonClicked }"class="circleButton redRecordButton stopButton" onclick="{app.stopButtonClicked}">Stop</div>
                         <div>&nbsp&nbsp</div>
-                        <div if="{ !playingButtonClicked }" class="arrow-right" onclick="{playButtonClicked}"></div>
-                        <div if="{ playingButtonClicked }" class="pause" onclick="{pauseButtonClicked}"></div>
+                        <div if="{ !app.playingButtonClicked }" class="arrow-right" onclick="{playButtonClicked}"></div>
+                        <div if="{ app.playingButtonClicked }" class="pause" onclick="{pauseButtonClicked}"></div>
                     </div>
                     <div style="font-family: RobotoCR; flex-grow: 0; width: 400px">Click on thumbnail to switch image while recording</div>
                     <div class="imageGalleryTag">
@@ -150,7 +151,7 @@
 
     <script>
         app = this;
-        app.rootUrlWithSlashAtEnd = "http://192.168.0.100:5000/";
+        app.rootUrlWithSlashAtEnd = "http://192.168.0.101:5000/";
         app.pageName = "introPage";
         startButtonClicked(e){
             app.pageName = "registerPage";
@@ -260,142 +261,163 @@
             app.pageName = "recordNarrationPage";
         }
 
-        var recordRTC;
-        recordButtonClicked(e){
-            app.recordingButtonClicked = true;
-            function successCallback(mediaStream) {
-                app.startTime = Date.now();
+    
+        var client = new BinaryClient("ws://192.168.0.101:9001/");
+        client.on('open', function() {
+            window.Stream = client.createStream();
+            console.log("Inside client.on function");
 
-                console.log("Stream obtained. It is " + mediaStream);
-                recordRTC = RecordRTC(
-                    mediaStream,
-                    {
-                        type: 'audio',
-                        mimeType: 'video/webm',
-                        bufferSize: 1024,
-                        sampleRate: 44100,
-                        leftChannel: false,
-                        disableLogs: false,
-                        recorderType: null
-                        //recorderType: webrtcDetectedBrowser === 'edge' ? StereoAudioRecorder : null
+            app.recording = false;
+       
+            app.recordButtonClicked = (function(){
+                console.log("Inside recordButtonClicked");
+                app.recordingButtonClicked = true;
+                app.recording = true;
+                var mediaConstraints = { video: false, audio: true };
+                navigator.mediaDevices.getUserMedia(mediaConstraints)
+                .then(function(e){
+                    app.startTime = Date.now();
+                    //app.aud = document.getElementById("myAudio");
+                    /*
+                    if (window.URL) {
+                        app.aud.src = window.URL.createObjectURL(mediaStream);
+                    } 
+                    else {
+                        app.aud.src = mediaStream;
+                    }
+                    */
+                    console.log("Stream obtained");
+
+                    app.slideSwitches.length = 0;
+                    audioContext = window.AudioContext || window.webkitAudioContext;
+                    context = new audioContext();
+
+                    // the sample rate is in context.sampleRate
+                    audioInput = context.createMediaStreamSource(e);
+
+                    var bufferSize = 2048;
+                    recorder = context.createScriptProcessor(bufferSize, 1, 1);
+
+                    recorder.onaudioprocess = function(e){
+                        if(!app.recording) return;
+                        console.log ('recording');
+                        var left = e.inputBuffer.getChannelData(0);
+                        window.Stream.write(convertoFloat32ToInt16(left));
+                    }
+
+                    audioInput.connect(recorder);
+                    recorder.connect(context.destination); 
+                })
+                .catch(function(err){
+                    console.log(err.name + ":" + err.message);
+                });
+                
+                
+            });
+            function convertoFloat32ToInt16(buffer) {
+                var l = buffer.length;
+                var buf = new Int16Array(l)
+
+                while (l--) {
+                    buf[l] = buffer[l]*0xFFFF;    //convert to 16 bit
+                }
+                return buf.buffer
+            }
+            app.stopButtonClicked = (function(){
+                console.log("Stop button clicked");
+                app.recordingButtonClicked = false;
+                app.recording = false;
+                window.Stream.end();
+                /*
+                Fr.voice.export(
+                    function(url){
+                        console.log("url =" + url);
+                        $("<audio src='"+ url +"'></audio>").appendTo("body");
+                        $("body audio:last")[0].play();
+                    },
+                    "URL"
+                );
+                */
+            });
+        });
+        /*
+            function onAudioStop(){
+                console.log("setTimeoutIDArray is " + JSON.stringify(app.setTimeoutIDArray));
+                app.setTimeoutIDArray.forEach(
+                    function(setTimeoutID){
+                        clearTimeout(setTimeoutID);
                     }
                 );
-                console.log("recordRTC IS " + recordRTC);
-                app.slideSwitches.length = 0;
-                recordRTC.startRecording();
-                app.recording = true;
-                // RecordRTC usage goes here
+                app.setTimeoutIDArray.length = 0;
             }
-
-            function errorCallback(errror) {
-                // maybe another application is using the device
+            
+            playButtonClicked(e){
+                app.playingButtonClicked = true;
+                console.log("audio variable = " + app.aud);
+                app.aud.play();
+                app.aud.onplay = playEvent;
+                console.log("onplay event reached");
+                app.aud.onplaying = playEvent;
+                console.log("onplaying event reached");
+                app.aud.onpause = app.aud.onsuspend = app.aud.onabort = app.aud.onerror = app.aud.onstalled = app.aud.onwaiting = app.aud.onended = stopEvent;
+                console.log("stop events reached");
+                //aud.src = url;
+                totalDurationAudioPlayed = 0;
+                console.log("total duration audio played RESET " + totalDurationAudioPlayed);
+                
             }
+            pauseButtonClicked(e){
+                app.playingButtonClicked = false;
+                app.pausingButtonClicked = true;
+            }
+            var audioStartTime = 0;
+            var playing = false;
+            function playEvent(){
+                audioStartTime = Date.now();
+                playing = true;
+                console.log("PLAY EVENT USED");
+                onAudioStart();
 
-            var mediaConstraints = { video: false, audio: true };
-
-            navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
-        }
-
-        function onAudioStop(){
-            console.log("setTimeoutIDArray is " + JSON.stringify(app.setTimeoutIDArray));
-            app.setTimeoutIDArray.forEach(
-                function(setTimeoutID){
-                    clearTimeout(setTimeoutID);
+            }
+            var totalDurationAudioPlayed = 0;
+            function stopEvent(){
+                onAudioStop();
+                if(playing){
+                    var lastDurationAudioPlayedToAdd = Date.now() - audioStartTime;
+                    totalDurationAudioPlayed += lastDurationAudioPlayedToAdd;
                 }
-            );
-            app.setTimeoutIDArray.length = 0;
-        }
-
-        stopButtonClicked(e){
-            console.log("Stop button clicked");
-            app.recordingButtonClicked = false;
-            app.recording = false;
-            recordRTC.stopRecording(
-                function(url) {
-                    console.log("url =" + url);
-                    //$("<audio src='"+ url +"' id='myAudio'></audio>").appendTo("body");
-                    //$("body audio:last")[0].play();
-                    var aud = document.getElementById("myAudio");
-                    console.log("audio variable = " + aud);
-                    aud.onplay = playEvent;
-                    console.log("onplay event reached");
-                    aud.onplaying = playEvent;
-                    console.log("onplaying event reached");
-                    aud.onpause = aud.onsuspend = aud.onabort = aud.onerror = aud.onstalled = aud.onwaiting = aud.onended = stopEvent;
-                    console.log("stop events reached");
-                    aud.src = url;
-                    totalDurationAudioPlayed = 0;
-                    console.log("Audio URL = " + url)
-                    console.log("total duration audio played RESET " + totalDurationAudioPlayed);
-                    aud.play();
-                }
-            );
-
-
-            /*
-            Fr.voice.export(
-                function(url){
-                    console.log("url =" + url);
-                    $("<audio src='"+ url +"'></audio>").appendTo("body");
-                    $("body audio:last")[0].play();
-                },
-                "URL"
-            );
-            */
-        }
-        playButtonClicked(e){
-            app.playingButtonClicked = true;
-        }
-        pauseButtonClicked(e){
-            app.playingButtonClicked = false;
-            app.pausingButtonClicked = true;
-        }
-        var audioStartTime = 0;
-        var playing = false;
-        function playEvent(){
-            audioStartTime = Date.now();
-            playing = true;
-            console.log("PLAY EVENT USED");
-            onAudioStart();
-
-        }
-        var totalDurationAudioPlayed = 0;
-        function stopEvent(){
-            onAudioStop();
-            if(playing){
-                var lastDurationAudioPlayedToAdd = Date.now() - audioStartTime;
-                totalDurationAudioPlayed += lastDurationAudioPlayedToAdd;
+                playing = false;
             }
-            playing = false;
-        }
-        app.setTimeoutIDArray = [];
-        function onAudioStart(){
-            console.log("onAudioStart() entered");
-            app.slideSwitches.forEach(
-                function(slideSwitch){
-                console.log("forEach entered");
-                if(slideSwitch.millisecondsfromStart>totalDurationAudioPlayed){
-                    console.log("If statement entered");
-                    console.log("milliseconds from START is " + slideSwitch.millisecondsfromStart);
-                    console.log("Total duration audio played is " + totalDurationAudioPlayed);
-                    app.setTimeoutIDArray.push(
-                        setTimeout(
-                            function(){
-                                console.log("setTimeout function entered");
-            //$("#videoPlace").add(slideSwitch.imageUrl);
-            //app.currentImageIndex = i;
-                                app.currentImageUrl = slideSwitch.imageUrl;
-                                console.log("slide image url is " + slideSwitch.imageUrl);
-                                app.update();
+            app.setTimeoutIDArray = [];
+            function onAudioStart(){
+                console.log("onAudioStart() entered");
+                app.slideSwitches.forEach(
+                    function(slideSwitch){
+                    console.log("forEach entered");
+                    if(slideSwitch.millisecondsfromStart>totalDurationAudioPlayed){
+                        console.log("If statement entered");
+                        console.log("milliseconds from START is " + slideSwitch.millisecondsfromStart);
+                        console.log("Total duration audio played is " + totalDurationAudioPlayed);
+                        app.setTimeoutIDArray.push(
+                            setTimeout(
+                                function(){
+                                    console.log("setTimeout function entered");
+                //$("#videoPlace").add(slideSwitch.imageUrl);
+                //app.currentImageIndex = i;
+                                    app.currentImageUrl = slideSwitch.imageUrl;
+                                    console.log("slide image url is " + slideSwitch.imageUrl);
+                                    app.update();
 
-                            },
-                            slideSwitch.millisecondsfromStart - totalDurationAudioPlayed
-                            )
-                        );
+                                },
+                                slideSwitch.millisecondsfromStart - totalDurationAudioPlayed
+                                )
+                            );
+                        }
                     }
-                }
-            );
-        }
+                );
+            }
+            */
+            
         /*
         makeFileNameShowFromFakeInput(e){
             var input = e.target;
