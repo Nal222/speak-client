@@ -273,11 +273,20 @@
                 console.log("Inside recordButtonClicked");
                 app.recordingButtonClicked = true;
                 app.recording = true;
-                var mediaConstraints = { video: false, audio: true };
+                var mediaConstraints =
+                    {
+                        video: false,
+                        audio: true,
+                        googEchoCancellation: false,
+                        googAutoGainControl: false,
+                        googNoiseSuppression: false,
+                        googHighpassFilter: false
+                    }
+                ;
                 navigator.mediaDevices.getUserMedia(mediaConstraints)
                 .then(function(e){
                     app.startTime = Date.now();
-                    //app.aud = document.getElementById("myAudio");
+                    app.aud = document.getElementById("myAudio");
                     /*
                     if (window.URL) {
                         app.aud.src = window.URL.createObjectURL(mediaStream);
@@ -286,6 +295,8 @@
                         app.aud.src = mediaStream;
                     }
                     */
+                    
+
                     console.log("Stream obtained");
 
                     app.slideSwitches.length = 0;
@@ -340,83 +351,84 @@
                 */
             });
         });
-        /*
-            function onAudioStop(){
-                console.log("setTimeoutIDArray is " + JSON.stringify(app.setTimeoutIDArray));
-                app.setTimeoutIDArray.forEach(
-                    function(setTimeoutID){
-                        clearTimeout(setTimeoutID);
-                    }
-                );
-                app.setTimeoutIDArray.length = 0;
-            }
-            
-            playButtonClicked(e){
-                app.playingButtonClicked = true;
-                console.log("audio variable = " + app.aud);
-                app.aud.play();
-                app.aud.onplay = playEvent;
-                console.log("onplay event reached");
-                app.aud.onplaying = playEvent;
-                console.log("onplaying event reached");
-                app.aud.onpause = app.aud.onsuspend = app.aud.onabort = app.aud.onerror = app.aud.onstalled = app.aud.onwaiting = app.aud.onended = stopEvent;
-                console.log("stop events reached");
-                //aud.src = url;
-                totalDurationAudioPlayed = 0;
-                console.log("total duration audio played RESET " + totalDurationAudioPlayed);
-                
-            }
-            pauseButtonClicked(e){
-                app.playingButtonClicked = false;
-                app.pausingButtonClicked = true;
-            }
-            var audioStartTime = 0;
-            var playing = false;
-            function playEvent(){
-                audioStartTime = Date.now();
-                playing = true;
-                console.log("PLAY EVENT USED");
-                onAudioStart();
-
-            }
-            var totalDurationAudioPlayed = 0;
-            function stopEvent(){
-                onAudioStop();
-                if(playing){
-                    var lastDurationAudioPlayedToAdd = Date.now() - audioStartTime;
-                    totalDurationAudioPlayed += lastDurationAudioPlayedToAdd;
+        
+        function onAudioStop(){
+            console.log("setTimeoutIDArray is " + JSON.stringify(app.setTimeoutIDArray));
+            app.setTimeoutIDArray.forEach(
+                function(setTimeoutID){
+                    clearTimeout(setTimeoutID);
                 }
-                playing = false;
-            }
-            app.setTimeoutIDArray = [];
-            function onAudioStart(){
-                console.log("onAudioStart() entered");
-                app.slideSwitches.forEach(
-                    function(slideSwitch){
-                    console.log("forEach entered");
-                    if(slideSwitch.millisecondsfromStart>totalDurationAudioPlayed){
-                        console.log("If statement entered");
-                        console.log("milliseconds from START is " + slideSwitch.millisecondsfromStart);
-                        console.log("Total duration audio played is " + totalDurationAudioPlayed);
-                        app.setTimeoutIDArray.push(
-                            setTimeout(
-                                function(){
-                                    console.log("setTimeout function entered");
-                //$("#videoPlace").add(slideSwitch.imageUrl);
-                //app.currentImageIndex = i;
-                                    app.currentImageUrl = slideSwitch.imageUrl;
-                                    console.log("slide image url is " + slideSwitch.imageUrl);
-                                    app.update();
+            );
+            app.setTimeoutIDArray.length = 0;
+        }
+        
+        playButtonClicked(e){
+            app.playingButtonClicked = true;
+            app.aud.src = "http://localhost:3700/audio/demo.wav";
+            console.log("audio variable = " + app.aud);
+            app.aud.play();
+            app.aud.onplay = playEvent;
+            console.log("onplay event reached");
+            app.aud.onplaying = playEvent;
+            console.log("onplaying event reached");
+            app.aud.onpause = app.aud.onsuspend = app.aud.onabort = app.aud.onerror = app.aud.onstalled = app.aud.onwaiting = app.aud.onended = stopEvent;
+            console.log("stop events reached");
+            //aud.src = url;
+            totalDurationAudioPlayed = 0;
+            console.log("total duration audio played RESET " + totalDurationAudioPlayed);
+            
+        }
+        
+        pauseButtonClicked(e){
+            app.playingButtonClicked = false;
+            app.pausingButtonClicked = true;
+        }
+        var audioStartTime = 0;
+        var playing = false;
+        function playEvent(){
+            audioStartTime = Date.now();
+            playing = true;
+            console.log("PLAY EVENT USED");
+            onAudioStart();
 
-                                },
-                                slideSwitch.millisecondsfromStart - totalDurationAudioPlayed
-                                )
-                            );
-                        }
-                    }
-                );
+        }
+        var totalDurationAudioPlayed = 0;
+        function stopEvent(){
+            onAudioStop();
+            if(playing){
+                var lastDurationAudioPlayedToAdd = Date.now() - audioStartTime;
+                totalDurationAudioPlayed += lastDurationAudioPlayedToAdd;
             }
-            */
+            playing = false;
+        }
+        app.setTimeoutIDArray = [];
+        function onAudioStart(){
+            console.log("onAudioStart() entered");
+            app.slideSwitches.forEach(
+                function(slideSwitch){
+                console.log("forEach entered");
+                if(slideSwitch.millisecondsfromStart>totalDurationAudioPlayed){
+                    console.log("If statement entered");
+                    console.log("milliseconds from START is " + slideSwitch.millisecondsfromStart);
+                    console.log("Total duration audio played is " + totalDurationAudioPlayed);
+                    app.setTimeoutIDArray.push(
+                        setTimeout(
+                            function(){
+                                console.log("setTimeout function entered");
+            //$("#videoPlace").add(slideSwitch.imageUrl);
+            //app.currentImageIndex = i;
+                                app.currentImageUrl = slideSwitch.imageUrl;
+                                console.log("slide image url is " + slideSwitch.imageUrl);
+                                app.update();
+
+                            },
+                            slideSwitch.millisecondsfromStart - totalDurationAudioPlayed
+                            )
+                        );
+                    }
+                }
+            );
+        }
             
         /*
         makeFileNameShowFromFakeInput(e){
