@@ -264,7 +264,7 @@
     
         var client = new BinaryClient("ws://192.168.0.101:9001/");
         client.on('open', function() {
-            window.Stream = client.createStream();
+            
             console.log("Inside client.on function");
 
             app.recording = false;
@@ -273,55 +273,76 @@
                 console.log("Inside recordButtonClicked");
                 app.recordingButtonClicked = true;
                 app.recording = true;
-                var mediaConstraints =
+                $.post(
+                    app.rootUrlWithSlashAtEnd + "Narrations",
                     {
-                        video: false,
-                        audio: true,
-                        googEchoCancellation: false,
-                        googAutoGainControl: false,
-                        googNoiseSuppression: false,
-                        googHighpassFilter: false
+                        narration: {title: app.title}
+                    },
+                    function( data ) {
+                        app.audioFileId = data;
+
+                        console.log("AUDIO FILE ID IS " + data);
+
+                        window.Stream = client.createStream(data);
+
+                        var mediaConstraints =
+                            {
+                                "audio": {
+                                    "mandatory": {
+                                        "googEchoCancellation": "false",
+                                        "googAutoGainControl": "false",
+                                        "googNoiseSuppression": "false",
+                                        "googHighpassFilter": "false"
+                                    },
+                                    "optional": []
+                                },
+                            }
+                        ;
+                        navigator.mediaDevices.getUserMedia(mediaConstraints)
+                            .then(function(e){
+                                app.startTime = Date.now();
+                                /*
+                                if (window.URL) {
+                                    app.aud.src = window.URL.createObjectURL(mediaStream);
+                                } 
+                                else {
+                                    app.aud.src = mediaStream;
+                                }
+                                */
+                                
+
+                                console.log("Stream obtained");
+
+                                app.slideSwitches.length = 0;
+                                audioContext = window.AudioContext || window.webkitAudioContext;
+                                context = new audioContext();
+
+                                // the sample rate is in context.sampleRate
+                                audioInput = context.createMediaStreamSource(e);
+
+                                var bufferSize = 2048;
+                                recorder = context.createScriptProcessor(bufferSize, 1, 1);
+
+                                recorder.onaudioprocess = function(e){
+                                    if(!app.recording) return;
+                                    console.log ('recording');
+                                    var left = e.inputBuffer.getChannelData(0);
+                                    window.Stream.write(convertoFloat32ToInt16(left));
+                                }
+
+                                audioInput.connect(recorder);
+                                recorder.connect(context.destination); 
+                            })
+                            .catch(function(err){
+                                console.log(err.name + ":" + err.message);
+                            }
+                        );
+
+                        //alert( "Data Loaded: " + JSON.stringify(data) );
+                        app.update();
                     }
-                ;
-                navigator.mediaDevices.getUserMedia(mediaConstraints)
-                .then(function(e){
-                    app.startTime = Date.now();
-                    app.aud = document.getElementById("myAudio");
-                    /*
-                    if (window.URL) {
-                        app.aud.src = window.URL.createObjectURL(mediaStream);
-                    } 
-                    else {
-                        app.aud.src = mediaStream;
-                    }
-                    */
-                    
-
-                    console.log("Stream obtained");
-
-                    app.slideSwitches.length = 0;
-                    audioContext = window.AudioContext || window.webkitAudioContext;
-                    context = new audioContext();
-
-                    // the sample rate is in context.sampleRate
-                    audioInput = context.createMediaStreamSource(e);
-
-                    var bufferSize = 2048;
-                    recorder = context.createScriptProcessor(bufferSize, 1, 1);
-
-                    recorder.onaudioprocess = function(e){
-                        if(!app.recording) return;
-                        console.log ('recording');
-                        var left = e.inputBuffer.getChannelData(0);
-                        window.Stream.write(convertoFloat32ToInt16(left));
-                    }
-
-                    audioInput.connect(recorder);
-                    recorder.connect(context.destination); 
-                })
-                .catch(function(err){
-                    console.log(err.name + ":" + err.message);
-                });
+                );
+                
                 
                 
             });
@@ -339,6 +360,7 @@
                 app.recordingButtonClicked = false;
                 app.recording = false;
                 window.Stream.end();
+                
                 /*
                 Fr.voice.export(
                     function(url){
@@ -364,7 +386,8 @@
         
         playButtonClicked(e){
             app.playingButtonClicked = true;
-            app.aud.src = "http://localhost:3700/audio/demo.wav";
+            app.aud = document.getElementById("myAudio");
+            app.aud.src = "http://localhost:3700/audio/" + app.audioFileId + '.wav';
             console.log("audio variable = " + app.aud);
             app.aud.play();
             app.aud.onplay = playEvent;
