@@ -273,6 +273,8 @@
                 console.log("Inside recordButtonClicked");
                 app.recordingButtonClicked = true;
                 app.recording = true;
+                app.startTime = Date.now();
+                app.slideSwitches.length = 0;
                 $.post(
                     app.rootUrlWithSlashAtEnd + "Narrations",
                     {
@@ -284,68 +286,63 @@
                         console.log("AUDIO FILE ID IS " + data);
 
                         window.Stream = client.createStream(data);
-
-                        var mediaConstraints =
-                            {
-                                "audio": {
+                            /*{
+                                audio: {
                                     "mandatory": {
                                         "googEchoCancellation": "false",
-                                        "googAutoGainControl": "false",
-                                        "googNoiseSuppression": "false",
-                                        "googHighpassFilter": "false"
+                                        "googAutoGainControl": "true",
+                                        "googNoiseSuppression": "true",
+                                        "googHighpassFilter": "true"
                                     },
                                     "optional": []
-                                },
-                            }
-                        ;
-                        navigator.mediaDevices.getUserMedia(mediaConstraints)
-                            .then(function(e){
-                                app.startTime = Date.now();
-                                /*
-                                if (window.URL) {
-                                    app.aud.src = window.URL.createObjectURL(mediaStream);
-                                } 
-                                else {
-                                    app.aud.src = mediaStream;
                                 }
-                                */
-                                
-
-                                console.log("Stream obtained");
-
-                                app.slideSwitches.length = 0;
-                                audioContext = window.AudioContext || window.webkitAudioContext;
-                                context = new audioContext();
-
-                                // the sample rate is in context.sampleRate
-                                audioInput = context.createMediaStreamSource(e);
-
-                                var bufferSize = 2048;
-                                recorder = context.createScriptProcessor(bufferSize, 1, 1);
-
-                                recorder.onaudioprocess = function(e){
-                                    if(!app.recording) return;
-                                    console.log ('recording');
-                                    var left = e.inputBuffer.getChannelData(0);
-                                    window.Stream.write(convertoFloat32ToInt16(left));
-                                }
-
-                                audioInput.connect(recorder);
-                                recorder.connect(context.destination); 
-                            })
-                            .catch(function(err){
-                                console.log(err.name + ":" + err.message);
                             }
-                        );
+                        ; */
+                    }
+                  );
+                }
+            );
+            var mediaConstraints = {audio: true, video: false};
+            navigator.mediaDevices.getUserMedia(mediaConstraints)
+                    .then(function(e){
+                        /*
+                        if (window.URL) {
+                            app.aud.src = window.URL.createObjectURL(mediaStream);
+                        } 
+                        else {
+                            app.aud.src = mediaStream;
+                        }
+                        */
+                        
 
-                        //alert( "Data Loaded: " + JSON.stringify(data) );
-                        app.update();
+                        console.log("Stream obtained");
+
+                        audioContext = window.AudioContext || window.webkitAudioContext;
+                        context = new audioContext();
+
+                        // the sample rate is in context.sampleRate
+                        audioInput = context.createMediaStreamSource(e);
+
+                        var bufferSize = 2048;
+                        recorder = context.createScriptProcessor(bufferSize, 1, 1);
+
+                        recorder.onaudioprocess = function(e){
+                            if(!app.recording) return;
+                            console.log ('recording');
+                            var left = e.inputBuffer.getChannelData(0);
+                            window.Stream.write(convertoFloat32ToInt16(left));
+                        }
+
+                        audioInput.connect(recorder);
+                        recorder.connect(context.destination); 
+                    })
+                    .catch(function(err){
+                        console.log(err.name + ":" + err.message);
                     }
                 );
-                
-                
-                
-            });
+
+                        //alert( "Data Loaded: " + JSON.stringify(data) );
+            app.update();
             function convertoFloat32ToInt16(buffer) {
                 var l = buffer.length;
                 var buf = new Int16Array(l)
