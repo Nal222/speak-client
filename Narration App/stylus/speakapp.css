@@ -195,10 +195,6 @@ input{
   margin-top: 19px;
 }
 .imageGalleryTag {
-  flex-grow: 1;
-  flex-shrink: 1;
-  height: 370px;
-  width: 500px;
   background: rgba(255,255,0,0.3);
 }
 .galleryImage {
@@ -217,8 +213,6 @@ input{
   padding: 0px;
 }
 .videoBorderNewSize {
-  width: 800px;
-  height: 450px;
   align-self: center;
 }
 .containerDivRecordPage {

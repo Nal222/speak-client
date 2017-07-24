@@ -126,24 +126,31 @@
             <div class="circleButton" onclick="{app.nextButtonClicked}">NEXT</div>
         </div>
         <div class="bottom page2 rowLayout" if="{ app.pageName == 'recordNarrationPage' }">
-                <div class="columnLayout">
-                    <audio id="myAudio"></audio>
-                    <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
-                    <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px; flex-wrap: nowrap">
-                        <div if="{ !app.recordingButtonClicked }"class="circleButton redRecordButton" onclick="{app.recordButtonClicked}" style="font-size: 25px">Record</div>
-                        <div if="{ app.recordingButtonClicked }"class="circleButton redRecordButton stopButton" onclick="{app.stopButtonClicked}">Stop</div>
-                        <div>&nbsp&nbsp</div>
-                        <div if="{ !app.playingButtonClicked }" class="arrow-right" onclick="{playButtonClicked}"></div>
-                        <div if="{ app.playingButtonClicked }" class="pause" onclick="{pauseButtonClicked}"></div>
-                    </div>
-                    <div style="font-family: RobotoCR; flex-grow: 0; width: 400px">Click on thumbnail to switch image while recording</div>
+            <div class="columnLayout" style="flex-grow:1;flex-shrink:1">
+                <audio id="myAudio"></audio>
+                <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
+                <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px; flex-wrap: nowrap">
+                    <div if="{ !app.recordingButtonClicked }"class="circleButton redRecordButton" onclick="{app.recordButtonClicked}" style="font-size: 25px">Record</div>
+                    <div if="{ app.recordingButtonClicked }"class="circleButton redRecordButton stopButton" onclick="{app.stopButtonClicked}">Stop</div>
+                    <div>&nbsp&nbsp</div>
+                    <div if="{ !app.playingButtonClicked }" class="arrow-right" onclick="{playButtonClicked}"></div>
+                    <div if="{ app.playingButtonClicked }" class="pause" onclick="{pauseButtonClicked}"></div>
+                </div>
+                <div style="font-family: RobotoCR; flex-grow: 0;">Click on thumbnail to switch image while recording</div>
+                <div class="rowLayout">
                     <div class="imageGalleryTag">
                         <imagegallery imagelist="{app.images}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
                     </div>
-                 </div>
-                <div id="videoPlace" class="roundedCornersBorder videoBorderNewSize">
-                    <img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">
+                    <div class="columnLayout">
+                        <div id="videoPlace" class="roundedCornersBorder videoBorderNewSize">
+                            <img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">
+                        </div>
+                        <div class="imageGalleryTag">
+                            <narrationgallery imagenarrationthumbnaillist="{app.narrationThumbnails}"></narrationgallery>
+                        </div>
+                    </div>
                 </div>
+            </div>
         </div>
     </div>
 
@@ -151,8 +158,9 @@
 
     <script>
         app = this;
-        app.rootUrlWithSlashAtEnd = "http://192.168.0.101:5000/";
-        app.pageName = "introPage";
+        app.rootUrlWithSlashAtEnd = "http://192.168.0.100:5000/";
+        //app.pageName = "introPage";
+        app.pageName = "recordNarrationPage";
         startButtonClicked(e){
             app.pageName = "registerPage";
         }
@@ -262,7 +270,7 @@
         }
 
     
-        var client = new BinaryClient("ws://192.168.0.101:9001/");
+        var client = new BinaryClient("ws://192.168.0.100:9001/");
         client.on('open', function() {
             
             console.log("Inside client.on function");
@@ -298,51 +306,63 @@
                                 }
                             }
                         ; */
+                        var mediaConstraints = {
+                            audio: {
+                                "mandatory": {
+                                    "googEchoCancellation": "false",
+                                    "googAutoGainControl": "false",
+                                    "googNoiseSuppression": "false",
+                                    "googHighpassFilter": "false"
+                                },
+                                "optional": []
+                            }
+                        };
+
+                        navigator.mediaDevices.getUserMedia(mediaConstraints)
+                                .then(function(e){
+                                    /*
+                                    if (window.URL) {
+                                        app.aud.src = window.URL.createObjectURL(mediaStream);
+                                    } 
+                                    else {
+                                        app.aud.src = mediaStream;
+                                    }
+                                    */
+                                    
+
+                                    console.log("Stream obtained");
+
+                                    audioContext = window.AudioContext || window.webkitAudioContext;
+                                    context = new audioContext();
+
+                                    // the sample rate is in context.sampleRate
+                                    audioInput = context.createMediaStreamSource(e);
+
+                                    var bufferSize = 2048;
+                                    recorder = context.createScriptProcessor(bufferSize, 1, 1);
+
+                                    recorder.onaudioprocess = function(e){
+                                        if(!app.recording) return;
+                                        console.log ('recording');
+                                        var left = e.inputBuffer.getChannelData(0);
+                                        window.Stream.write(convertoFloat32ToInt16(left));
+                                    }
+
+                                    audioInput.connect(recorder);
+                                    recorder.connect(context.destination); 
+                                })
+                                .catch(function(err){
+                                    console.log(err.name + ":" + err.message);
+                                }
+                            );
+
+                                    //alert( "Data Loaded: " + JSON.stringify(data) );
+                        app.update();
                     }
                   );
                 }
             );
-            var mediaConstraints = {audio: true, video: false};
-            navigator.mediaDevices.getUserMedia(mediaConstraints)
-                    .then(function(e){
-                        /*
-                        if (window.URL) {
-                            app.aud.src = window.URL.createObjectURL(mediaStream);
-                        } 
-                        else {
-                            app.aud.src = mediaStream;
-                        }
-                        */
-                        
-
-                        console.log("Stream obtained");
-
-                        audioContext = window.AudioContext || window.webkitAudioContext;
-                        context = new audioContext();
-
-                        // the sample rate is in context.sampleRate
-                        audioInput = context.createMediaStreamSource(e);
-
-                        var bufferSize = 2048;
-                        recorder = context.createScriptProcessor(bufferSize, 1, 1);
-
-                        recorder.onaudioprocess = function(e){
-                            if(!app.recording) return;
-                            console.log ('recording');
-                            var left = e.inputBuffer.getChannelData(0);
-                            window.Stream.write(convertoFloat32ToInt16(left));
-                        }
-
-                        audioInput.connect(recorder);
-                        recorder.connect(context.destination); 
-                    })
-                    .catch(function(err){
-                        console.log(err.name + ":" + err.message);
-                    }
-                );
-
-                        //alert( "Data Loaded: " + JSON.stringify(data) );
-            app.update();
+            
             function convertoFloat32ToInt16(buffer) {
                 var l = buffer.length;
                 var buf = new Int16Array(l)
@@ -352,11 +372,29 @@
                 }
                 return buf.buffer
             }
+            /*
+            app.narrationSlideswitchesArrayOfArray = [];
+            app.audioFileIdArray = [];
+            app.firstImageArrayofEachSlideswitchesArray = [];
+            app.linkedNarrationAudiofileFirstImageArray = {};
+            */
+            app.narrationThumbnails = [];
             app.stopButtonClicked = (function(){
                 console.log("Stop button clicked");
                 app.recordingButtonClicked = false;
                 app.recording = false;
                 window.Stream.end();
+                app.narrationThumbnails.push(
+                    {
+                        slideSwitches: app.slideSwitches,
+                        audioFileId: app.audioFileId
+                    }
+
+
+                );
+
+                
+
                 
                 /*
                 Fr.voice.export(
@@ -649,3 +687,11 @@
         );
     </script>
 </imagegallery>
+<narrationgallery>
+    <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: row">
+        <img src="https://s-media-cache-ak0.pinimg.com/736x/96/e6/76/96e676b53868f30b362c3a6230e98fd6.jpg" each="{images, i in opts.imagenarrationthumbnaillist}" class="galleryImage" onclick="{app.playButtonClicked}"/>
+        <!--<img src="{app.narrationThumbnails.slideSwitches.imageUrl[0]}" each="{images, i in opts.imagenarrationthumbnaillist}" class="galleryImage" onclick="{app.playButtonClicked}"/>-->
+    </div>
+    <script>
+    </script>
+</narrationgallery>
