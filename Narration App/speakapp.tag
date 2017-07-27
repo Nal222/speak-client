@@ -121,7 +121,10 @@
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
             </div>-->
-            <div style="display: flex; flex-direction: row"><div style="font-family: RobotoCR">If you want to delete an image select it and click the delete button</div><div class="circleButton extraSmall" style="font-family: RobotoCR; font-size: 15px" onclick="{deleteSelectedImages}">Delete</div></div>
+            <div style="display: flex; flex-direction: row">
+                <div style="font-family: RobotoCR">If you want to delete an image select it and click the delete button</div>
+                <div class="circleButton extraSmall" style="font-family: RobotoCR; font-size: 15px" onclick="{deleteSelectedImages}">Delete</div>
+            </div>
             <div style="font-family: RobotoCR">Drag and drop individual images for ordering images the way you want to show in your narration</div>
             <div class="circleButton" onclick="{app.nextButtonClicked}">NEXT</div>
         </div>
@@ -271,143 +274,156 @@
 
     
         var client = new BinaryClient("ws://192.168.0.100:9001/");
-        client.on('open', function() {
+        client.on(
+            'open',
+            function() {
             
-            console.log("Inside client.on function");
+                console.log("Inside client.on function");
 
-            app.recording = false;
-       
-            app.recordButtonClicked = (function(){
-                console.log("Inside recordButtonClicked");
-                app.recordingButtonClicked = true;
-                app.recording = true;
-                app.startTime = Date.now();
-                app.slideSwitches.length = 0;
-                $.post(
-                    app.rootUrlWithSlashAtEnd + "Narrations",
-                    {
-                        narration: {title: app.title}
-                    },
-                    function( data ) {
-                        app.audioFileId = data;
-
-                        console.log("AUDIO FILE ID IS " + data);
-
-                        window.Stream = client.createStream(data);
-                            /*{
-                                audio: {
-                                    "mandatory": {
-                                        "googEchoCancellation": "false",
-                                        "googAutoGainControl": "true",
-                                        "googNoiseSuppression": "true",
-                                        "googHighpassFilter": "true"
-                                    },
-                                    "optional": []
-                                }
-                            }
-                        ; */
-                        var mediaConstraints = {
-                            audio: {
-                                "mandatory": {
-                                    "googEchoCancellation": "false",
-                                    "googAutoGainControl": "false",
-                                    "googNoiseSuppression": "false",
-                                    "googHighpassFilter": "false"
-                                },
-                                "optional": []
-                            }
-                        };
-
-                        navigator.mediaDevices.getUserMedia(mediaConstraints)
-                                .then(function(e){
-                                    /*
-                                    if (window.URL) {
-                                        app.aud.src = window.URL.createObjectURL(mediaStream);
-                                    } 
-                                    else {
-                                        app.aud.src = mediaStream;
-                                    }
-                                    */
-                                    
-
-                                    console.log("Stream obtained");
-
-                                    audioContext = window.AudioContext || window.webkitAudioContext;
-                                    context = new audioContext();
-
-                                    // the sample rate is in context.sampleRate
-                                    audioInput = context.createMediaStreamSource(e);
-
-                                    var bufferSize = 2048;
-                                    recorder = context.createScriptProcessor(bufferSize, 1, 1);
-
-                                    recorder.onaudioprocess = function(e){
-                                        if(!app.recording) return;
-                                        console.log ('recording');
-                                        var left = e.inputBuffer.getChannelData(0);
-                                        window.Stream.write(convertoFloat32ToInt16(left));
-                                    }
-
-                                    audioInput.connect(recorder);
-                                    recorder.connect(context.destination); 
-                                })
-                                .catch(function(err){
-                                    console.log(err.name + ":" + err.message);
-                                }
-                            );
-
-                                    //alert( "Data Loaded: " + JSON.stringify(data) );
-                        app.update();
-                    }
-                  );
-                }
-            );
-            
-            function convertoFloat32ToInt16(buffer) {
-                var l = buffer.length;
-                var buf = new Int16Array(l)
-
-                while (l--) {
-                    buf[l] = buffer[l]*0xFFFF;    //convert to 16 bit
-                }
-                return buf.buffer
-            }
-            /*
-            app.narrationSlideswitchesArrayOfArray = [];
-            app.audioFileIdArray = [];
-            app.firstImageArrayofEachSlideswitchesArray = [];
-            app.linkedNarrationAudiofileFirstImageArray = {};
-            */
-            app.narrationThumbnails = [];
-            app.stopButtonClicked = (function(){
-                console.log("Stop button clicked");
-                app.recordingButtonClicked = false;
                 app.recording = false;
-                window.Stream.end();
-                app.narrationThumbnails.push(
-                    {
-                        slideSwitches: app.slideSwitches,
-                        audioFileId: app.audioFileId
+        
+                app.recordButtonClicked = (
+                    function(){
+                        console.log("Inside recordButtonClicked");
+                        app.recordingButtonClicked = true;
+                        app.recording = true;
+                        app.startTime = Date.now();
+                        app.slideSwitches.length = 0;
+                        $.post(
+                            app.rootUrlWithSlashAtEnd + "Narrations",
+                            {
+                                narration: {title: app.title}
+                            },
+                            function( data ) {
+                                app.audioFileId = data;
+
+                                console.log("AUDIO FILE ID IS " + data);
+
+                                window.Stream = client.createStream(data);
+                                    /*{
+                                        audio: {
+                                            "mandatory": {
+                                                "googEchoCancellation": "false",
+                                                "googAutoGainControl": "true",
+                                                "googNoiseSuppression": "true",
+                                                "googHighpassFilter": "true"
+                                            },
+                                            "optional": []
+                                        }
+                                    }
+                                ; */
+                                
+                            }
+                        );
                     }
-
-
                 );
 
-                
+                var mediaConstraints = {
+                    audio: {
+                        "mandatory": {
+                            "googEchoCancellation": "false",
+                            "googAutoGainControl": "false",
+                            "googNoiseSuppression": "false",
+                            "googHighpassFilter": "false"
+                        },
+                        "optional": []
+                    }
+                };
 
+                navigator.mediaDevices.getUserMedia(mediaConstraints)
+                    .then(
+                        function(e){
+                            /*
+                            if (window.URL) {
+                                app.aud.src = window.URL.createObjectURL(mediaStream);
+                            } 
+                            else {
+                                app.aud.src = mediaStream;
+                            }
+                            */
+                            
+
+                            console.log("Stream obtained");
+
+                            audioContext = window.AudioContext || window.webkitAudioContext;
+                            context = new audioContext();
+
+                            // the sample rate is in context.sampleRate
+                            audioInput = context.createMediaStreamSource(e);
+
+                            var bufferSize = 2048;
+                            recorder = context.createScriptProcessor(bufferSize, 1, 1);
+
+                            recorder.onaudioprocess =
+                                function(e){
+                                    if(!app.recording) return;
+                                    console.log ('recording');
+                                    var left = e.inputBuffer.getChannelData(0);
+                                    window.Stream.write(convertoFloat32ToInt16(left));
+                                }
+                            ;
+
+                            audioInput.connect(recorder);
+                            recorder.connect(context.destination); 
+                        }
+                    )
+                    .catch(
+                        function(err){
+                            console.log(err.name + ":" + err.message);
+                        }
+                    )
+                ;
+                    //alert( "Data Loaded: " + JSON.stringify(data) );
+                app.update();
                 
+                function convertoFloat32ToInt16(buffer) {
+                    var l = buffer.length;
+                    var buf = new Int16Array(l)
+
+                    while (l--) {
+                        buf[l] = buffer[l]*0xFFFF;    //convert to 16 bit
+                    }
+                    return buf.buffer
+                }
                 /*
-                Fr.voice.export(
-                    function(url){
-                        console.log("url =" + url);
-                        $("<audio src='"+ url +"'></audio>").appendTo("body");
-                        $("body audio:last")[0].play();
-                    },
-                    "URL"
-                );
+                app.narrationSlideswitchesArrayOfArray = [];
+                app.audioFileIdArray = [];
+                app.firstImageArrayofEachSlideswitchesArray = [];
+                app.linkedNarrationAudiofileFirstImageArray = {};
                 */
-            });
-        });
+                app.narrationThumbnails = [];
+                app.stopButtonClicked = (
+                    function(){
+                        console.log("Stop button clicked");
+                        app.recordingButtonClicked = false;
+                        app.recording = false;
+                        window.Stream.end();
+                        app.narrationThumbnails.push(
+                            {
+                                slideSwitches: app.slideSwitches,
+                                audioFileId: app.audioFileId
+                            }
+
+
+                        );
+
+                        
+
+                        
+                        /*
+                        Fr.voice.export(
+                            function(url){
+                                console.log("url =" + url);
+                                $("<audio src='"+ url +"'></audio>").appendTo("body");
+                                $("body audio:last")[0].play();
+                            },
+                            "URL"
+                        );
+                        */
+                    }
+                );
+            }
+        );
         
         function onAudioStop(){
             console.log("setTimeoutIDArray is " + JSON.stringify(app.setTimeoutIDArray));
@@ -418,12 +434,11 @@
             );
             app.setTimeoutIDArray.length = 0;
         }
-        
-        playButtonClicked(e){
+        playButtonOrThumbnailClicked(e, audioFileId){
             app.playingButtonClicked = true;
             app.aud = document.getElementById("myAudio");
-            app.aud.src = "http://localhost:3700/audio/" + app.audioFileId + '.wav';
-            console.log("audio variable = " + app.aud);
+            app.aud.src = "http://localhost:3700/audio/" + audioFileId + '.wav';
+            console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src + ", e.item has properties " + Object.keys(e.item) );
             app.aud.play();
             app.aud.onplay = playEvent;
             console.log("onplay event reached");
@@ -435,6 +450,15 @@
             totalDurationAudioPlayed = 0;
             console.log("total duration audio played RESET " + totalDurationAudioPlayed);
             
+
+        }
+
+        thumbnailClicked(e){
+            playButtonOrThumbnailClicked(e, e.item.thumbnail.audioFileId);
+        }
+        
+        playButtonClicked(e){
+            playButtonOrThumbnailClicked(e, app.audioFileId);
         }
         
         pauseButtonClicked(e){
@@ -511,7 +535,22 @@
             //app.update();
         }*/
         app.currentImageIndex = 0;
-        app.images = [];
+        //app.images = [];
+        
+        app.images = 
+            [
+                {
+                    url: 'https://i.pinimg.com/736x/96/e6/76/96e676b53868f30b362c3a6230e98fd6.jpg'
+                },
+                {
+                    url: 'https://s-media-cache-ak0.pinimg.com/736x/a3/d0/9b/a3d09b27fe7bd86403a73588b77f0962.jpg'
+                },
+                {
+                    url: 'https://s-media-cache-ak0.pinimg.com/736x/cb/64/f9/cb64f92fc4dfe6ef119b26a39d97913f.jpg'
+                }
+            ]
+        ;
+
         addImageToImagegallery(e){
             app.images.push({url: $('#picture').val()});
             app.update();
@@ -543,7 +582,8 @@
             */
         }
 
-        /*app.images = [
+        /*
+        app.images = [
             {
                 url: "http://blog.jimdo.com/wp-content/uploads/2014/01/tree-247122.jpg"
             },
@@ -565,8 +605,8 @@
             {
                 url: "http://www.gettyimages.co.uk/gi-resources/images/Homepage/Category-Creative/UK/UK_Creative_462809583.jpg"
             }
-        ];*/
-
+        ];
+        */
     </script>
 </speak>
 <!--<flashinghello>
@@ -689,7 +729,7 @@
 </imagegallery>
 <narrationgallery>
     <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: row">
-        <img src="https://s-media-cache-ak0.pinimg.com/736x/96/e6/76/96e676b53868f30b362c3a6230e98fd6.jpg" each="{images, i in opts.imagenarrationthumbnaillist}" class="galleryImage" onclick="{app.playButtonClicked}"/>
+        <img src="https://s-media-cache-ak0.pinimg.com/736x/96/e6/76/96e676b53868f30b362c3a6230e98fd6.jpg" each="{thumbnail, i in opts.imagenarrationthumbnaillist}" class="galleryImage" onclick="{app.thumbnailClicked}"/>
         <!--<img src="{app.narrationThumbnails.slideSwitches.imageUrl[0]}" each="{images, i in opts.imagenarrationthumbnaillist}" class="galleryImage" onclick="{app.playButtonClicked}"/>-->
     </div>
     <script>
