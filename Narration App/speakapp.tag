@@ -161,7 +161,7 @@
 
     <script>
         app = this;
-        app.rootUrlWithSlashAtEnd = "http://192.168.0.100:5000/";
+        app.rootUrlWithSlashAtEnd = "http://192.168.0.106:5000/";
         //app.pageName = "introPage";
         app.pageName = "recordNarrationPage";
         startButtonClicked(e){
@@ -273,7 +273,7 @@
         }
 
     
-        var client = new BinaryClient("ws://192.168.0.100:9001/");
+        var client = new BinaryClient("ws://192.168.0.106:9001/");
         client.on(
             'open',
             function() {
@@ -454,11 +454,11 @@
         }
 
         thumbnailClicked(e){
-            playButtonOrThumbnailClicked(e, e.item.thumbnail.audioFileId);
+            app.playButtonOrThumbnailClicked(e, e.item.thumbnail.audioFileId);
         }
         
         playButtonClicked(e){
-            playButtonOrThumbnailClicked(e, app.audioFileId);
+            app.playButtonOrThumbnailClicked(e, app.audioFileId);
         }
         
         pauseButtonClicked(e){
