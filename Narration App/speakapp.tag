@@ -161,9 +161,10 @@
 
     <script>
         app = this;
-        app.rootUrlWithSlashAtEnd = "http://192.168.0.106:5000/";
+        app.rootUrlWithSlashAtEnd = "http://192.168.0.105:5000/";
         //app.pageName = "introPage";
-        app.pageName = "recordNarrationPage";
+        //app.pageName = "recordNarrationPage";
+        app.pageName = "chooseImagesFromImageGalleryPage";
         startButtonClicked(e){
             app.pageName = "registerPage";
         }
@@ -273,7 +274,7 @@
         }
 
     
-        var client = new BinaryClient("ws://192.168.0.106:9001/");
+        var client = new BinaryClient("ws://192.168.0.105:9001/");
         client.on(
             'open',
             function() {
@@ -282,42 +283,7 @@
 
                 app.recording = false;
         
-                app.recordButtonClicked = (
-                    function(){
-                        console.log("Inside recordButtonClicked");
-                        app.recordingButtonClicked = true;
-                        app.recording = true;
-                        app.startTime = Date.now();
-                        app.slideSwitches.length = 0;
-                        $.post(
-                            app.rootUrlWithSlashAtEnd + "Narrations",
-                            {
-                                narration: {title: app.title}
-                            },
-                            function( data ) {
-                                app.audioFileId = data;
-
-                                console.log("AUDIO FILE ID IS " + data);
-
-                                window.Stream = client.createStream(data);
-                                    /*{
-                                        audio: {
-                                            "mandatory": {
-                                                "googEchoCancellation": "false",
-                                                "googAutoGainControl": "true",
-                                                "googNoiseSuppression": "true",
-                                                "googHighpassFilter": "true"
-                                            },
-                                            "optional": []
-                                        }
-                                    }
-                                ; */
-                                
-                            }
-                        );
-                    }
-                );
-
+                
                 var mediaConstraints = {
                     audio: {
                         "mandatory": {
@@ -329,6 +295,7 @@
                         "optional": []
                     }
                 };
+                app.narrationThumbnails = [];
 
                 navigator.mediaDevices.getUserMedia(mediaConstraints)
                     .then(
@@ -341,71 +308,104 @@
                                 app.aud.src = mediaStream;
                             }
                             */
-                            
+                            app.recordButtonClicked = (
+                                function(){
+                                    console.log("Inside recordButtonClicked");
+                                    app.recordingButtonClicked = true;
+                                    app.recording = true;
+                                    app.startTime = Date.now();
+                                    app.slideSwitches.length = 0;
+                                    $.post(
+                                        app.rootUrlWithSlashAtEnd + "Narrations",
+                                        {
+                                            narration: {title: app.title},
+                                            username: app.username,
+                                            password: app.passwordFirst
+                                        },
+                                        function( data ) {
+                                            app.audioFileId = data;
 
-                            console.log("Stream obtained");
+                                            console.log("AUDIO FILE ID IS " + data);
 
-                            audioContext = window.AudioContext || window.webkitAudioContext;
-                            context = new audioContext();
+                                            window.Stream = client.createStream(data);
+                                            console.log("Stream obtained");
 
-                            // the sample rate is in context.sampleRate
-                            audioInput = context.createMediaStreamSource(e);
+                                            audioContext = window.AudioContext || window.webkitAudioContext;
+                                            context = new audioContext();
 
-                            var bufferSize = 2048;
-                            recorder = context.createScriptProcessor(bufferSize, 1, 1);
+                                            // the sample rate is in context.sampleRate
+                                            audioInput = context.createMediaStreamSource(e);
 
-                            recorder.onaudioprocess =
-                                function(e){
-                                    if(!app.recording) return;
-                                    console.log ('recording');
-                                    var left = e.inputBuffer.getChannelData(0);
-                                    window.Stream.write(convertoFloat32ToInt16(left));
+                                            var bufferSize = 2048;
+                                            recorder = context.createScriptProcessor(bufferSize, 1, 1);
+
+                                            recorder.onaudioprocess =
+                                                function(e){
+                                                    if(!app.recording) return;
+                                                    console.log ('recording');
+                                                    var left = e.inputBuffer.getChannelData(0);
+                                                    window.Stream.write(convertoFloat32ToInt16(left));
+                                                }
+                                            ;
+
+                                            audioInput.connect(recorder);
+                                            recorder.connect(context.destination); 
+                                            app.stopButtonClicked = (
+                                                function(){
+                                                    console.log("Stop button clicked");
+                                                    app.recordingButtonClicked = false;
+                                                    app.recording = false;
+                                                    window.Stream.end();
+                                                    app.narrationThumbnails.push(
+                                                        {
+                                                            slideSwitches: app.slideSwitches,
+                                                            audioFileId: app.audioFileId
+                                                        }
+
+
+                                                    );
+                                                    $.post(
+                                                        app.rootUrlWithSlashAtEnd + "saveSlideSwitches",
+                                                        {
+                                                            slideSwitches: app.slideSwitches,
+                                                            narrationId: app.audioFileId
+                                                        },
+                                                        function( data ) {
+                                                            
+
+                                                        }
+                                                    );
+
+                                                /*{
+                                                    audio: {
+                                                        "mandatory": {
+                                                            "googEchoCancellation": "false",
+                                                            "googAutoGainControl": "true",
+                                                            "googNoiseSuppression": "true",
+                                                            "googHighpassFilter": "true"
+                                                        },
+                                                        "optional": []
+                                                    }
+                                                }
+                                            ; */
+                                            
+                                        }
+                                    );
                                 }
-                            ;
-
-                            audioInput.connect(recorder);
-                            recorder.connect(context.destination); 
+                            );   
                         }
                     )
-                    .catch(
-                        function(err){
-                            console.log(err.name + ":" + err.message);
-                        }
-                    )
-                ;
-                    //alert( "Data Loaded: " + JSON.stringify(data) );
-                app.update();
                 
-                function convertoFloat32ToInt16(buffer) {
-                    var l = buffer.length;
-                    var buf = new Int16Array(l)
-
-                    while (l--) {
-                        buf[l] = buffer[l]*0xFFFF;    //convert to 16 bit
-                    }
-                    return buf.buffer
-                }
+                
                 /*
                 app.narrationSlideswitchesArrayOfArray = [];
                 app.audioFileIdArray = [];
                 app.firstImageArrayofEachSlideswitchesArray = [];
                 app.linkedNarrationAudiofileFirstImageArray = {};
                 */
-                app.narrationThumbnails = [];
-                app.stopButtonClicked = (
-                    function(){
-                        console.log("Stop button clicked");
-                        app.recordingButtonClicked = false;
-                        app.recording = false;
-                        window.Stream.end();
-                        app.narrationThumbnails.push(
-                            {
-                                slideSwitches: app.slideSwitches,
-                                audioFileId: app.audioFileId
-                            }
-
-
-                        );
+                
+                
+                    
 
                         
 
@@ -421,7 +421,24 @@
                         );
                         */
                     }
-                );
+                )
+                 .catch(
+                        function(err){
+                            console.log(err.name + ":" + err.message);
+                        }
+                    )
+                    ;
+                    //alert( "Data Loaded: " + JSON.stringify(data) );
+                app.update();
+                function convertoFloat32ToInt16(buffer) {
+                    var l = buffer.length;
+                    var buf = new Int16Array(l)
+
+                    while (l--) {
+                        buf[l] = buffer[l]*0xFFFF;    //convert to 16 bit
+                    }
+                    return buf.buffer
+                }
             }
         );
         
@@ -438,7 +455,7 @@
             app.playingButtonClicked = true;
             app.aud = document.getElementById("myAudio");
             app.aud.src = "http://localhost:3700/audio/" + audioFileId + '.wav';
-            console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src + ", e.item has properties " + Object.keys(e.item) );
+            //console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src + ", e.item has properties " + Object.keys(e.item) );
             app.aud.play();
             app.aud.onplay = playEvent;
             console.log("onplay event reached");
@@ -553,6 +570,7 @@
 
         addImageToImagegallery(e){
             app.images.push({url: $('#picture').val()});
+            $('#picture').val('');
             app.update();
         }
         deleteSelectedImages(e){
