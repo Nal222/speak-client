@@ -161,7 +161,8 @@
 
     <script>
         app = this;
-        app.rootUrlWithSlashAtEnd = "http://192.168.0.106:5000/";
+        app.ipAddress = "192.168.0.105";
+        app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
         //app.pageName = "introPage";
         app.pageName = "recordNarrationPage";
         startButtonClicked(e){
@@ -273,7 +274,7 @@
         }
 
     
-        var client = new BinaryClient("ws://192.168.0.106:9001/");
+        var client = new BinaryClient("ws://"+app.ipAddress+":9001/");
         client.on(
             'open',
             function() {
@@ -292,7 +293,9 @@
                         $.post(
                             app.rootUrlWithSlashAtEnd + "Narrations",
                             {
-                                narration: {title: app.title}
+                                narration: {title: 'MyNarration'}, //TODO replace with app.title
+                                username: "Nalini", //TODO: replace with app.username
+                                password: "Nalini123" // TODO: replace with app.password
                             },
                             function( data ) {
                                 app.audioFileId = data;
@@ -438,7 +441,7 @@
             app.playingButtonClicked = true;
             app.aud = document.getElementById("myAudio");
             app.aud.src = "http://localhost:3700/audio/" + audioFileId + '.wav';
-            console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src + ", e.item has properties " + Object.keys(e.item) );
+            //console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src + ", e.item has properties " + Object.keys(e.item) );
             app.aud.play();
             app.aud.onplay = playEvent;
             console.log("onplay event reached");
