@@ -168,7 +168,7 @@
 
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
         //app.pageName = "introPage";
-        app.pageName = "recordNarrationPage";
+        app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
         $.post(
             app.rootUrlWithSlashAtEnd + "login",
             {
