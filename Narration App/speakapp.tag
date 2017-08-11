@@ -586,6 +586,9 @@
 
         addImageToImagegallery(e){
             app.images.push({url: $('#picture').val()});
+            
+            //TODO: save to server under current user
+
             app.update();
         }
         deleteSelectedImages(e){
