@@ -149,7 +149,7 @@
                             <img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">
                         </div>
                         <div class="imageGalleryTag">
-                            <narrationgallery imagenarrationthumbnaillist="{app.narrationThumbnails}"></narrationgallery>
+                            <narrationgallery imagenarrationthumbnaillist="{app.narrations}"></narrationgallery>
                         </div>
                     </div>
                 </div>
@@ -162,9 +162,26 @@
     <script>
         app = this;
         app.ipAddress = "192.168.0.105";
+
+        app.username = "Nalini";
+        app.password = "Nalini123";
+
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
         //app.pageName = "introPage";
         app.pageName = "recordNarrationPage";
+        $.post(
+            app.rootUrlWithSlashAtEnd + "login",
+            {
+                username: app.username,
+                password: app.password
+            },
+            function( data ) {
+                console.log("data.narrations after login is " + JSON.stringify(data.narrations));
+                app.narrations = data.narrations;
+                app.update();
+
+            }
+        );
         startButtonClicked(e){
             app.pageName = "registerPage";
         }
@@ -206,7 +223,7 @@
             if(app.username && app.passwordFirst && app.passwordSecond && app.passwordsMatching && !app.wrongPassword){
                 console.log("I have reached where post is");
                 $.post(
-                    app.rootUrlWithSlashAtEnd + "login",
+                    app.rootUrlWithSlashAtEnd + "register",
                     {
                         title: app.title,
                         username: app.username,
@@ -294,8 +311,8 @@
                             app.rootUrlWithSlashAtEnd + "Narrations",
                             {
                                 narration: {title: 'MyNarration'}, //TODO replace with app.title
-                                username: "Nalini", //TODO: replace with app.username
-                                password: "Nalini123" // TODO: replace with app.password
+                                username: app.username,
+                                password: app.password
                             },
                             function( data ) {
                                 app.audioFileId = data;
@@ -394,14 +411,14 @@
                 app.firstImageArrayofEachSlideswitchesArray = [];
                 app.linkedNarrationAudiofileFirstImageArray = {};
                 */
-                app.narrationThumbnails = [];
+                app.narrations = [];
                 app.stopButtonClicked = (
                     function(){
                         console.log("Stop button clicked");
                         app.recordingButtonClicked = false;
                         app.recording = false;
                         window.Stream.end();
-                        app.narrationThumbnails.push(
+                        app.narrations.push(
                             {
                                 slideSwitches: app.slideSwitches,
                                 audioFileId: app.audioFileId
@@ -410,7 +427,17 @@
 
                         );
 
-                        
+                        $.post(
+                            app.rootUrlWithSlashAtEnd + "saveSlideSwitches",
+                            {
+                                slideSwitches: app.slideSwitches,
+                                narrationId: app.audioFileId
+                            },
+                            function( data ) {
+                    
+
+                            }
+                        );
 
                         
                         /*
@@ -438,6 +465,7 @@
             app.setTimeoutIDArray.length = 0;
         }
         playButtonOrThumbnailClicked(e, audioFileId){
+            app.audioFileId = audioFileId;
             app.playingButtonClicked = true;
             app.aud = document.getElementById("myAudio");
             app.aud.src = "http://localhost:3700/audio/" + audioFileId + '.wav';
@@ -457,7 +485,8 @@
         }
 
         thumbnailClicked(e){
-            app.playButtonOrThumbnailClicked(e, e.item.thumbnail.audioFileId);
+            app.slideSwitches = e.item.narration.slideSwitches;
+            app.playButtonOrThumbnailClicked(e, e.item.narration.audioFileId);
         }
         
         playButtonClicked(e){
@@ -489,6 +518,7 @@
         app.setTimeoutIDArray = [];
         function onAudioStart(){
             console.log("onAudioStart() entered");
+            console.log("APP.SLIDESWITCHES IS " + app.slideSwitches);
             app.slideSwitches.forEach(
                 function(slideSwitch){
                 console.log("forEach entered");
@@ -713,7 +743,8 @@
                             $.post(
                                 app.rootUrlWithSlashAtEnd + "chooseImagesAndImageOrder",
                                 {
-                                    title: app.title,
+                                    username: app.username,
+                                    password: app.password,
                                     urls: JSON.stringify(app.images)
                                 },
                                 function( data ) {
@@ -732,7 +763,7 @@
 </imagegallery>
 <narrationgallery>
     <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: row">
-        <img src="https://s-media-cache-ak0.pinimg.com/736x/96/e6/76/96e676b53868f30b362c3a6230e98fd6.jpg" each="{thumbnail, i in opts.imagenarrationthumbnaillist}" class="galleryImage" onclick="{app.thumbnailClicked}"/>
+        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.imagenarrationthumbnaillist}" class="galleryImage" onclick="{app.thumbnailClicked}"/>
         <!--<img src="{app.narrationThumbnails.slideSwitches.imageUrl[0]}" each="{images, i in opts.imagenarrationthumbnaillist}" class="galleryImage" onclick="{app.playButtonClicked}"/>-->
     </div>
     <script>
