@@ -169,19 +169,26 @@
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
         //app.pageName = "introPage";
         app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
-        $.post(
-            app.rootUrlWithSlashAtEnd + "login",
-            {
-                username: app.username,
-                password: app.password
-            },
-            function( data ) {
-                console.log("data.narrations after login is " + JSON.stringify(data.narrations));
-                app.narrations = data.narrations;
-                app.update();
+        
+        login(){
+            $.post(
+                app.rootUrlWithSlashAtEnd + "login",
+                {
+                    username: app.username,
+                    password: app.password
+                },
+                function( data ) {
+                    console.log("data.narrations after login is " + JSON.stringify(data.narrations));
+                    app.images = data.galleryItems;
+                    app.narrations = data.narrations;
+                    app.update();
 
-            }
-        );
+                }
+            );
+        }
+
+        app.login();
+
         startButtonClicked(e){
             app.pageName = "registerPage";
         }
@@ -585,11 +592,24 @@
         ;
 
         addImageToImagegallery(e){
-            app.images.push({url: $('#picture').val()});
+            const url = $('#picture').val();
+            app.images.push({url: url});
+
+            console.log("Image add");
             
             //TODO: save to server under current user
-
-            app.update();
+            
+            $.post(
+                app.rootUrlWithSlashAtEnd + "addImage",
+                {
+                    username: app.username,
+                    password: app.password,
+                    url: url
+                },
+                function( data ) {
+                    console.log("Image add response: " + data);
+                }
+            );
         }
         deleteSelectedImages(e){
 
@@ -748,7 +768,7 @@
                                 {
                                     username: app.username,
                                     password: app.password,
-                                    urls: JSON.stringify(app.images)
+                                    urls: app.images
                                 },
                                 function( data ) {
                                     alert( "Data Loaded: " + JSON.stringify(data) );
