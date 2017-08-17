@@ -630,6 +630,20 @@
             app.images = app.images.filter(
                 image=>!image.selected
             );
+            var galleryItemIds = app.images.map(galleryItem=>galleryItem._id);
+            console.log("GALLERYITEMIDS after deleting are " + galleryItemIds);
+            $.post(
+                app.rootUrlWithSlashAtEnd + "chooseImagesAndImageOrder",
+                {
+                    username: app.username,
+                    password: app.password,
+                    galleryItemIds: galleryItemIds
+                },
+                function( data ) {
+                    alert( "Data Loaded: " + JSON.stringify(data) );
+                    app.update();
+                }
+            );
 
             /*
             var temporaryImageArrayWithSelectedImages = [], diff = [];
