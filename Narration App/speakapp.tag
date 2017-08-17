@@ -104,7 +104,7 @@
             <div style="font-family: RobotoCR">Insert images to illustrate your narration</div>
             <div class="enterImageAddImageToGalleryFunctionality">
                     <!--<input type="file" name="pic" accept="image/*" class="file" onchange={makeFileNameShowFromFakeInput}>-->
-                <div style="font-family: RobotoCR">Enter image URL</div>
+                <div style="font-family: RobotoCR">Enter image URL<span if="{app.blockMouseForGallery}" style="margin-left:5px">Loading...</span></div>
                 <div><input type="text" id="picture" style="width: 500px;"/></div>
                 <div class="circleButton extraSmall" style="font-size: 15px;color: red" onclick="{addImageToImagegallery}">Add</div>
                             <!--
@@ -161,7 +161,7 @@
 
     <script>
         app = this;
-        app.ipAddress = "192.168.0.105";
+        app.ipAddress = "192.168.1.8";
 
         app.username = "Nalini";
         app.password = "Nalini123";
@@ -169,6 +169,7 @@
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
         //app.pageName = "introPage";
         app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
+        //app.pageName = "registerPage";
         
         login(){
             $.post(
@@ -579,6 +580,7 @@
         
         app.images = 
             [
+                /*
                 {
                     url: 'https://i.pinimg.com/736x/96/e6/76/96e676b53868f30b362c3a6230e98fd6.jpg'
                 },
@@ -588,12 +590,21 @@
                 {
                     url: 'https://s-media-cache-ak0.pinimg.com/736x/cb/64/f9/cb64f92fc4dfe6ef119b26a39d97913f.jpg'
                 }
+                */
             ]
         ;
-
+        //app.images = [];
         addImageToImagegallery(e){
-            const url = $('#picture').val();
-            app.images.push({url: url});
+
+            app.blockMouseForGallery = true;
+            
+            const
+                url = $('#picture').val(),
+                galleryItem = {url: url}
+            ;
+
+
+            app.images.push(galleryItem);
 
             console.log("Image add");
             
@@ -607,16 +618,17 @@
                     url: url
                 },
                 function( data ) {
-                    console.log("Image add response: " + data);
+                    console.log("Image add response: " + JSON.stringify(data));
+                    galleryItem._id = data.galleryItemId;
+                    app.blockMouseForGallery = false;
+                    app.update();
                 }
             );
         }
         deleteSelectedImages(e){
 
             app.images = app.images.filter(
-                function(image){
-                    return !image.selected;
-                }
+                image=>!image.selected
             );
 
             /*
@@ -689,9 +701,9 @@
 
 
 <imagegallery>
-    <div class="imageGallery roundedCornersBorder {sortable: opts.sortable}" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}">
+    <div class="imageGallery roundedCornersBorder {sortable: opts.sortable, pointerEventsNone: app.blockMouseForGallery}" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}">
         <div if="{app.title!=''}" class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">{app.title}</div>
-        <img class="galleryImage {highlight:image.selected}" id="imageGalleryImage" each="{image, i in opts.imagelist}" src="{image.url}" onclick="{galleryImageClicked}" onmousedown="{selectImageandHighlight}" onmousedown="{deselectImage}">
+        <img class="galleryImage {highlight:image.selected}" id="imageGalleryImage" each="{image, i in opts.imagelist}" src="{image.url}" onclick="{galleryImageClicked}" onmousedown="{selectImageandHighlight}" onmousedown="{deselectImage}" draggable="false">
     </div>
     <script>
 
@@ -763,12 +775,14 @@
                             app.images.push({url: $('#picture').val()});
                             app.update();
                             */
+                            var galleryItemIds = app.images.map(galleryItem=>galleryItem._id);
+                            console.log("GALLERYITEMIDS after changing order are " + galleryItemIds);
                             $.post(
                                 app.rootUrlWithSlashAtEnd + "chooseImagesAndImageOrder",
                                 {
                                     username: app.username,
                                     password: app.password,
-                                    urls: app.images
+                                    galleryItemIds: galleryItemIds
                                 },
                                 function( data ) {
                                     alert( "Data Loaded: " + JSON.stringify(data) );

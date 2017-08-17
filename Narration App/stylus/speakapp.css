@@ -201,6 +201,10 @@ input{
   width: 100px;
   height: 70px;
   margin: 5px;
+  user-select: none;
+}
+.pointerEventsNone {
+  pointer-events:none;
 }
 .absolutePositionGoBackButton {
   position: absolute;
