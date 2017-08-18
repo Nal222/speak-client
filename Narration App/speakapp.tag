@@ -146,7 +146,8 @@
                     </div>
                     <div class="columnLayout">
                         <div id="videoPlace" class="roundedCornersBorder videoBorderNewSize">
-                            <img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">
+                            <!--<img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">-->
+                            <img src="{currentImageUrl}" width="800" height="450">
                         </div>
                         <div class="imageGalleryTag">
                             <narrationgallery imagenarrationthumbnaillist="{app.narrations}"></narrationgallery>
@@ -168,8 +169,9 @@
 
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
         //app.pageName = "introPage";
-        app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
+        //app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
         //app.pageName = "registerPage";
+        app.pageName = "recordNarrationPage";
         
         login(){
             $.post(
@@ -789,6 +791,7 @@
                             app.images.push({url: $('#picture').val()});
                             app.update();
                             */
+                            //TODO: Send to server only start index and stop index and on server-side sort
                             var galleryItemIds = app.images.map(galleryItem=>galleryItem._id);
                             console.log("GALLERYITEMIDS after changing order are " + galleryItemIds);
                             $.post(
