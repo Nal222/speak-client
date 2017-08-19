@@ -169,9 +169,9 @@
 
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
         //app.pageName = "introPage";
-        //app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
+        app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
         //app.pageName = "registerPage";
-        app.pageName = "recordNarrationPage";
+        //app.pageName = "recordNarrationPage";
         
         login(){
             $.post(
@@ -360,50 +360,45 @@
                     }
                 };
 
-                navigator.mediaDevices.getUserMedia(mediaConstraints)
-                    .then(
-                        function(e){
-                            /*
-                            if (window.URL) {
-                                app.aud.src = window.URL.createObjectURL(mediaStream);
-                            } 
-                            else {
-                                app.aud.src = mediaStream;
+                (
+                    async ()=>{
+                        const e = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+                        /*
+                        if (window.URL) {
+                            app.aud.src = window.URL.createObjectURL(mediaStream);
+                        } 
+                        else {
+                            app.aud.src = mediaStream;
+                        }
+                        */
+                        
+                        console.log("Stream obtained");
+
+                        audioContext = window.AudioContext || window.webkitAudioContext;
+                        context = new audioContext();
+
+                        // the sample rate is in context.sampleRate
+                        audioInput = context.createMediaStreamSource(e);
+
+                        var bufferSize = 2048;
+                        recorder = context.createScriptProcessor(bufferSize, 1, 1);
+
+                        recorder.onaudioprocess =
+                            (e)=>{
+                                if(!app.recording) return;
+                                console.log ('recording');
+                                var left = e.inputBuffer.getChannelData(0);
+                                window.Stream.write(convertoFloat32ToInt16(left));
                             }
-                            */
-                            
+                        ;
 
-                            console.log("Stream obtained");
+                        audioInput.connect(recorder);
+                        recorder.connect(context.destination);
+                    }
+                )();
 
-                            audioContext = window.AudioContext || window.webkitAudioContext;
-                            context = new audioContext();
-
-                            // the sample rate is in context.sampleRate
-                            audioInput = context.createMediaStreamSource(e);
-
-                            var bufferSize = 2048;
-                            recorder = context.createScriptProcessor(bufferSize, 1, 1);
-
-                            recorder.onaudioprocess =
-                                function(e){
-                                    if(!app.recording) return;
-                                    console.log ('recording');
-                                    var left = e.inputBuffer.getChannelData(0);
-                                    window.Stream.write(convertoFloat32ToInt16(left));
-                                }
-                            ;
-
-                            audioInput.connect(recorder);
-                            recorder.connect(context.destination); 
-                        }
-                    )
-                    .catch(
-                        function(err){
-                            console.log(err.name + ":" + err.message);
-                        }
-                    )
-                ;
-                    //alert( "Data Loaded: " + JSON.stringify(data) );
+                
+                //alert( "Data Loaded: " + JSON.stringify(data) );
                 app.update();
                 
                 function convertoFloat32ToInt16(buffer) {
