@@ -193,6 +193,8 @@ input{
   flex-grow: 1;
   flex-shrink: 1;
   margin-top: 19px;
+  margin-bottom: 5px;
+  flex-direction: row;
 }
 .imageGalleryTag {
   background: rgba(255,255,0,0.3);
@@ -202,6 +204,20 @@ input{
   height: 70px;
   margin: 5px;
   user-select: none;
+}
+.viewNarrationsGallery{
+  display: flex;
+  align-items: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+  height: 100%;
+  width: 100%;
+  border: 1px solid black;
+}
+.narrationImage{
+  width: calc(100% * (1/4) - 10px - 1px);
+  height: 100px;
+  margin: 5px;
 }
 .pointerEventsNone {
   pointer-events:none;

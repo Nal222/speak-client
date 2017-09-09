@@ -1,7 +1,8 @@
 <speak>
+    <audio id="myAudio"></audio>
 <!--Written by Nalini Chawla 14/05/2017-->
     <div class="homePageOuterMostDiv" >
-        <div hide="{app.pageName == 'recordNarrationPage'}" class="top" style="background: #d5da26">
+        <div hide="{app.pageName == 'recordNarrationPage' || app.pageName == 'viewNarrationCommonAreaAndCommentsPage' }" class="top" style="background: #d5da26">
             <div>
                 <!--<img src="images/logotransp.jpg" height="100" width="100">-->
                 <img class="mainLogo" src="images/logo_svg.svg" height="175" width="175"/>
@@ -25,8 +26,8 @@
             </div>
             <div class="circleButton" onclick="{startButtonClicked}">START</div>
         </div>
-        </div>
-        <div class="loginAndViewNarrations" if="{pageName == 'introPage'}">
+    </div>
+    <div class="loginAndViewNarrations" if="{pageName == 'introPage'}">
         <div class="circleButton2" onclick="{loginButtonClicked}">Login</div>
             <div class="login loginForm">
                 <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
@@ -53,6 +54,15 @@
                 <div class="circleButton2" onclick="{viewNarrationsButtonClicked}" style="font-size: 19px; text-align: center">View Narrations</div>
             </div>
         </div>
+        <div if="{app.pageName == 'viewNarrationsPage'}">
+            <input type="text" size="40" maxlength="100" id="narrationsSearchInput"/>
+            <narrationgallery smallnarrationgallery="{false}" narrationsimageslist="{app.allNarrations}"></narrationgallery>
+        </div>
+        <div if="{!app.smallnarrationgallery && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
+            <audio id="myAudio"></audio>
+            <viewvideo></viewvideo>
+        </div>
+
         <div class="bottom page2" if="{ app.pageName == 'registerPage' }">
             <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 1</div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
@@ -130,7 +140,7 @@
         </div>
         <div class="bottom page2 rowLayout" if="{ app.pageName == 'recordNarrationPage' }">
             <div class="columnLayout" style="flex-grow:1;flex-shrink:1">
-                <audio id="myAudio"></audio>
+                
                 <div style="font-family: RobotoCB; color:green; font-size: 50px">Step 3</div>
                 <div style="display: flex; flex-direction: row; font-family: RobotoCR; align-items: center; margin-bottom: 5px; flex-wrap: nowrap">
                     <div if="{ !app.recordingButtonClicked }"class="circleButton redRecordButton" onclick="{app.recordButtonClicked}" style="font-size: 25px">Record</div>
@@ -142,15 +152,12 @@
                 <div style="font-family: RobotoCR; flex-grow: 0;">Click on thumbnail to switch image while recording</div>
                 <div class="rowLayout">
                     <div class="imageGalleryTag">
-                        <imagegallery imagelist="{app.images}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
+                        <imagegallery imagelist="{app.chosenImages}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
                     </div>
                     <div class="columnLayout">
-                        <div id="videoPlace" class="roundedCornersBorder videoBorderNewSize">
-                            <!--<img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">-->
-                            <img src="{currentImageUrl}" width="800" height="450">
-                        </div>
+                        <viewvideo></viewvideo>
                         <div class="imageGalleryTag">
-                            <narrationgallery imagenarrationthumbnaillist="{app.narrations}"></narrationgallery>
+                            <narrationgallery smallnarrationgallery="{true}" narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
                         </div>
                     </div>
                 </div>
@@ -162,16 +169,44 @@
 
     <script>
         app = this;
-        app.ipAddress = "192.168.1.8";
+        app.ipAddress = "192.168.0.106";
 
         app.username = "Nalini";
         app.password = "Nalini123";
-
+        app.narrations = [];
+        app.recentNarrationTakes = [];
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
         //app.pageName = "introPage";
+        //app.pageName = 'viewNarrationsPage';
         app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
         //app.pageName = "registerPage";
         //app.pageName = "recordNarrationPage";
+
+        history.replaceState(app.pageName, null, app.pageName);
+
+        window.onpopstate =
+            event=>{
+                console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
+                app.pageName = event.state;
+                app.update();
+            }
+        ;
+
+        viewNarrationsButtonClicked(e){
+            app.pageName = 'viewNarrationsPage';
+            $.post(
+                app.rootUrlWithSlashAtEnd + "getAllNarrations",
+                {
+                    
+                },
+                function( data ) {
+                    app.allNarrations = data;
+                    console.log("data VARIABLE CONTAINING ALL NARRATIONS FROM SERVER IS " + JSON.stringify(data));
+                    app.update();
+
+                }
+            );
+        }
         
         login(){
             $.post(
@@ -194,6 +229,7 @@
 
         startButtonClicked(e){
             app.pageName = "registerPage";
+            app.pushPageNameToHistory();
         }
         loginButtonClicked(e){
             if($('.loginForm').css('opacity')==0) $('.loginForm').css('opacity', 1);
@@ -247,6 +283,7 @@
                         if(data.includes("ImageGalleryPage")){
                             //app.usernameorpasswordtaken == false;
                             app.pageName = "chooseImagesFromImageGalleryPage";
+                            app.pushPageNameToHistory();
                         }
                         /*
                         if(data.includes("Username")){
@@ -296,8 +333,16 @@
             }
         }
 
+        pushPageNameToHistory(){
+            history.pushState(app.pageName, null, app.pageName);
+        }
+
         nextButtonClicked(e){
             app.pageName = "recordNarrationPage";
+            app.chosenImages = app.images.filter(
+                galleryItem=>galleryItem.selected
+            );
+            app.pushPageNameToHistory();
         }
 
     
@@ -416,7 +461,7 @@
                 app.firstImageArrayofEachSlideswitchesArray = [];
                 app.linkedNarrationAudiofileFirstImageArray = {};
                 */
-                app.narrations = [];
+                
                 app.stopButtonClicked = (
                     function(){
                         console.log("Stop button clicked");
@@ -431,6 +476,15 @@
 
 
                         );
+                        app.recentNarrationTakes.push(
+                            {
+                                slideSwitches: app.slideSwitches,
+                                audioFileId: app.audioFileId
+                            }
+
+
+                        );
+                        
 
                         $.post(
                             app.rootUrlWithSlashAtEnd + "saveSlideSwitches",
@@ -474,7 +528,7 @@
             app.playingButtonClicked = true;
             app.aud = document.getElementById("myAudio");
             app.aud.src = "http://localhost:3700/audio/" + audioFileId + '.wav';
-            //console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src + ", e.item has properties " + Object.keys(e.item) );
+            console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src + ", e.item has properties " + Object.keys(e.item) );
             app.aud.play();
             app.aud.onplay = playEvent;
             console.log("onplay event reached");
@@ -490,12 +544,21 @@
         }
 
         thumbnailClicked(e){
+            app.smallnarrationgallery = true;
             app.slideSwitches = e.item.narration.slideSwitches;
-            app.playButtonOrThumbnailClicked(e, e.item.narration.audioFileId);
+            app.playButtonOrThumbnailClicked(e, e.item.narration._id);
         }
         
         playButtonClicked(e){
             app.playButtonOrThumbnailClicked(e, app.audioFileId);
+        }
+
+        largethumbnailclickedonpublicarea(e){
+            app.smallnarrationgallery = false;
+            app.pageName = 'viewNarrationCommonAreaAndCommentsPage';
+            app.slideSwitches = e.item.narration.slideSwitches;
+            app.playButtonOrThumbnailClicked(e, e.item.narration._id);
+            console.log("NARRATION AUDIO FILE ID IS " + e.item.narration._id);
         }
         
         pauseButtonClicked(e){
@@ -636,7 +699,7 @@
                     password: app.password,
                     galleryItemIds: galleryItemIds
                 },
-                function( data ) {
+                data=>{
                     alert( "Data Loaded: " + JSON.stringify(data) );
                     app.update();
                 }
@@ -811,10 +874,31 @@
     </script>
 </imagegallery>
 <narrationgallery>
-    <div class="imageGallery roundedCornersBorder" style="margin-bottom: 5px; flex-direction: row">
-        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.imagenarrationthumbnaillist}" class="galleryImage" onclick="{app.thumbnailClicked}"/>
-        <!--<img src="{app.narrationThumbnails.slideSwitches.imageUrl[0]}" each="{images, i in opts.imagenarrationthumbnaillist}" class="galleryImage" onclick="{app.playButtonClicked}"/>-->
+    <!--
+    <div class="{imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery}">
+    -->
+    <div class="{opts.smallnarrationgallery ? 'imageGallery roundedCornersBorder' : 'viewNarrationsGallery'}">
+        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{opts.smallnarrationgallery ? 'galleryImage' : 'narrationImage'}"
+         onclick="{opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
     </div>
     <script>
     </script>
 </narrationgallery>
+<!--
+<narrationviewinggallery>
+    <div class="viewNarrationsGallery">
+        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="narrationImage" onclick="{app.thumbnailClicked}"/>
+    </div>
+<script>
+</script>
+</narrationviewinggallery>
+-->
+<viewvideo>
+    <div id="videoPlace" class="roundedCornersBorder videoBorderNewSize">
+        <!--<img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">-->
+        <img src="{app.currentImageUrl}" width="800" height="450">
+    </div>
+</viewvideo>
+
+
+
