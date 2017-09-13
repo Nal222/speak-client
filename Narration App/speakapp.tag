@@ -56,7 +56,7 @@
         </div>
         <div if="{app.pageName == 'viewNarrationsPage'}">
             <input type="text" size="40" maxlength="100" id="narrationsSearchInput"/>
-            <narrationgallery smallnarrationgallery="{false}" narrationsimageslist="{app.allNarrations}"></narrationgallery>
+            <narrationgallery smallnarrationgallery={false} narrationsimageslist="{app.allNarrations}"></narrationgallery>
         </div>
         <div if="{!app.smallnarrationgallery && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
             <audio id="myAudio"></audio>
@@ -156,8 +156,8 @@
                     </div>
                     <div class="columnLayout">
                         <viewvideo></viewvideo>
-                        <div class="imageGalleryTag">
-                            <narrationgallery smallnarrationgallery="{true}" narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
+                        <div class="imageGalleryTag" if="{app.pageName == 'recordNarrationPage'}">
+                            <narrationgallery smallnarrationgallery={true} narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
                         </div>
                     </div>
                 </div>
@@ -471,7 +471,7 @@
                         app.narrations.push(
                             {
                                 slideSwitches: app.slideSwitches,
-                                audioFileId: app.audioFileId
+                                _id: app.audioFileId
                             }
 
 
@@ -479,7 +479,7 @@
                         app.recentNarrationTakes.push(
                             {
                                 slideSwitches: app.slideSwitches,
-                                audioFileId: app.audioFileId
+                                _id: app.audioFileId
                             }
 
 
@@ -524,11 +524,11 @@
             app.setTimeoutIDArray.length = 0;
         }
         playButtonOrThumbnailClicked(e, audioFileId){
-            app.audioFileId = audioFileId;
+            //app.audioFileId = audioFileId;
             app.playingButtonClicked = true;
             app.aud = document.getElementById("myAudio");
             app.aud.src = "http://localhost:3700/audio/" + audioFileId + '.wav';
-            console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src + ", e.item has properties " + Object.keys(e.item) );
+            console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src);
             app.aud.play();
             app.aud.onplay = playEvent;
             console.log("onplay event reached");
@@ -539,28 +539,30 @@
             //aud.src = url;
             totalDurationAudioPlayed = 0;
             console.log("total duration audio played RESET " + totalDurationAudioPlayed);
-            
-
         }
+        
 
-        thumbnailClicked(e){
-            app.smallnarrationgallery = true;
-            app.slideSwitches = e.item.narration.slideSwitches;
-            app.playButtonOrThumbnailClicked(e, e.item.narration._id);
-        }
+        app.thumbnailClicked = (
+            function(e){
+                //app.smallnarrationgallery = true;
+                app.slideSwitches = e.item.narration.slideSwitches;
+                app.playButtonOrThumbnailClicked(e, e.item.narration._id);
+            }
+        );
         
         playButtonClicked(e){
             app.playButtonOrThumbnailClicked(e, app.audioFileId);
         }
 
-        largethumbnailclickedonpublicarea(e){
-            app.smallnarrationgallery = false;
-            app.pageName = 'viewNarrationCommonAreaAndCommentsPage';
-            app.slideSwitches = e.item.narration.slideSwitches;
-            app.playButtonOrThumbnailClicked(e, e.item.narration._id);
-            console.log("NARRATION AUDIO FILE ID IS " + e.item.narration._id);
-        }
-        
+        app.largethumbnailclickedonpublicarea = (
+            function(e){
+                //app.smallnarrationgallery = false;
+                app.pageName = 'viewNarrationCommonAreaAndCommentsPage';
+                app.slideSwitches = e.item.narration.slideSwitches;
+                app.playButtonOrThumbnailClicked(e, e.item.narration._id);
+                console.log("NARRATION AUDIO FILE ID IS " + e.item.narration._id);
+            }
+        );
         pauseButtonClicked(e){
             app.playingButtonClicked = false;
             app.pausingButtonClicked = true;
@@ -877,9 +879,9 @@
     <!--
     <div class="{imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery}">
     -->
-    <div class="{opts.smallnarrationgallery ? 'imageGallery roundedCornersBorder' : 'viewNarrationsGallery'}">
+    <div class="{opts.smallnarrationgallery ? 'imageGallery roundedCornersBorder' : 'viewNarrationsGallery'}" {opts.smallnarrationgallery}>
         <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{opts.smallnarrationgallery ? 'galleryImage' : 'narrationImage'}"
-         onclick="{opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
+         onclick="{opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}" {opts.smallnarrationgallery}/>
     </div>
     <script>
     </script>
