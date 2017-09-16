@@ -1,3 +1,4 @@
 {
-  "files": ["./**/*.{html,htm,css,js,tag}"]
+  "files": ["./**/*.{html,htm,css,js,tag}"],
+  "host": "192.168.0.106"
 }

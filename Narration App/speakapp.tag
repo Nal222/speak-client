@@ -58,7 +58,7 @@
             <input type="text" size="40" maxlength="100" id="narrationsSearchInput"/>
             <narrationgallery smallnarrationgallery={false} narrationsimageslist="{app.allNarrations}"></narrationgallery>
         </div>
-        <div if="{!app.smallnarrationgallery && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
+        <div if="{app.largeThumbnailClicked && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
             <audio id="myAudio"></audio>
             <viewvideo></viewvideo>
         </div>
@@ -157,7 +157,7 @@
                     <div class="columnLayout">
                         <viewvideo></viewvideo>
                         <div class="imageGalleryTag" if="{app.pageName == 'recordNarrationPage'}">
-                            <narrationgallery smallnarrationgallery={true} narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
+                            <narrationgallery app.smallnarrationgallery={true} narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
                         </div>
                     </div>
                 </div>
@@ -176,9 +176,9 @@
         app.narrations = [];
         app.recentNarrationTakes = [];
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
-        //app.pageName = "introPage";
+        app.pageName = "introPage";
         //app.pageName = 'viewNarrationsPage';
-        app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
+        //app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
         //app.pageName = "registerPage";
         //app.pageName = "recordNarrationPage";
 
@@ -191,9 +191,13 @@
                 app.update();
             }
         ;
+        switchPageAndAddToHistory(pageName){
+            app.pageName = pageName;
+            app.pushPageNameToHistory();
+        }
 
         viewNarrationsButtonClicked(e){
-            app.pageName = 'viewNarrationsPage';
+            app.switchPageAndAddToHistory('viewNarrationsPage');
             $.post(
                 app.rootUrlWithSlashAtEnd + "getAllNarrations",
                 {
@@ -228,8 +232,7 @@
         app.login();
 
         startButtonClicked(e){
-            app.pageName = "registerPage";
-            app.pushPageNameToHistory();
+            app.switchPageAndAddToHistory('registerPage');
         }
         loginButtonClicked(e){
             if($('.loginForm').css('opacity')==0) $('.loginForm').css('opacity', 1);
@@ -282,8 +285,7 @@
                         //TODO: only do this if server-side has found user name or password to be not taken.
                         if(data.includes("ImageGalleryPage")){
                             //app.usernameorpasswordtaken == false;
-                            app.pageName = "chooseImagesFromImageGalleryPage";
-                            app.pushPageNameToHistory();
+                            app.switchPageAndAddToHistory('chooseImagesFromImageGalleryPage');
                         }
                         /*
                         if(data.includes("Username")){
@@ -338,11 +340,10 @@
         }
 
         nextButtonClicked(e){
-            app.pageName = "recordNarrationPage";
             app.chosenImages = app.images.filter(
                 galleryItem=>galleryItem.selected
             );
-            app.pushPageNameToHistory();
+            app.switchPageAndAddToHistory("recordNarrationPage");
         }
 
     
@@ -544,7 +545,8 @@
 
         app.thumbnailClicked = (
             function(e){
-                //app.smallnarrationgallery = true;
+                console.log("INSIDE THUMBNAIL CLICKED NARRATION ID IS " + e.item.narration._id);
+                app.smallThumbnailClicked = true;
                 app.slideSwitches = e.item.narration.slideSwitches;
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
             }
@@ -556,8 +558,8 @@
 
         app.largethumbnailclickedonpublicarea = (
             function(e){
-                //app.smallnarrationgallery = false;
-                app.pageName = 'viewNarrationCommonAreaAndCommentsPage';
+                app.largeThumbnailClicked = true;
+                app.switchPageAndAddToHistory('viewNarrationCommonAreaAndCommentsPage');
                 app.slideSwitches = e.item.narration.slideSwitches;
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
                 console.log("NARRATION AUDIO FILE ID IS " + e.item.narration._id);
@@ -879,9 +881,10 @@
     <!--
     <div class="{imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery}">
     -->
-    <div class="{opts.smallnarrationgallery ? 'imageGallery roundedCornersBorder' : 'viewNarrationsGallery'}" {opts.smallnarrationgallery}>
-        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{opts.smallnarrationgallery ? 'galleryImage' : 'narrationImage'}"
-         onclick="{opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}" {opts.smallnarrationgallery}/>
+    <div class="{opts.smallnarrationgallery ? 'imageGallery roundedCornersBorder' : 'viewNarrationsGallery'}">
+        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{parent.opts.smallnarrationgallery ? 'galleryImage' : 'narrationImage'}"
+         onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
+         
     </div>
     <script>
     </script>
