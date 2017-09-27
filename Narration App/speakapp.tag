@@ -61,6 +61,9 @@
         <div if="{app.largeThumbnailClicked && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
             <audio id="myAudio"></audio>
             <viewvideo></viewvideo>
+            Add comment
+            <textarea id="commentTextarea"></textarea><br/><div class="circleButton2" style="width:50px;height:50px" onclick="{addCommentButtonClicked}">Add</div>
+            <p id="commentAddedParagraph"></p>
         </div>
 
         <div class="bottom page2" if="{ app.pageName == 'registerPage' }">
@@ -169,7 +172,7 @@
 
     <script>
         app = this;
-        app.ipAddress = "192.168.0.106";
+        app.ipAddress = "192.168.1.48";
 
         app.username = "Nalini";
         app.password = "Nalini123";
@@ -241,6 +244,22 @@
         onLogInInput(e){
             app.passwordTaken = app.usernameTaken = false;
 
+        }
+        addCommentButtonClicked(e){
+            console.log("ADD COMMENT BUTTON CLICKED");
+            var comment = $("#commentTextarea").val();
+            document.getElementById("commentAddedParagraph").innerHTML = comment;
+            $.post(
+                app.rootUrlWithSlashAtEnd + "saveComment",
+                {
+                    comment: comment
+                },
+                function( data ) {
+                    console.log("Inside function data returned is comments " + data)
+                    app.update();
+
+                }
+            );
         }
         confirmButtonClicked(e){
 
@@ -563,6 +582,19 @@
                 app.slideSwitches = e.item.narration.slideSwitches;
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
                 console.log("NARRATION AUDIO FILE ID IS " + e.item.narration._id);
+
+                $.post(
+                    app.rootUrlWithSlashAtEnd + "getAllComments",
+                    {
+                        
+                    },
+                    function( data ) {
+                        app.allComments = data;
+                        console.log("data VARIABLE CONTAINING ALL comments FROM SERVER IS " + JSON.stringify(data));
+                        app.update();
+
+                    }
+                );
             }
         );
         pauseButtonClicked(e){
