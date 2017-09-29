@@ -2,7 +2,7 @@
     <audio id="myAudio"></audio>
 <!--Written by Nalini Chawla 14/05/2017-->
     <div class="homePageOuterMostDiv" >
-        <div hide="{app.pageName == 'recordNarrationPage' || app.pageName == 'viewNarrationCommonAreaAndCommentsPage' }" class="top" style="background: #d5da26">
+        <div hide="{app.pageName == 'recordNarrationPage' || app.pageName == 'viewNarrationCommonAreaAndCommentsPage' || app.pageName == 'userAreaPage'}" class="top" style="background: #d5da26">
             <div>
                 <!--<img src="images/logotransp.jpg" height="100" width="100">-->
                 <img class="mainLogo" src="images/logo_svg.svg" height="175" width="175"/>
@@ -48,6 +48,7 @@
                     </div>
                     <div class="circleButton2" onclick="{loginConfirmedButtonClicked}" style="font-size: 19px">Confirm</div>
                 </div>
+                <div if="{app.invalidUsernameOrPasswordForLogin}" class="font-family: RobotoCR">Invalid username or password</div>
             </div>
             <div style="display: flex; flex-direction: column">
                 <div>&nbsp &nbsp &nbsp &nbsp</div>
@@ -61,9 +62,9 @@
         <div if="{app.largeThumbnailClicked && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
             <audio id="myAudio"></audio>
             <viewvideo></viewvideo>
-            Add comment
+            <p style="font-family: RobotoCR">Add comment</p>
             <textarea id="commentTextarea"></textarea><br/><div class="circleButton2" style="width:50px;height:50px" onclick="{addCommentButtonClicked}">Add</div>
-            <p id="commentAddedParagraph"></p>
+            <p id="commentAddedParagraph" style="font-family: RobotoCR"></p>
         </div>
 
         <div class="bottom page2" if="{ app.pageName == 'registerPage' }">
@@ -166,6 +167,7 @@
                 </div>
             </div>
         </div>
+        <div if="{app.pageName == 'userAreaPage'}">INSIDE USER AREA PAGE</div>
     </div>
 
 
@@ -173,9 +175,10 @@
     <script>
         app = this;
         app.ipAddress = "192.168.1.48";
-
+        /*
         app.username = "Nalini";
         app.password = "Nalini123";
+        */
         app.narrations = [];
         app.recentNarrationTakes = [];
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
@@ -215,7 +218,10 @@
             );
         }
         
-        login(){
+        loginConfirmedButtonClicked(e){
+            console.log("Inside confirm login button clicked!");
+            app.username = $("#usernameLoginInput").val();
+            app.password = $("#passwordLoginInput").val();
             $.post(
                 app.rootUrlWithSlashAtEnd + "login",
                 {
@@ -224,15 +230,20 @@
                 },
                 function( data ) {
                     console.log("data.narrations after login is " + JSON.stringify(data.narrations));
-                    app.images = data.galleryItems;
-                    app.narrations = data.narrations;
+                    if(data == "Invalid username or password"){
+                        app.invalidUsernameOrPasswordForLogin = true;
+                    }
+                    else{
+                        console.log("Inside ELSE VALID USERNAME AND PASSWORD")
+                        app.pageName = "userAreaPage";
+                        app.images = data.galleryItems;
+                        app.narrations = data.narrations;
+                    }
                     app.update();
 
                 }
             );
         }
-
-        app.login();
 
         startButtonClicked(e){
             app.switchPageAndAddToHistory('registerPage');
