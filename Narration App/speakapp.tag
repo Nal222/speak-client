@@ -39,7 +39,7 @@
                         <input type="text" size="40" maxlength="100" id="usernameLoginInput"/>
                     </div>
                 </div>
-                <div style="display: flex; flex-direction: row; margin-bottom: -50px; align-items: center">
+                <div style="display: flex; flex-direction: row; margin-bottom: -10px; align-items: center">
                     <p style="font-family: RobotoCR; font-size: 24px">
                     Enter password
                     </p>&nbsp
@@ -48,7 +48,7 @@
                     </div>
                     <div class="circleButton2" onclick="{loginConfirmedButtonClicked}" style="font-size: 19px">Confirm</div>
                 </div>
-                <div if="{app.invalidUsernameOrPasswordForLogin}" class="font-family: RobotoCR">Invalid username or password</div>
+                <div if="{app.invalidUsernameOrPasswordForLogin}" style="font-family: RobotoCR; font-size: 25px">Invalid username or password</div>
             </div>
             <div style="display: flex; flex-direction: column">
                 <div>&nbsp &nbsp &nbsp &nbsp</div>
@@ -167,7 +167,9 @@
                 </div>
             </div>
         </div>
-        <div if="{app.pageName == 'userAreaPage'}">INSIDE USER AREA PAGE</div>
+        <div if="{app.pageName == 'userAreaPage'}">
+            <p id="userAreaWelcomeMessageParagraph" style="font-family: RobotoCR"></p>
+        </div>
     </div>
 
 
@@ -222,6 +224,7 @@
             console.log("Inside confirm login button clicked!");
             app.username = $("#usernameLoginInput").val();
             app.password = $("#passwordLoginInput").val();
+            app.welcomeParagraph = "Welcome "+app.username+". Here are your narrations.";
             $.post(
                 app.rootUrlWithSlashAtEnd + "login",
                 {
@@ -232,18 +235,21 @@
                     console.log("data.narrations after login is " + JSON.stringify(data.narrations));
                     if(data == "Invalid username or password"){
                         app.invalidUsernameOrPasswordForLogin = true;
+                        app.update();
                     }
                     else{
-                        console.log("Inside ELSE VALID USERNAME AND PASSWORD")
+                        console.log("Inside ELSE VALID USERNAME AND PASSWORD");
                         app.pageName = "userAreaPage";
                         app.images = data.galleryItems;
                         app.narrations = data.narrations;
+                        app.update();
+                        document.getElementById("userAreaWelcomeMessageParagraph").innerHTML = app.welcomeParagraph;
+                        console.log("userAreaWelcomeMessageParagraph " + document.getElementById("userAreaWelcomeMessageParagraph"));
                     }
-                    app.update();
-
                 }
             );
         }
+        
 
         startButtonClicked(e){
             app.switchPageAndAddToHistory('registerPage');
@@ -260,6 +266,7 @@
             console.log("ADD COMMENT BUTTON CLICKED");
             var comment = $("#commentTextarea").val();
             document.getElementById("commentAddedParagraph").innerHTML = comment;
+            console.log("commentAddedParagraph is " + document.getElementById("commentAddedParagraph"));
             $.post(
                 app.rootUrlWithSlashAtEnd + "saveComment",
                 {
