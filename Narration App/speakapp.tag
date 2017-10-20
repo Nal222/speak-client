@@ -169,14 +169,25 @@
         </div>
         <div if="{app.pageName == 'userAreaPage'}">
             <p id="userAreaWelcomeMessageParagraph" style="font-family: RobotoCR"></p>
+            <div class="userAreaViewAndSelectNarration" each="{narration, i in app.narrations}">
+                <div><input type="checkbox"/></div>
+                <div id="userAreaNarrationSelection" onclick="{app.largethumbnailclickedonpublicarea}" style="display: flex;flex-direction: row">
+                    <div><img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/></div>
+                    <div style="font-family: RobotoCR" id="userAreaNarrationTitleDiv">{narration.title}</div>
+                </div>
+            </div>
         </div>
+    </div>
+    <div if="{app.largeThumbnailClickedOnUserArea && app.pageName == 'viewNarrationUserAreaWithoutCommentsPage'}">
+        <audio id="myAudio"></audio>
+        <viewvideo></viewvideo>
     </div>
 
 
 
     <script>
         app = this;
-        app.ipAddress = "192.168.1.48";
+        app.ipAddress = "192.168.1.14";
         /*
         app.username = "Nalini";
         app.password = "Nalini123";
@@ -224,7 +235,7 @@
             console.log("Inside confirm login button clicked!");
             app.username = $("#usernameLoginInput").val();
             app.password = $("#passwordLoginInput").val();
-            app.welcomeParagraph = "Welcome "+app.username+". Here are your narrations.";
+            app.welcomeParagraph = "<p style='color: purple'>Welcome " +app.username+ "</p><p align='center'>Here are your narrations.</p><p align='center'>Hover over and click to view.</p>";
             $.post(
                 app.rootUrlWithSlashAtEnd + "login",
                 {
@@ -245,6 +256,7 @@
                         app.update();
                         document.getElementById("userAreaWelcomeMessageParagraph").innerHTML = app.welcomeParagraph;
                         console.log("userAreaWelcomeMessageParagraph " + document.getElementById("userAreaWelcomeMessageParagraph"));
+                        //document.getElementById("userAreaNarrationTitleDiv").innerHTML = narration.title;
                     }
                 }
             );
@@ -615,6 +627,13 @@
                 );
             }
         );
+        thumbnailClickedOnUserArea(e){
+            app.largeThumbnailClickedOnUserArea = true;
+            app.switchPageAndAddToHistory('viewNarrationUserAreaWithoutCommentsPage');
+            app.slideSwitches = e.item.narration.slideSwitches;
+            app.playButtonOrThumbnailClicked(e, e.item.narration._id);
+
+        }
         pauseButtonClicked(e){
             app.playingButtonClicked = false;
             app.pausingButtonClicked = true;
