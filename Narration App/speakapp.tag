@@ -171,14 +171,14 @@
             <p id="userAreaWelcomeMessageParagraph" style="font-family: RobotoCR"></p>
             <div class="userAreaViewAndSelectNarration" each="{narration, i in app.narrations}">
                 <div><input type="checkbox"/></div>
-                <div id="userAreaNarrationSelection" onclick="{app.largethumbnailclickedonpublicarea}" style="display: flex;flex-direction: row">
+                <div id="userAreaNarrationSelection" onclick="{app.thumbnailClickedOnUserArea}" style="display: flex;flex-direction: row">
                     <div><img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/></div>
                     <div style="font-family: RobotoCR" id="userAreaNarrationTitleDiv">{narration.title}</div>
                 </div>
             </div>
         </div>
     </div>
-    <div if="{app.largeThumbnailClickedOnUserArea && app.pageName == 'viewNarrationUserAreaWithoutCommentsPage'}">
+    <div if="{app.largeThumbnailClickedOnUserArea && app.pageName == 'viewNarrationUserAreaWithoutCommentAddingPage'}">
         <audio id="myAudio"></audio>
         <viewvideo></viewvideo>
     </div>
@@ -187,7 +187,7 @@
 
     <script>
         app = this;
-        app.ipAddress = "192.168.1.14";
+        app.ipAddress = "192.168.1.128";
         /*
         app.username = "Nalini";
         app.password = "Nalini123";
@@ -250,7 +250,7 @@
                     }
                     else{
                         console.log("Inside ELSE VALID USERNAME AND PASSWORD");
-                        app.pageName = "userAreaPage";
+                        app.switchPageAndAddToHistory('userAreaPage');
                         app.images = data.galleryItems;
                         app.narrations = data.narrations;
                         app.update();
@@ -291,6 +291,9 @@
                 }
             );
         }
+
+        app.title = 'wonderfull';
+
         confirmButtonClicked(e){
 
             //$(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
@@ -612,6 +615,7 @@
                 app.slideSwitches = e.item.narration.slideSwitches;
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
                 console.log("NARRATION AUDIO FILE ID IS " + e.item.narration._id);
+                app.currentImageUrl = 'showTitle';
 
                 $.post(
                     app.rootUrlWithSlashAtEnd + "getAllComments",
@@ -629,9 +633,11 @@
         );
         thumbnailClickedOnUserArea(e){
             app.largeThumbnailClickedOnUserArea = true;
-            app.switchPageAndAddToHistory('viewNarrationUserAreaWithoutCommentsPage');
+            app.switchPageAndAddToHistory('viewNarrationUserAreaWithoutCommentAddingPage');
             app.slideSwitches = e.item.narration.slideSwitches;
             app.playButtonOrThumbnailClicked(e, e.item.narration._id);
+
+            app.currentImageUrl = 'showTitle';
 
         }
         pauseButtonClicked(e){
@@ -970,7 +976,22 @@
 <viewvideo>
     <div id="videoPlace" class="roundedCornersBorder videoBorderNewSize">
         <!--<img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">-->
-        <img src="{app.currentImageUrl}" width="800" height="450">
+        <div
+            if="{app.currentImageUrl=='showTitle'}"
+            style=
+                "
+                    font-family: RobotoCR;
+                    font-size: 20px;
+                    width: 100%;
+                    height: 450px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                "
+            >
+            {app.title}
+        </div>
+        <img if="{app.currentImageUrl!='showTitle'}"src="{app.currentImageUrl}" width="800" height="450">
     </div>
 </viewvideo>
 
