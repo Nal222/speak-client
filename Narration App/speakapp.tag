@@ -169,11 +169,21 @@
         </div>
         <div if="{app.pageName == 'userAreaPage'}">
             <p id="userAreaWelcomeMessageParagraph" style="font-family: RobotoCR"></p>
-            <div class="userAreaViewAndSelectNarration" each="{narration, i in app.narrations}">
-                <div><input type="checkbox"/></div>
-                <div id="userAreaNarrationSelection" onclick="{app.thumbnailClickedOnUserArea}" style="display: flex;flex-direction: row">
-                    <div><img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/></div>
-                    <div style="font-family: RobotoCR" id="userAreaNarrationTitleDiv">{narration.title}</div>
+            <div style="font-family: RobotoCR; font-size: 15px">select</div>
+            <div style="display: flex; flex-direction: row">
+                <div style="margin-right: 20px">
+                    <div class="userAreaViewAndSelectNarration" each="{narration, i in app.narrations}">
+                        <div><input type="checkbox"/></div>
+                        <div id="userAreaNarrationSelection" onclick="{app.thumbnailClickedOnUserArea}" style="display: flex;flex-direction: row">
+                            <div><img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/></div>
+                            <div style="font-family: RobotoCR" id="userAreaNarrationTitleDiv">{narration.title}</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-family: RobotoCR; font-size: 15px">To delete a narration select it by clicking on select box then press delete button. The narration will be permanently deleted and the public can not view it</div>
+                    <div class="circleButton" style="width: 70px; height: 70px; font-size: 20px" onclick="{app.deleteNarrationPermanently}">Delete</div>
+                    <div style="font-family: RobotoCR; font-size: 15px">See image gallery, select images and record narrations</div><div class="circleButton" onclick="{app.goToImageGalleryPage}">GO</div>
                 </div>
             </div>
         </div>
@@ -187,7 +197,7 @@
 
     <script>
         app = this;
-        app.ipAddress = "192.168.1.128";
+        app.ipAddress = "192.168.1.130";
         /*
         app.username = "Nalini";
         app.password = "Nalini123";
@@ -616,6 +626,8 @@
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
                 console.log("NARRATION AUDIO FILE ID IS " + e.item.narration._id);
                 app.currentImageUrl = 'showTitle';
+                console.log("APP.currentImageUrl IS " + app.currentImageUrl);
+                app.update();
 
                 $.post(
                     app.rootUrlWithSlashAtEnd + "getAllComments",
@@ -636,8 +648,8 @@
             app.switchPageAndAddToHistory('viewNarrationUserAreaWithoutCommentAddingPage');
             app.slideSwitches = e.item.narration.slideSwitches;
             app.playButtonOrThumbnailClicked(e, e.item.narration._id);
-
             app.currentImageUrl = 'showTitle';
+            app.update();
 
         }
         pauseButtonClicked(e){
@@ -991,7 +1003,7 @@
             >
             {app.title}
         </div>
-        <img if="{app.currentImageUrl!='showTitle'}"src="{app.currentImageUrl}" width="800" height="450">
+        <img if="{app.currentImageUrl!='showTitle'}" src="{app.currentImageUrl}" width="800" height="450">
     </div>
 </viewvideo>
 
