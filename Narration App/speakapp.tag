@@ -52,7 +52,17 @@
             </div>
             <div style="display: flex; flex-direction: column">
                 <div>&nbsp &nbsp &nbsp &nbsp</div>
-                <div class="circleButton2" onclick="{viewNarrationsButtonClicked}" style="font-size: 19px; text-align: center">View Narrations</div>
+                <div
+                    class="circleButton2"
+                    onclick="{viewNarrationsButtonClicked}"
+                    style=
+                        "
+                            font-size: 19px;
+                            text-align: center
+                        "
+                    >
+                    View Narrations
+                </div>
             </div>
         </div>
         <div if="{app.pageName == 'viewNarrationsPage'}">
@@ -173,7 +183,7 @@
             <div style="display: flex; flex-direction: row">
                 <div style="margin-right: 20px">
                     <div class="userAreaViewAndSelectNarration" each="{narration, i in app.narrations}">
-                        <div><input type="checkbox"/></div>
+                        <input type="checkbox" onchange="{narrationCheckboxChanged}" class="selectNarrationCheckbox"/>
                         <div id="userAreaNarrationSelection" onclick="{app.thumbnailClickedOnUserArea}" style="display: flex;flex-direction: row">
                             <div><img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/></div>
                             <div style="font-family: RobotoCR" id="userAreaNarrationTitleDiv">{narration.title}</div>
@@ -182,7 +192,7 @@
                 </div>
                 <div>
                     <div style="font-family: RobotoCR; font-size: 15px">To delete a narration select it by clicking on select box then press delete button. The narration will be permanently deleted and the public can not view it</div>
-                    <div class="circleButton" style="width: 70px; height: 70px; font-size: 20px" onclick="{app.deleteNarrationPermanently}">Delete</div>
+                    <div class="circleButton" style="width: 70px; height: 70px; font-size: 20px" onclick="{app.deleteCheckedNarrationsPermanently}">Delete</div>
                     <div style="font-family: RobotoCR; font-size: 15px">See image gallery, select images and record narrations</div><div class="circleButton" onclick="{app.goToImageGalleryPage}">GO</div>
                 </div>
             </div>
@@ -271,6 +281,22 @@
                 }
             );
         }
+        goToImageGalleryPage(e){
+            app.pageName = "chooseImagesFromImageGalleryPage";
+        }
+        
+        /*
+        app.parent = this.parent;
+        selected(e) {
+            //var item = e.item;
+            e.item.selected = !e.item.selected;
+            var selectedCheckBoxes = e.item.selected;
+            //app.parent.selected = e.item.selected; // does not change parent's checkbox "checked" state
+            app.parentNarrationDivToRemove = selectedCheckBoxes.parent;
+            app.update();
+        }
+        */
+        
         
 
         startButtonClicked(e){
@@ -776,11 +802,56 @@
                 }
             );
         }
+        narrationCheckboxChanged(e){
+            e.item.narration.isChecked = !e.item.narration.isChecked;
+
+        }
+        deleteCheckedNarrationsPermanently(e){
+            /*
+            //app.parent.selected.remove();
+            var parentNarrationDivsSelected = $('.selectNarrationCheckbox:checkbox:checked').parent();
+            //parentNarrationDivsSelected.$('[each="narration.title"]');
+            console.log("NARRATION TO DELETE = " + $('[each="app.narrations.title"]').parentNarrationDivsSelected);
+            //$('.selectNarrationCheckbox:checkbox:checked').parent().remove();
+            app.update();
+            */
+            //$(".checkbox input:checked").parent().remove();
+            const narrationsIdsToDelete =
+                app.narrations
+                    .filter(
+                        narration=>narration.isChecked
+                    )
+                    .map(
+                        narration=>narration._id
+                    )
+            ;
+            console.log("NARRATION IDS TO DELETE ARE " + narrationsIdsToDelete);
+            app.narrations = 
+                app.narrations
+                    .filter(
+                        narration=>!narration.isChecked
+                    )
+            ;
+
+            $.post(
+                app.rootUrlWithSlashAtEnd + "deleteNarrationFromDatabase",
+                {
+                
+                },
+                data=>{
+                    console.log("Inside function data returned after deletion of narration from database is confirmation deleted " + data)
+                    app.update();
+                }
+            );
+        }
         deleteSelectedImages(e){
 
-            app.images = app.images.filter(
-                image=>!image.selected
-            );
+            app.images = 
+                app.images
+                    .filter(
+                        image=>!image.selected
+                    )
+            ;
             var galleryItemIds = app.images.map(galleryItem=>galleryItem._id);
             console.log("GALLERYITEMIDS after deleting are " + galleryItemIds);
             $.post(
