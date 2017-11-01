@@ -282,7 +282,7 @@
             );
         }
         goToImageGalleryPage(e){
-            app.pageName = "chooseImagesFromImageGalleryPage";
+            app.switchPageAndAddToHistory('chooseImagesFromImageGalleryPage');
         }
         
         /*
@@ -637,11 +637,32 @@
                 app.smallThumbnailClicked = true;
                 app.slideSwitches = e.item.narration.slideSwitches;
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
+                app.currentImageUrl = 'showTitle';
+                app.update();
+                console.log("CURRENT IMAGE URL IS " + app.currentImageUrl);
+                /*
+                if(app.title){
+                    app.currentImageUrl='showTitleSlideForAMoment';
+                }
+                else{
+                    app.currentImageUrl!='showTitleSlideForAMoment';
+                }
+                */
             }
         );
         
         playButtonClicked(e){
             app.playButtonOrThumbnailClicked(e, app.audioFileId);
+            app.currentImageUrl = 'showTitle';
+            app.update();
+            /*
+            if(app.title){
+                app.currentImageUrl='showTitleSlideForAMoment';
+            }
+            else{
+                app.currentImageUrl!='showTitleSlideForAMoment';
+            }
+            */
         }
 
         app.largethumbnailclickedonpublicarea = (
@@ -652,8 +673,17 @@
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
                 console.log("NARRATION AUDIO FILE ID IS " + e.item.narration._id);
                 app.currentImageUrl = 'showTitle';
-                console.log("APP.currentImageUrl IS " + app.currentImageUrl);
                 app.update();
+                /*
+                if(app.title){
+                    app.currentImageUrl='showTitleSlideForAMoment';
+                }
+                else{
+                    app.currentImageUrl!='showTitleSlideForAMoment';
+                }
+                */
+                console.log("APP.currentImageUrl IS " + app.currentImageUrl);
+                
 
                 $.post(
                     app.rootUrlWithSlashAtEnd + "getAllComments",
@@ -675,9 +705,18 @@
             app.slideSwitches = e.item.narration.slideSwitches;
             app.playButtonOrThumbnailClicked(e, e.item.narration._id);
             app.currentImageUrl = 'showTitle';
+            /*
+            if(app.title){
+                app.currentImageUrl='showTitleSlideForAMoment';
+            }
+            else{
+                app.currentImageUrl!='showTitleSlideForAMoment';
+            }
+            */
             app.update();
 
         }
+
         pauseButtonClicked(e){
             app.playingButtonClicked = false;
             app.pausingButtonClicked = true;
@@ -834,9 +873,9 @@
             ;
 
             $.post(
-                app.rootUrlWithSlashAtEnd + "deleteNarrationFromDatabase",
+                app.rootUrlWithSlashAtEnd + "deleteNarrationsFromDatabase",
                 {
-                
+                    narrationIds: narrationsIdsToDelete
                 },
                 data=>{
                     console.log("Inside function data returned after deletion of narration from database is confirmation deleted " + data)
@@ -1061,6 +1100,7 @@
         <!--<img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">-->
         <div
             if="{app.currentImageUrl=='showTitle'}"
+            class = "showTitleDiv"
             style=
                 "
                     font-family: RobotoCR;
@@ -1074,8 +1114,13 @@
             >
             {app.title}
         </div>
-        <img if="{app.currentImageUrl!='showTitle'}" src="{app.currentImageUrl}" width="800" height="450">
+        <img class="showSlideSwitchesImages" if="{app.currentImageUrl!='showTitle'}" src="{app.currentImageUrl}" width="800" height="450">
     </div>
+    <script>
+    
+    
+
+    </script>
 </viewvideo>
 
 
