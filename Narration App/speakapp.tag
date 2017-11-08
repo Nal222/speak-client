@@ -173,8 +173,13 @@
                         <div class="imageGalleryTag" if="{app.pageName == 'recordNarrationPage'}">
                             <narrationgallery app.smallnarrationgallery={true} narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
                         </div>
+                        <div if="{ app.stopButtonWasClicked }" class="circleButton" onclick="{publishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Publish this narration</div>
                     </div>
                 </div>
+                <!--
+                <div>Select checkbox and click on delete button to delete narration permenantly from world view</div>
+                <div class="circleButton" onclick="{app.deleteCheckedNarrationsPermanently}">Delete</div>
+                -->
             </div>
         </div>
         <div if="{app.pageName == 'userAreaPage'}">
@@ -554,6 +559,7 @@
                 app.stopButtonClicked = (
                     function(){
                         console.log("Stop button clicked");
+                        app.stopButtonWasClicked = true;
                         app.recordingButtonClicked = false;
                         app.recording = false;
                         window.Stream.end();
@@ -574,7 +580,7 @@
 
                         );
                         
-
+                        //TODO: Change narrationId to _id in the json of the post call below check
                         $.post(
                             app.rootUrlWithSlashAtEnd + "saveSlideSwitches",
                             {
@@ -633,6 +639,7 @@
 
         app.thumbnailClicked = (
             function(e){
+                app.thumbnailSelected = e.item.narration;
                 console.log("INSIDE THUMBNAIL CLICKED NARRATION ID IS " + e.item.narration._id);
                 app.smallThumbnailClicked = true;
                 app.slideSwitches = e.item.narration.slideSwitches;
@@ -841,10 +848,11 @@
                 }
             );
         }
-        narrationCheckboxChanged(e){
-            e.item.narration.isChecked = !e.item.narration.isChecked;
-
-        }
+        app.narrationCheckboxChanged = (
+            function(e){
+                e.item.narration.isChecked = !e.item.narration.isChecked;
+            }
+        );
         deleteCheckedNarrationsPermanently(e){
             /*
             //app.parent.selected.remove();
@@ -871,6 +879,25 @@
                         narration=>!narration.isChecked
                     )
             ;
+            if(app.pageName=="recordNarrationPage"){
+                const narrationsIdsToKeepAnsSave =
+                    app.recentNarrationTakes
+                        .filter(
+                            narration=>narration.isChecked
+                        )
+                        .map(
+                            narration=>narration._id
+                        )
+                ;
+                console.log("NARRATION IDS TO KEEP AND SAVE TO SHOW THE WORLD ARE " + narrationsIdsToDelete);
+                app.recentNarrationTakes = 
+                    app.recentNarrationTakes
+                        .filter(
+                            narration=>narration.isChecked
+                        )
+                ;
+
+            }
 
             $.post(
                 app.rootUrlWithSlashAtEnd + "deleteNarrationsFromDatabase",
@@ -1078,8 +1105,9 @@
     <!--
     <div class="{imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery}">
     -->
-    <div class="{opts.smallnarrationgallery ? 'imageGallery roundedCornersBorder' : 'viewNarrationsGallery'}">
-        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{parent.opts.smallnarrationgallery ? 'galleryImage' : 'narrationImage'}"
+    <div class="{selectedThumbnail: narration==app.thumbnailSelected} {opts.smallnarrationgallery ? 'imageGallery roundedCornersBorder' : 'viewNarrationsGallery'}" each="{narration, i in opts.narrationsimageslist}">
+        <div if="{parent.opts.smallnarrationgallery}"><input type="checkbox" onchange="{app.narrationCheckboxChanged}"/></div>
+        <img src="{narration.slideSwitches[0].imageUrl}" class="{parent.opts.smallnarrationgallery ? 'galleryImage' : 'narrationImage'}"
          onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
          
     </div>

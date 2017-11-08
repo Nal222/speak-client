@@ -302,3 +302,6 @@ input.file {
 .highlight{
   outline: solid 5px red;
 }
+.selectedThumbnail{
+  outline: solid 5px blue;
+}
