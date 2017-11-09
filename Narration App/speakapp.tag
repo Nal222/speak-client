@@ -212,7 +212,7 @@
 
     <script>
         app = this;
-        app.ipAddress = "192.168.1.130";
+        app.ipAddress = "192.168.1.7";
         /*
         app.username = "Nalini";
         app.password = "Nalini123";
@@ -1105,14 +1105,11 @@
     <!--
     <div class="{imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery}">
     -->
-    <div class="{selectedThumbnail: narration==app.thumbnailSelected} {opts.smallnarrationgallery ? 'imageGallery roundedCornersBorder' : 'viewNarrationsGallery'}" each="{narration, i in opts.narrationsimageslist}">
-        <div if="{parent.opts.smallnarrationgallery}"><input type="checkbox" onchange="{app.narrationCheckboxChanged}"/></div>
-        <img src="{narration.slideSwitches[0].imageUrl}" class="{parent.opts.smallnarrationgallery ? 'galleryImage' : 'narrationImage'}"
+    <div class="{ selectedThumbnail: narration==app.thumbnailSelected, imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery }">
+        <!--<div if="{parent.opts.smallnarrationgallery}"><input type="checkbox" onchange="{app.narrationCheckboxChanged}"/></div>-->
+        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{parent.opts.smallnarrationgallery ? 'galleryImage' : 'narrationImage'}"
          onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
-         
     </div>
-    <script>
-    </script>
 </narrationgallery>
 <!--
 <narrationviewinggallery>
