@@ -1111,7 +1111,7 @@
     -->
     <div class="{ imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery }">
         <!--<div if="{parent.opts.smallnarrationgallery}"><input type="checkbox" onchange="{app.narrationCheckboxChanged}"/></div>-->
-        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{ galleryImage : parent.opts.smallnarrationgallery, narrationImage : !parent.opt.smallnarrationgallery, selectedThumbnail: narration==app.thumbnailSelected }"
+        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{ galleryImage : parent.opts.smallnarrationgallery, narrationImage : !parent.opts.smallnarrationgallery, selectedThumbnail: narration==app.thumbnailSelected }"
          onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
     </div>
 </narrationgallery>
