@@ -212,7 +212,7 @@
 
     <script>
         app = this;
-        app.ipAddress = "192.168.1.7";
+        app.ipAddress = "192.168.1.130";
         /*
         app.username = "Nalini";
         app.password = "Nalini123";
@@ -642,11 +642,11 @@
                 app.thumbnailSelected = e.item.narration;
                 console.log("INSIDE THUMBNAIL CLICKED NARRATION ID IS " + e.item.narration._id);
                 app.smallThumbnailClicked = true;
-                app.slideSwitches = e.item.narration.slideSwitches;
-                app.playButtonOrThumbnailClicked(e, e.item.narration._id);
-                app.currentImageUrl = 'showTitle';
-                app.update();
-                console.log("CURRENT IMAGE URL IS " + app.currentImageUrl);
+                
+                //app.playButtonOrThumbnailClicked(e, e.item.narration._id);
+                //app.currentImageUrl = 'showTitle';
+                //app.update();
+                //console.log("CURRENT IMAGE URL IS " + app.currentImageUrl);
                 /*
                 if(app.title){
                     app.currentImageUrl='showTitleSlideForAMoment';
@@ -659,9 +659,12 @@
         );
         
         playButtonClicked(e){
-            app.playButtonOrThumbnailClicked(e, app.audioFileId);
+            //app.slideSwitches = e.item.narration.slideSwitches;
             app.currentImageUrl = 'showTitle';
-            app.update();
+            if(app.thumbnailSelected){
+                app.playButtonOrThumbnailClicked(e, app.audioFileId);
+                app.update();
+            }
             /*
             if(app.title){
                 app.currentImageUrl='showTitleSlideForAMoment';
@@ -706,23 +709,24 @@
                 );
             }
         );
-        thumbnailClickedOnUserArea(e){
-            app.largeThumbnailClickedOnUserArea = true;
-            app.switchPageAndAddToHistory('viewNarrationUserAreaWithoutCommentAddingPage');
-            app.slideSwitches = e.item.narration.slideSwitches;
-            app.playButtonOrThumbnailClicked(e, e.item.narration._id);
-            app.currentImageUrl = 'showTitle';
-            /*
-            if(app.title){
-                app.currentImageUrl='showTitleSlideForAMoment';
+        thumbnailClickedOnUserArea = (
+            function(e){
+                app.largeThumbnailClickedOnUserArea = true;
+                app.switchPageAndAddToHistory('viewNarrationUserAreaWithoutCommentAddingPage');
+                app.slideSwitches = e.item.narration.slideSwitches;
+                app.playButtonOrThumbnailClicked(e, e.item.narration._id);
+                app.currentImageUrl = 'showTitle';
+                /*
+                if(app.title){
+                    app.currentImageUrl='showTitleSlideForAMoment';
+                }
+                else{
+                    app.currentImageUrl!='showTitleSlideForAMoment';
+                }
+                */
+                app.update();
             }
-            else{
-                app.currentImageUrl!='showTitleSlideForAMoment';
-            }
-            */
-            app.update();
-
-        }
+        );
 
         pauseButtonClicked(e){
             app.playingButtonClicked = false;
@@ -1105,9 +1109,9 @@
     <!--
     <div class="{imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery}">
     -->
-    <div class="{ selectedThumbnail: narration==app.thumbnailSelected, imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery }">
+    <div class="{ imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery }">
         <!--<div if="{parent.opts.smallnarrationgallery}"><input type="checkbox" onchange="{app.narrationCheckboxChanged}"/></div>-->
-        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{parent.opts.smallnarrationgallery ? 'galleryImage' : 'narrationImage'}"
+        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{ galleryImage : parent.opts.smallnarrationgallery, narrationImage : !parent.opt.smallnarrationgallery, selectedThumbnail: narration==app.thumbnailSelected }"
          onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
     </div>
 </narrationgallery>
