@@ -203,6 +203,13 @@ input{
   margin-top: 19px;
   margin-bottom: 5px;
   flex-direction: row;
+  position: relative;
+}
+.checkMark {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+
 }
 .imageGalleryTag {
   background: rgba(255,255,0,0.3);

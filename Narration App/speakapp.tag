@@ -173,7 +173,8 @@
                         <div class="imageGalleryTag" if="{app.pageName == 'recordNarrationPage'}">
                             <narrationgallery app.smallnarrationgallery={true} narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
                         </div>
-                        <div if="{ app.stopButtonWasClicked }" class="circleButton" onclick="{publishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Publish this narration</div>
+                        <div if="{ app.stopButtonWasClicked || app.smallThumbnailClicked && !published }" class="circleButton" onclick="{publishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Publish this narration</div>
+                        <div if="{ app.smallThumbnailClicked && published }" class="circleButton" onclick="{unpublishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Unpublish</div>
                     </div>
                 </div>
                 <!--
@@ -212,11 +213,11 @@
 
     <script>
         app = this;
-        app.ipAddress = "192.168.1.130";
-        /*
-        app.username = "Nalini";
-        app.password = "Nalini123";
-        */
+        app.ipAddress = "192.168.1.7";
+        
+        //app.username = "Nalini";
+        //app.password = "Nalini123";
+        
         app.narrations = [];
         app.recentNarrationTakes = [];
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
@@ -225,6 +226,10 @@
         //app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
         //app.pageName = "registerPage";
         //app.pageName = "recordNarrationPage";
+
+        stringify(object){
+            return JSON.stringify(object, null, 4);
+        }
 
         history.replaceState(app.pageName, null, app.pageName);
 
@@ -455,7 +460,7 @@
                         app.recordingButtonClicked = true;
                         app.recording = true;
                         app.startTime = Date.now();
-                        app.slideSwitches.length = 0;
+                        app.slideSwitches = [];
                         $.post(
                             app.rootUrlWithSlashAtEnd + "Narrations",
                             {
@@ -563,22 +568,19 @@
                         app.recordingButtonClicked = false;
                         app.recording = false;
                         window.Stream.end();
-                        app.narrations.push(
+
+                        const narrationAdded =
                             {
                                 slideSwitches: app.slideSwitches,
                                 _id: app.audioFileId
                             }
+                        ;
 
+                        app.narrations.push(narrationAdded);
+                        app.recentNarrationTakes.push(narrationAdded);
+                        app.thumbnailSelected = narrationAdded;
 
-                        );
-                        app.recentNarrationTakes.push(
-                            {
-                                slideSwitches: app.slideSwitches,
-                                _id: app.audioFileId
-                            }
-
-
-                        );
+                        console.log('AFTER STOP, RECENT NARRATION TAKES IS NOW ' + app.stringify(app.recentNarrationTakes));
                         
                         //TODO: Change narrationId to _id in the json of the post call below check
                         $.post(
@@ -639,10 +641,11 @@
 
         app.thumbnailClicked = (
             function(e){
-                app.thumbnailSelected = e.item.narration;
-                console.log("INSIDE THUMBNAIL CLICKED NARRATION ID IS " + e.item.narration._id);
                 app.smallThumbnailClicked = true;
-                
+                app.thumbnailSelected = e.item.narration;
+                app.slideSwitches = app.thumbnailSelected.slideSwitches;
+                //app.narrationIdOfThumbnailClicked = e.item.narration._id;
+                console.log("INSIDE THUMBNAIL CLICKED NARRATION ID IS " + e.item.narration._id);
                 //app.playButtonOrThumbnailClicked(e, e.item.narration._id);
                 //app.currentImageUrl = 'showTitle';
                 //app.update();
@@ -662,9 +665,11 @@
             //app.slideSwitches = e.item.narration.slideSwitches;
             app.currentImageUrl = 'showTitle';
             if(app.thumbnailSelected){
-                app.playButtonOrThumbnailClicked(e, app.audioFileId);
+                //app.slideSwitches = app.thumbnailSelected.slideSwitches;
+                app.playButtonOrThumbnailClicked(e, app.thumbnailSelected._id);
                 app.update();
             }
+            
             /*
             if(app.title){
                 app.currentImageUrl='showTitleSlideForAMoment';
@@ -673,6 +678,23 @@
                 app.currentImageUrl!='showTitleSlideForAMoment';
             }
             */
+        }
+        publishButtonClicked(e){
+            $.post(
+                app.rootUrlWithSlashAtEnd + "publishNarration",
+                {
+                    narrationId: app.thumbnailSelected._id
+                },
+                function( data ) {
+                    console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = TRUE TO DATABASE " + JSON.stringify(data));
+                    if(data){
+                        published = true;
+                        app.update();
+                    }
+
+                }
+            );
+
         }
 
         app.largethumbnailclickedonpublicarea = (
@@ -753,7 +775,7 @@
         app.setTimeoutIDArray = [];
         function onAudioStart(){
             console.log("onAudioStart() entered");
-            console.log("APP.SLIDESWITCHES IS " + app.slideSwitches);
+            console.log("APP.SLIDESWITCHES IS " + JSON.stringify(app.slideSwitches));
             app.slideSwitches.forEach(
                 function(slideSwitch){
                 console.log("forEach entered");
@@ -857,16 +879,9 @@
                 e.item.narration.isChecked = !e.item.narration.isChecked;
             }
         );
+        /*
         deleteCheckedNarrationsPermanently(e){
-            /*
-            //app.parent.selected.remove();
-            var parentNarrationDivsSelected = $('.selectNarrationCheckbox:checkbox:checked').parent();
-            //parentNarrationDivsSelected.$('[each="narration.title"]');
-            console.log("NARRATION TO DELETE = " + $('[each="app.narrations.title"]').parentNarrationDivsSelected);
-            //$('.selectNarrationCheckbox:checkbox:checked').parent().remove();
-            app.update();
-            */
-            //$(".checkbox input:checked").parent().remove();
+            
             const narrationsIdsToDelete =
                 app.narrations
                     .filter(
@@ -913,7 +928,7 @@
                     app.update();
                 }
             );
-        }
+        } */
         deleteSelectedImages(e){
 
             app.images = 
@@ -1016,10 +1031,13 @@
         app.slideSwitches = [];
 
         galleryImageClicked(e){
+
+            console.log('recentNarrationTakes BEFORE GALLERY IMAGE CLICKED CODE IS ' + app.stringify(app.recentNarrationTakes));
+
             //alert("Image Clicked! " +  i);
             if(app.pageName=="recordNarrationPage"){
                 app.currentImageUrl = e.item.image.url;
-                app.update();
+                
 
                 if(app.recording){
 
@@ -1040,6 +1058,9 @@
 
             }
 
+            console.log('recentNarrationTakes AFTER GALLERY IMAGE CLICKED CODE IS ' + app.stringify(app.recentNarrationTakes));
+
+            app.update();
         }
 
         this.on(
@@ -1111,6 +1132,7 @@
     -->
     <div class="{ imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery }">
         <!--<div if="{parent.opts.smallnarrationgallery}"><input type="checkbox" onchange="{app.narrationCheckboxChanged}"/></div>-->
+        <div if="{published}" class="checkMark"><img src="images\checkMark.png" width="6px" height="6px"/></div>
         <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{ galleryImage : parent.opts.smallnarrationgallery, narrationImage : !parent.opts.smallnarrationgallery, selectedThumbnail: narration==app.thumbnailSelected }"
          onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
     </div>
