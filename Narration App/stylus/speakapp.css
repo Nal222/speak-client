@@ -195,7 +195,6 @@ input{
 }
 .imageGallery {
   display: flex;
-  align-items: flex-start;
   flex-wrap: wrap;
   background: rgba(255,0,0,0.3);
   flex-grow: 1;
@@ -203,36 +202,42 @@ input{
   margin-top: 19px;
   margin-bottom: 5px;
   flex-direction: row;
-  position: relative;
+  align-items: flex-start;
+  /*position: relative;*/
 }
+/*
 .checkMark {
   position: absolute;
   top: 0px;
   right: 0px;
-
 }
+*/
+
 .imageGalleryTag {
   background: rgba(255,255,0,0.3);
 }
+
 .galleryImage {
   width: 100px;
   height: 70px;
   margin: 5px;
   user-select: none;
 }
+
 .viewNarrationsGallery{
   display: flex;
-  align-items: flex-start;
   flex-direction: row;
+  align-items: flex-start;
   flex-wrap: wrap;
   height: 100%;
   width: 100%;
   border: 1px solid black;
 }
+
 .narrationImage{
-  width: calc(100% * (1/4) - 10px - 1px);
+  width: 150px;
   height: 100px;
-  margin: 5px;
+  padding: 5px;
 }
 .pointerEventsNone {
   pointer-events:none;

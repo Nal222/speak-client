@@ -67,7 +67,7 @@
         </div>
         <div if="{app.pageName == 'viewNarrationsPage'}">
             <input type="text" size="40" maxlength="100" id="narrationsSearchInput"/>
-            <narrationgallery smallnarrationgallery={false} narrationsimageslist="{app.allNarrations}"></narrationgallery>
+            <narrationgallery smallnarrationgallery="{false}" narrationsimageslist="{app.allNarrations}"></narrationgallery>
         </div>
         <div if="{app.largeThumbnailClicked && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
             <audio id="myAudio"></audio>
@@ -171,7 +171,7 @@
                     <div class="columnLayout">
                         <viewvideo></viewvideo>
                         <div class="imageGalleryTag" if="{app.pageName == 'recordNarrationPage'}">
-                            <narrationgallery app.smallnarrationgallery={true} narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
+                            <narrationgallery smallnarrationgallery="{true}" narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
                         </div>
                         <div if="{ app.stopButtonWasClicked || app.smallThumbnailClicked && !published }" class="circleButton" onclick="{publishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Publish this narration</div>
                         <div if="{ app.smallThumbnailClicked && published }" class="circleButton" onclick="{unpublishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Unpublish</div>
@@ -247,6 +247,7 @@
 
         viewNarrationsButtonClicked(e){
             app.switchPageAndAddToHistory('viewNarrationsPage');
+            //app.smallnarrationgallery = false;
             $.post(
                 app.rootUrlWithSlashAtEnd + "getAllNarrations",
                 {
@@ -442,6 +443,8 @@
                 galleryItem=>galleryItem.selected
             );
             app.switchPageAndAddToHistory("recordNarrationPage");
+            //app.smallnarrationgallery = true;
+            //console.log("SMALLNARRATIONGALLERY IS " + app.smallnarrationgallery);
         }
 
     
@@ -581,6 +584,7 @@
                         app.thumbnailSelected = narrationAdded;
 
                         console.log('AFTER STOP, RECENT NARRATION TAKES IS NOW ' + app.stringify(app.recentNarrationTakes));
+                        //console.log("SMALLNARRATIONGALLERY IS " + smallnarrationgallery);
                         
                         //TODO: Change narrationId to _id in the json of the post call below check
                         $.post(
@@ -1130,12 +1134,15 @@
     <!--
     <div class="{imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery}">
     -->
-    <div class="{ imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery }">
-        <!--<div if="{parent.opts.smallnarrationgallery}"><input type="checkbox" onchange="{app.narrationCheckboxChanged}"/></div>-->
-        <div if="{published}" class="checkMark"><img src="images\checkMark.png" width="6px" height="6px"/></div>
-        <img src="{narration.slideSwitches[0].imageUrl}" each="{narration, i in opts.narrationsimageslist}" class="{ galleryImage : parent.opts.smallnarrationgallery, narrationImage : !parent.opts.smallnarrationgallery, selectedThumbnail: narration==app.thumbnailSelected }"
-         onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
-    </div>
+    <div class= "{ imageGallery: opts.smallnarrationgallery==true, viewNarrationsGallery: opts.smallnarrationgallery==false }">
+        <div each="{narration, i in opts.narrationsimageslist}">
+            <div if="{published && narration==app.thumbnailSelected}" class="checkMark">
+                <img src="images\checkMark.png" width="20px" height="20px"/>
+            </div>
+            <img src="{narration.slideSwitches[0].imageUrl}"  class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.thumbnailSelected }"
+            onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
+        </div>
+    </div>  
 </narrationgallery>
 <!--
 <narrationviewinggallery>
