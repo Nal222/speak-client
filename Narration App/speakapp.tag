@@ -347,35 +347,35 @@
             app.confirmClicked = true;
             app.title = $("#titleInput").val();
             app.username = $("#usernameInput").val();
-            app.passwordFirst = $("#passwordInputFirst").val();
+            app.password = $("#passwordInputFirst").val();
             app.passwordSecond = $("#passwordInputSecond").val();
 
 
             //TODO: Message to request user to enter password with letters and numbers of 8 characters minimum
             var regularExpression = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,20})/;
-            if(!regularExpression.test(app.passwordFirst)){
-                console.log(app.passwordFirst);
+            if(!regularExpression.test(app.password)){
+                console.log(app.password);
                 app.wrongPassword = true;
             }
             else{
                 app.wrongPassword = false;
-                console.log(app.passwordFirst);
+                console.log(app.password);
             }
             console.log("Is password incorrect? " + app.wrongPassword);
 
             //TODO: Only do $.post if client-side is validated
-            if(app.passwordFirst == app.passwordSecond){
+            if(app.password == app.passwordSecond){
                 app.passwordsMatching = true;
             }
 
-            if(app.username && app.passwordFirst && app.passwordSecond && app.passwordsMatching && !app.wrongPassword){
+            if(app.username && app.password && app.passwordSecond && app.passwordsMatching && !app.wrongPassword){
                 console.log("I have reached where post is");
                 $.post(
                     app.rootUrlWithSlashAtEnd + "register",
                     {
                         title: app.title,
                         username: app.username,
-                        password: app.passwordFirst
+                        password: app.password
 
                     },
                     function(data) {
@@ -735,10 +735,11 @@
                 );
             }
         );
-        thumbnailClickedOnUserArea = (
+        app.thumbnailClickedOnUserArea = (
             function(e){
                 app.largeThumbnailClickedOnUserArea = true;
                 app.switchPageAndAddToHistory('viewNarrationUserAreaWithoutCommentAddingPage');
+                console.log("Reached inside THUMBNAILCLICKEDONUSERAREA");
                 app.slideSwitches = e.item.narration.slideSwitches;
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
                 app.currentImageUrl = 'showTitle';
