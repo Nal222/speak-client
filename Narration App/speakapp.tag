@@ -173,8 +173,8 @@
                         <div class="imageGalleryTag" if="{app.pageName == 'recordNarrationPage'}">
                             <narrationgallery smallnarrationgallery="{true}" narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
                         </div>
-                        <div if="{ app.stopButtonWasClicked || app.smallThumbnailClicked && !published }" class="circleButton" onclick="{publishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Publish this narration</div>
-                        <div if="{ app.smallThumbnailClicked && published }" class="circleButton" onclick="{unpublishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Unpublish</div>
+                        <div if="{ app.stopButtonWasClicked || app.smallThumbnailClicked && !app.narrationSelected.published }" class="circleButton" onclick="{publishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Publish this narration</div>
+                        <div if="{ app.smallThumbnailClicked && app.narrationSelected.published }" class="circleButton" onclick="{unpublishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Unpublish</div>
                     </div>
                 </div>
                 <!--
@@ -581,7 +581,7 @@
 
                         app.narrations.push(narrationAdded);
                         app.recentNarrationTakes.push(narrationAdded);
-                        app.thumbnailSelected = narrationAdded;
+                        app.narrationSelected = narrationAdded;
 
                         console.log('AFTER STOP, RECENT NARRATION TAKES IS NOW ' + app.stringify(app.recentNarrationTakes));
                         //console.log("SMALLNARRATIONGALLERY IS " + smallnarrationgallery);
@@ -646,8 +646,8 @@
         app.thumbnailClicked = (
             function(e){
                 app.smallThumbnailClicked = true;
-                app.thumbnailSelected = e.item.narration;
-                app.slideSwitches = app.thumbnailSelected.slideSwitches;
+                app.narrationSelected = e.item.narration;
+                app.slideSwitches = app.narrationSelected.slideSwitches;
                 //app.narrationIdOfThumbnailClicked = e.item.narration._id;
                 console.log("INSIDE THUMBNAIL CLICKED NARRATION ID IS " + e.item.narration._id);
                 //app.playButtonOrThumbnailClicked(e, e.item.narration._id);
@@ -668,9 +668,9 @@
         playButtonClicked(e){
             //app.slideSwitches = e.item.narration.slideSwitches;
             app.currentImageUrl = 'showTitle';
-            if(app.thumbnailSelected){
-                //app.slideSwitches = app.thumbnailSelected.slideSwitches;
-                app.playButtonOrThumbnailClicked(e, app.thumbnailSelected._id);
+            if(app.narrationSelected){
+                //app.slideSwitches = app.narrationSelected.slideSwitches;
+                app.playButtonOrThumbnailClicked(e, app.narrationSelected._id);
                 app.update();
             }
             
@@ -687,18 +687,23 @@
             $.post(
                 app.rootUrlWithSlashAtEnd + "publishNarration",
                 {
-                    narrationId: app.thumbnailSelected._id
+                    narrationId: app.narrationSelected._id
                 },
                 function( data ) {
                     console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = TRUE TO DATABASE " + JSON.stringify(data));
                     if(data){
-                        published = true;
+                        app.narrationSelected.published = true;
                         app.update();
                     }
 
                 }
             );
 
+        }
+        unpublishButtonClicked(e){
+
+
+            
         }
 
         app.largethumbnailclickedonpublicarea = (
@@ -1137,10 +1142,10 @@
     -->
     <div class= "{ imageGallery: opts.smallnarrationgallery==true, viewNarrationsGallery: opts.smallnarrationgallery==false }">
         <div each="{narration, i in opts.narrationsimageslist}">
-            <div if="{published && narration==app.thumbnailSelected}" class="checkMark">
+            <div if="{narration.published}" class="checkMark">
                 <img src="images\checkMark.png" width="20px" height="20px"/>
             </div>
-            <img src="{narration.slideSwitches[0].imageUrl}"  class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.thumbnailSelected }"
+            <img src="{narration.slideSwitches[0].imageUrl}"  class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.narrationSelected }"
             onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
         </div>
     </div>  
