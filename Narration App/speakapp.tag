@@ -67,7 +67,7 @@
         </div>
         <div if="{app.pageName == 'viewNarrationsPage'}">
             <input type="text" size="40" maxlength="100" id="narrationsSearchInput"/>
-            <narrationgallery smallnarrationgallery="{false}" narrationsimageslist="{app.allNarrations}"></narrationgallery>
+            <narrationgallery smallnarrationgallery="{false}" narrationsimageslist="{app.allPublishedNarrations}"></narrationgallery>
         </div>
         <div if="{app.largeThumbnailClicked && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
             <audio id="myAudio"></audio>
@@ -249,13 +249,13 @@
             app.switchPageAndAddToHistory('viewNarrationsPage');
             //app.smallnarrationgallery = false;
             $.post(
-                app.rootUrlWithSlashAtEnd + "getAllNarrations",
+                app.rootUrlWithSlashAtEnd + "getAllPublishedNarrations",
                 {
                     
                 },
                 function( data ) {
-                    app.allNarrations = data;
-                    console.log("data VARIABLE CONTAINING ALL NARRATIONS FROM SERVER IS " + JSON.stringify(data));
+                    app.allPublishedNarrations = data;
+                    console.log("data VARIABLE CONTAINING ALL PUBLISHED NARRATIONS FROM SERVER IS " + JSON.stringify(data));
                     app.update();
 
                 }
@@ -1157,7 +1157,7 @@
     -->
     <div class= "{ imageGallery: opts.smallnarrationgallery==true, viewNarrationsGallery: opts.smallnarrationgallery==false }">
         <div each="{narration, i in opts.narrationsimageslist}">
-            <div if="{narration.published}" class="checkMark">
+            <div if="{narration.published && opts.smallnarrationgallery==true}" class="checkMark">
                 <img src="images\checkMark.png" width="20px" height="20px"/>
             </div>
             <img src="{narration.slideSwitches[0].imageUrl}"  class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.narrationSelected }"
