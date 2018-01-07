@@ -701,9 +701,24 @@
 
         }
         unpublishButtonClicked(e){
+            $.post(
+                app.rootUrlWithSlashAtEnd + "unpublishNarration",
+                {
+                    narrationId: app.narrationSelected._id
+                },
+                function( data ) {
+                    console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = FALSE TO DATABASE " + JSON.stringify(data));
+                    if(data){
+                        app.narrationSelected.published = false;
+                        app.update();
+                    }
+
+                }
+            );
 
 
-            
+
+
         }
 
         app.largethumbnailclickedonpublicarea = (
