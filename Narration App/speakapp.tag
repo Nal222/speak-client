@@ -168,6 +168,7 @@
                     <div class="imageGalleryTag">
                         <imagegallery imagelist="{app.chosenImages}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
                     </div>
+                    <div></div>
                     <div class="columnLayout">
                         <viewvideo></viewvideo>
                         <div class="imageGalleryTag" if="{app.pageName == 'recordNarrationPage'}">
@@ -284,6 +285,8 @@
                         app.switchPageAndAddToHistory('userAreaPage');
                         app.images = data.galleryItems;
                         app.narrations = data.narrations;
+                        app.title = data.title;
+                        console.log("NARRATION TITLE SET IS " + data.title);
                         app.update();
                         document.getElementById("userAreaWelcomeMessageParagraph").innerHTML = app.welcomeParagraph;
                         console.log("userAreaWelcomeMessageParagraph " + document.getElementById("userAreaWelcomeMessageParagraph"));
@@ -339,7 +342,7 @@
             );
         }
 
-        app.title = 'wonderfull';
+        //app.title = 'wonderfull';
 
         confirmButtonClicked(e){
 
@@ -467,7 +470,7 @@
                         $.post(
                             app.rootUrlWithSlashAtEnd + "Narrations",
                             {
-                                narration: {title: 'MyNarration'}, //TODO replace with app.title
+                                narration: {title: app.title}, //TODO replace with app.title
                                 username: app.username,
                                 password: app.password
                             },
@@ -574,6 +577,7 @@
 
                         const narrationAdded =
                             {
+                                title: app.title,
                                 slideSwitches: app.slideSwitches,
                                 _id: app.audioFileId
                             }
@@ -1155,15 +1159,44 @@
     <!--
     <div class="{imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery}">
     -->
+
+    <style>
+        .thumbnailTitle{
+            font-family: RobotoCR;
+            font-size: 15px;
+        }
+    </style>
     <div class= "{ imageGallery: opts.smallnarrationgallery==true, viewNarrationsGallery: opts.smallnarrationgallery==false }">
         <div each="{narration, i in opts.narrationsimageslist}">
             <div if="{narration.published && opts.smallnarrationgallery==true}" class="checkMark">
                 <img src="images\checkMark.png" width="20px" height="20px"/>
             </div>
+            <div if="{parent.opts.smallnarrationgallery}" contenteditable="true" oninput="{onThumbnailNarrationTitleInput}" class="thumbnailTitle">{narration.title}</div>
+            <div if="{!parent.opts.smallnarrationgallery}" class="thumbnailTitle">{narration.title}</div>
             <img src="{narration.slideSwitches[0].imageUrl}"  class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.narrationSelected }"
             onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
         </div>
-    </div>  
+    </div>
+    <script>
+        onThumbnailNarrationTitleInput(e){
+            console.log('NEW VALUE IS ' + e.currentTarget.textContent);
+
+            const newTitle = e.currentTarget.textContent;
+            e.item.narration.title = newTitle;
+
+            $.post(
+                app.rootUrlWithSlashAtEnd + "updateNarrationTitle",
+                {
+                    title: newTitle,
+                    narrationId: e.item.narration._id
+                },
+                function( data ) {
+                    alert( "Data Loaded: " + JSON.stringify(data) );
+                    app.update();
+                }
+            );
+        }
+    </script>
 </narrationgallery>
 <!--
 <narrationviewinggallery>
