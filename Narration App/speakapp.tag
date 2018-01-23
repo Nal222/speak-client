@@ -193,14 +193,22 @@
                         <input type="checkbox" onchange="{narrationCheckboxChanged}" class="selectNarrationCheckbox"/>
                         <div id="userAreaNarrationSelection" onclick="{app.thumbnailClickedOnUserArea}" style="display: flex;flex-direction: row">
                             <div><img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/></div>
-                            <div style="font-family: RobotoCR" id="userAreaNarrationTitleDiv">{narration.title}</div>
+                            <div style="display: flex;flex-direction: column">
+                                <div style="font-family: RobotoCR" id="userAreaNarrationTitleDiv">{narration.title}</div>
+                                <div if="{narration.published}" class="checkMark">
+                                    <img src="images\checkMark.png" width="20px" height="20px"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <div style="font-family: RobotoCR; font-size: 15px">To delete a narration select it by clicking on select box then press delete button. The narration will be permanently deleted and the public can not view it</div>
+                    <div style="font-family: RobotoCR; font-size: 15px">To delete, publish or unpublish a narration, select it by clicking on select box then press the relevant button. If delete is chosen the narration will be permanently deleted and neither you or the public can view it</div>
                     <div class="circleButton" style="width: 70px; height: 70px; font-size: 20px" onclick="{app.deleteCheckedNarrationsPermanently}">Delete</div>
-                    <div style="font-family: RobotoCR; font-size: 15px">See image gallery, select images and record narrations</div><div class="circleButton" onclick="{app.goToImageGalleryPage}">GO</div>
+                    <div class="circleButton" style="width: 60px; height: 60px; font-size: 10px" onclick="{publishButtonClicked}">Publish</div>
+                    <div class="circleButton" style="width: 60px; height: 60px; font-size: 10px" onclick="{unpublishButtonClicked}">Unpublish</div>
+                    <div style="font-family: RobotoCR; font-size: 15px">See image gallery, select images and record narrations</div>
+                    <div class="circleButton" onclick="{app.goToImageGalleryPage}">GO</div>
                 </div>
             </div>
         </div>
@@ -267,7 +275,7 @@
             console.log("Inside confirm login button clicked!");
             app.username = $("#usernameLoginInput").val();
             app.password = $("#passwordLoginInput").val();
-            app.welcomeParagraph = "<p style='color: purple'>Welcome " +app.username+ "</p><p align='center'>Here are your narrations.</p><p align='center'>Hover over and click to view.</p>";
+            app.welcomeParagraph = "<p style='color: purple'>Welcome " +app.username+ "</p><p align='left'>Here are your narrations.</p><p align='left'>Hover over and click to view.</p>";
             $.post(
                 app.rootUrlWithSlashAtEnd + "login",
                 {
@@ -906,6 +914,7 @@
         app.narrationCheckboxChanged = (
             function(e){
                 e.item.narration.isChecked = !e.item.narration.isChecked;
+                app.narrationSelected = e.item.narration;
             }
         );
         /*
@@ -1171,7 +1180,7 @@
             <div if="{narration.published && opts.smallnarrationgallery==true}" class="checkMark">
                 <img src="images\checkMark.png" width="20px" height="20px"/>
             </div>
-            <div if="{parent.opts.smallnarrationgallery}" contenteditable="true" oninput="{onThumbnailNarrationTitleInput}" class="thumbnailTitle">{narration.title}</div>
+            <div if="{parent.opts.smallnarrationgallery}" contenteditable="true" onblur="{onThumbnailNarrationTitleInput}" class="thumbnailTitle">{narration.title}</div>
             <div if="{!parent.opts.smallnarrationgallery}" class="thumbnailTitle">{narration.title}</div>
             <img src="{narration.slideSwitches[0].imageUrl}"  class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.narrationSelected }"
             onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
@@ -1182,7 +1191,7 @@
             console.log('NEW VALUE IS ' + e.currentTarget.textContent);
 
             const newTitle = e.currentTarget.textContent;
-            e.item.narration.title = newTitle;
+            //e.item.narration.title = newTitle;
 
             $.post(
                 app.rootUrlWithSlashAtEnd + "updateNarrationTitle",
@@ -1191,7 +1200,7 @@
                     narrationId: e.item.narration._id
                 },
                 function( data ) {
-                    alert( "Data Loaded: " + JSON.stringify(data) );
+                    console.log("Update narration title call returned data from server " + JSON.stringify(data));
                     app.update();
                 }
             );
