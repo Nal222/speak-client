@@ -222,7 +222,7 @@
 
     <script>
         app = this;
-        app.ipAddress = "192.168.1.7";
+        app.ipAddress = "192.168.1.19";
         
         //app.username = "Nalini";
         //app.password = "Nalini123";
@@ -293,8 +293,6 @@
                         app.switchPageAndAddToHistory('userAreaPage');
                         app.images = data.galleryItems;
                         app.narrations = data.narrations;
-                        app.title = data.title;
-                        console.log("NARRATION TITLE SET IS " + data.title);
                         app.update();
                         document.getElementById("userAreaWelcomeMessageParagraph").innerHTML = app.welcomeParagraph;
                         console.log("userAreaWelcomeMessageParagraph " + document.getElementById("userAreaWelcomeMessageParagraph"));
@@ -356,7 +354,7 @@
 
             //$(".top").append("<div class='circleButton small alignSelfFlexEnd redSmallButton absolutePositionGoBackButton' style='font-size: 20px'>Go back</div>");
             app.confirmClicked = true;
-            app.title = $("#titleInput").val();
+            app.narrationTitleOnRegistration = ($("#titleInput").val())
             app.username = $("#usernameInput").val();
             app.password = $("#passwordInputFirst").val();
             app.passwordSecond = $("#passwordInputSecond").val();
@@ -384,10 +382,8 @@
                 $.post(
                     app.rootUrlWithSlashAtEnd + "register",
                     {
-                        title: app.title,
                         username: app.username,
                         password: app.password
-
                     },
                     function(data) {
                         console.log("Inside funtion(data)")
@@ -458,7 +454,6 @@
             //console.log("SMALLNARRATIONGALLERY IS " + app.smallnarrationgallery);
         }
 
-    
         var client = new BinaryClient("ws://"+app.ipAddress+":9001/");
         client.on(
             'open',
@@ -467,6 +462,7 @@
                 console.log("Inside client.on function");
 
                 app.recording = false;
+            
         
                 app.recordButtonClicked = (
                     function(){
@@ -475,10 +471,16 @@
                         app.recording = true;
                         app.startTime = Date.now();
                         app.slideSwitches = [];
+                        if(app.narrationTitleOnRegistration){
+                            app.narrationTitle = app.narrationTitleOnRegistration;
+                        }
+                        else{
+                            app.narrationTitle = "Untitled Narration";
+                        }
                         $.post(
                             app.rootUrlWithSlashAtEnd + "Narrations",
                             {
-                                narration: {title: app.title}, //TODO replace with app.title
+                                narration: {title: app.narrationTitle}, //TODO replace with app.title
                                 username: app.username,
                                 password: app.password
                             },
@@ -585,7 +587,7 @@
 
                         const narrationAdded =
                             {
-                                title: app.title,
+                                title: app.narrationTitle,
                                 slideSwitches: app.slideSwitches,
                                 _id: app.audioFileId
                             }
@@ -914,30 +916,33 @@
         app.narrationCheckboxChanged = (
             function(e){
                 e.item.narration.isChecked = !e.item.narration.isChecked;
-                app.narrationSelected = e.item.narration;
+                app.narrationSelected = e.item.narration; 
             }
         );
-        /*
+        
         deleteCheckedNarrationsPermanently(e){
-            
-            const narrationsIdsToDelete =
-                app.narrations
-                    .filter(
-                        narration=>narration.isChecked
-                    )
-                    .map(
-                        narration=>narration._id
-                    )
-            ;
-            console.log("NARRATION IDS TO DELETE ARE " + narrationsIdsToDelete);
-            app.narrations = 
-                app.narrations
-                    .filter(
-                        narration=>!narration.isChecked
-                    )
-            ;
+            if(app.pageName == 'userAreaPage'){
+                console.log("Narrations in user area app.narrations are " + JSON.stringify(app.narrations));
+                app.narrationsIdsToDelete =
+                    app.narrations
+                        .filter(
+                            narration=>narration && narration.isChecked //Fix narrations sometimes being null
+                        )
+                        .map(
+                            narration=>narration._id
+                        )
+                ;
+                //console.log("NARRATIONS IDS TO DELETE USER AREA PAGE ARE " + narrationsIdsToDelete);
+                app.narrations = 
+                    app.narrations
+                        .filter(
+                            narration=>narration && !narration.isChecked
+                        )
+                ;
+            }
+
             if(app.pageName=="recordNarrationPage"){
-                const narrationsIdsToKeepAnsSave =
+                app.narrationsIdsToDelete =
                     app.recentNarrationTakes
                         .filter(
                             narration=>narration.isChecked
@@ -946,27 +951,26 @@
                             narration=>narration._id
                         )
                 ;
-                console.log("NARRATION IDS TO KEEP AND SAVE TO SHOW THE WORLD ARE " + narrationsIdsToDelete);
+                console.log("NARRATIONS IDs TO DELETE RECORD NARRATION PAGE ARE " + narrationsIdsToDelete);
                 app.recentNarrationTakes = 
                     app.recentNarrationTakes
                         .filter(
                             narration=>narration.isChecked
                         )
                 ;
-
             }
 
             $.post(
                 app.rootUrlWithSlashAtEnd + "deleteNarrationsFromDatabase",
                 {
-                    narrationIds: narrationsIdsToDelete
+                    narrationIds: app.narrationsIdsToDelete
                 },
                 data=>{
-                    console.log("Inside function data returned after deletion of narration from database is confirmation deleted " + data)
-                    app.update();
+                    //console.log("Inside function data returned after deletion of narration from database is confirmation deleted " + data)
+                    //app.update();
                 }
             );
-        } */
+        } 
         deleteSelectedImages(e){
 
             app.images = 
@@ -1061,7 +1065,10 @@
 
 <imagegallery>
     <div class="imageGallery roundedCornersBorder {sortable: opts.sortable, pointerEventsNone: app.blockMouseForGallery}" style="margin-bottom: 5px; flex-direction: {opts.columnorrow}">
-        <div if="{app.title!=''}" class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">{app.title}</div>
+        <!--
+        <div if="{app.title!='' && !app.narrationSelected.title}" class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">{app.title}</div>
+        <div if="{app.narrationSelected.title}" class="galleryImage" style="font-family: RobotoCR; font-size: 10px; border: solid">{app.narrationSelected.title}</div>
+        -->
         <img class="galleryImage {highlight:image.selected}" id="imageGalleryImage" each="{image, i in opts.imagelist}" src="{image.url}" onclick="{galleryImageClicked}" onmousedown="{selectImageandHighlight}" onmousedown="{deselectImage}" draggable="false">
     </div>
     <script>
@@ -1190,13 +1197,13 @@
         onThumbnailNarrationTitleInput(e){
             console.log('NEW VALUE IS ' + e.currentTarget.textContent);
 
-            const newTitle = e.currentTarget.textContent;
+            app.newTitle = e.currentTarget.textContent;
             //e.item.narration.title = newTitle;
 
             $.post(
                 app.rootUrlWithSlashAtEnd + "updateNarrationTitle",
                 {
-                    title: newTitle,
+                    title: app.newTitle,
                     narrationId: e.item.narration._id
                 },
                 function( data ) {
@@ -1233,7 +1240,7 @@
                     justify-content: center;
                 "
             >
-            {app.title}
+            {app.newTitle}
         </div>
         <img class="showSlideSwitchesImages" if="{app.currentImageUrl!='showTitle'}" src="{app.currentImageUrl}" width="800" height="450">
     </div>
