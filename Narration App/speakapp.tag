@@ -162,13 +162,19 @@
                     <div>&nbsp&nbsp</div>
                     <div if="{ !app.playingButtonClicked }" class="arrow-right" onclick="{playButtonClicked}"></div>
                     <div if="{ app.playingButtonClicked }" class="pause" onclick="{pauseButtonClicked}"></div>
+                    <div>&nbsp&nbsp&nbsp&nbsp</div>
+                    <div style="font-family: RobotoCB; font-size: 50px">Edit Narration Title: </div>
+                    <div style="font-family: RobotoCB; font-size: 50px" contenteditable="true" onblur="{onNarrationTitleInput}">{app.narrationTitle}</div>
                 </div>
                 <div style="font-family: RobotoCR; flex-grow: 0;">Click on thumbnail to switch image while recording</div>
                 <div class="rowLayout">
                     <div class="imageGalleryTag">
                         <imagegallery imagelist="{app.chosenImages}" columnorrow="{'row'}" style="height: 100%;width: 100%"></imagegallery>
                     </div>
-                    <div></div>
+                    <!--
+                    <div if="{app.stopButtonWasClicked}">If you want to add or change your title click above narration thumbnail and edit</div>
+                    <div if="{!app.narrationTitle && !app.narrationSelected.title}">Please enter title this is mandatory</div>
+                    -->
                     <div class="columnLayout">
                         <viewvideo></viewvideo>
                         <div class="imageGalleryTag" if="{app.pageName == 'recordNarrationPage'}">
@@ -185,7 +191,9 @@
             </div>
         </div>
         <div if="{app.pageName == 'userAreaPage'}">
-            <p id="userAreaWelcomeMessageParagraph" style="font-family: RobotoCR"></p>
+            <p id="userAreaWelcomeMessageParagraph" style="font-family: RobotoCR; color: purple">Welcome {app.username}</p>
+            <p style="align: left; font-family: RobotoCR">Here are your narrations</p>
+            <p style="align: left; font-family: RobotoCR">Hover over and click to view</p>
             <div style="font-family: RobotoCR; font-size: 15px">select</div>
             <div style="display: flex; flex-direction: row">
                 <div style="margin-right: 20px">
@@ -217,12 +225,9 @@
         <audio id="myAudio"></audio>
         <viewvideo></viewvideo>
     </div>
-
-
-
-    <script>
+<script>
         app = this;
-        app.ipAddress = "192.168.1.19";
+        app.ipAddress = "192.168.1.13";
         
         //app.username = "Nalini";
         //app.password = "Nalini123";
@@ -235,6 +240,7 @@
         //app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
         //app.pageName = "registerPage";
         //app.pageName = "recordNarrationPage";
+        //app.pageName = "userAreaPage";
 
         stringify(object){
             return JSON.stringify(object, null, 4);
@@ -275,7 +281,7 @@
             console.log("Inside confirm login button clicked!");
             app.username = $("#usernameLoginInput").val();
             app.password = $("#passwordLoginInput").val();
-            app.welcomeParagraph = "<p style='color: purple'>Welcome " +app.username+ "</p><p align='left'>Here are your narrations.</p><p align='left'>Hover over and click to view.</p>";
+            //app.welcomeParagraph = "<p style='color: purple'>Welcome " +app.username+ "</p><p align='left'>Here are your narrations.</p><p align='left'>Hover over and click to view.</p>";
             $.post(
                 app.rootUrlWithSlashAtEnd + "login",
                 {
@@ -294,8 +300,8 @@
                         app.images = data.galleryItems;
                         app.narrations = data.narrations;
                         app.update();
-                        document.getElementById("userAreaWelcomeMessageParagraph").innerHTML = app.welcomeParagraph;
-                        console.log("userAreaWelcomeMessageParagraph " + document.getElementById("userAreaWelcomeMessageParagraph"));
+                        //$("#userAreaWelcomeMessageParagraph").html(app.welcomeParagraph);
+                        //console.log("userAreaWelcomeMessageParagraph " + $("#userAreaWelcomeMessageParagraph") + app.welcomeParagraph);
                         //document.getElementById("userAreaNarrationTitleDiv").innerHTML = narration.title;
                     }
                 }
@@ -450,6 +456,12 @@
                 galleryItem=>galleryItem.selected
             );
             app.switchPageAndAddToHistory("recordNarrationPage");
+            if(app.narrationTitleOnRegistration){
+                app.narrationTitle = app.narrationTitleOnRegistration;
+            }
+            else{
+                app.narrationTitle = "Enter Title";
+            }
             //app.smallnarrationgallery = true;
             //console.log("SMALLNARRATIONGALLERY IS " + app.smallnarrationgallery);
         }
@@ -471,16 +483,10 @@
                         app.recording = true;
                         app.startTime = Date.now();
                         app.slideSwitches = [];
-                        if(app.narrationTitleOnRegistration){
-                            app.narrationTitle = app.narrationTitleOnRegistration;
-                        }
-                        else{
-                            app.narrationTitle = "Untitled Narration";
-                        }
                         $.post(
                             app.rootUrlWithSlashAtEnd + "Narrations",
                             {
-                                narration: {title: app.narrationTitle}, //TODO replace with app.title
+                                narration: {title: app.narrationTitle},
                                 username: app.username,
                                 password: app.password
                             },
@@ -1012,6 +1018,32 @@
             return diff;
             */
         }
+        onNarrationTitleInput(e){
+            console.log('NEW VALUE IS ' + e.currentTarget.textContent);
+            app.narrationTitle = e.currentTarget.textContent;
+            app.recentNarrationTakes.length
+            &&
+            (
+            app.narrationsIdsOfNarrationsToUpdateTitle =
+                app.recentNarrationTakes
+                    .map(
+                        narration=>narration._id
+                    )
+            )
+            &&
+            $.post(
+                app.rootUrlWithSlashAtEnd + "updateNarrationTitle",
+                {
+                    title: app.narrationTitle,
+                    narrationIds: app.narrationsIdsOfNarrationsToUpdateTitle
+                },
+                function( data ) {
+                    console.log("Update narration title call returned data from server " + JSON.stringify(data));
+                    app.update();
+                }
+            )
+            ;
+        }
 
         /*
         app.images = [
@@ -1038,7 +1070,7 @@
             }
         ];
         */
-    </script>
+</script>
 </speak>
 <!--<flashinghello>
     <div if="{isOn}">hello</div>
@@ -1187,32 +1219,12 @@
             <div if="{narration.published && opts.smallnarrationgallery==true}" class="checkMark">
                 <img src="images\checkMark.png" width="20px" height="20px"/>
             </div>
-            <div if="{parent.opts.smallnarrationgallery}" contenteditable="true" onblur="{onThumbnailNarrationTitleInput}" class="thumbnailTitle">{narration.title}</div>
+            <div if="{parent.opts.smallnarrationgallery}" class="thumbnailTitle">{app.narrationTitle}</div>
             <div if="{!parent.opts.smallnarrationgallery}" class="thumbnailTitle">{narration.title}</div>
             <img src="{narration.slideSwitches[0].imageUrl}"  class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.narrationSelected }"
             onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
         </div>
     </div>
-    <script>
-        onThumbnailNarrationTitleInput(e){
-            console.log('NEW VALUE IS ' + e.currentTarget.textContent);
-
-            app.newTitle = e.currentTarget.textContent;
-            //e.item.narration.title = newTitle;
-
-            $.post(
-                app.rootUrlWithSlashAtEnd + "updateNarrationTitle",
-                {
-                    title: app.newTitle,
-                    narrationId: e.item.narration._id
-                },
-                function( data ) {
-                    console.log("Update narration title call returned data from server " + JSON.stringify(data));
-                    app.update();
-                }
-            );
-        }
-    </script>
 </narrationgallery>
 <!--
 <narrationviewinggallery>
