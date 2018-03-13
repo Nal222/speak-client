@@ -180,8 +180,13 @@
                         <div class="imageGalleryTag" if="{app.pageName == 'recordNarrationPage'}">
                             <narrationgallery smallnarrationgallery="{true}" narrationsimageslist="{app.recentNarrationTakes}"></narrationgallery>
                         </div>
-                        <div if="{ app.stopButtonWasClicked || app.smallThumbnailClicked && !app.narrationSelected.published }" class="circleButton" onclick="{publishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Publish this narration</div>
-                        <div if="{ app.smallThumbnailClicked && app.narrationSelected.published }" class="circleButton" onclick="{unpublishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Unpublish</div>
+                        <div style="display: flex; flex-direction: row">
+                            <div>
+                                <div if="{ !app.narrationSelected.published }" class="circleButton" onclick="{publishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Publish this narration</div>
+                                <div if="{ app.narrationSelected.published }" class="circleButton" onclick="{unpublishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Unpublish</div>
+                            </div>
+                            <div if="{app.narrationSelected}" class="circleButton" style="font-size: 10px; width: 60px; height: 60px" onclick="{app.deleteSelectedNarrationsPermanently}">Delete</div>
+                        </div>
                     </div>
                 </div>
                 <!--
@@ -212,7 +217,7 @@
                 </div>
                 <div>
                     <div style="font-family: RobotoCR; font-size: 15px">To delete, publish or unpublish a narration, select it by clicking on select box then press the relevant button. If delete is chosen the narration will be permanently deleted and neither you or the public can view it</div>
-                    <div class="circleButton" style="width: 70px; height: 70px; font-size: 20px" onclick="{app.deleteCheckedNarrationsPermanently}">Delete</div>
+                    <div class="circleButton" style="width: 70px; height: 70px; font-size: 20px" onclick="{app.deleteSelectedNarrationsPermanently}">Delete</div>
                     <div class="circleButton" style="width: 60px; height: 60px; font-size: 10px" onclick="{publishButtonClicked}">Publish</div>
                     <div class="circleButton" style="width: 60px; height: 60px; font-size: 10px" onclick="{unpublishButtonClicked}">Unpublish</div>
                     <div style="font-family: RobotoCR; font-size: 15px">See image gallery, select images and record narrations</div>
@@ -229,9 +234,33 @@
         app = this;
         app.ipAddress = "192.168.1.13";
         
-        //app.username = "Nalini";
-        //app.password = "Nalini123";
-        
+        login(){
+             $.post(
+                app.rootUrlWithSlashAtEnd + "login",
+                {
+                    username: app.username,
+                    password: app.password
+                },
+                function( data ) {
+                    console.log("data.narrations after login is " + JSON.stringify(data.narrations));
+                    if(data == "Invalid username or password"){
+                        app.invalidUsernameOrPasswordForLogin = true;
+                        app.update();
+                    }
+                    else{
+                        console.log("Inside ELSE VALID USERNAME AND PASSWORD");
+                        app.switchPageAndAddToHistory('userAreaPage');
+                        app.images = data.galleryItems;
+                        app.narrations = data.narrations;
+                        app.update();
+                        //$("#userAreaWelcomeMessageParagraph").html(app.welcomeParagraph);
+                        //console.log("userAreaWelcomeMessageParagraph " + $("#userAreaWelcomeMessageParagraph") + app.welcomeParagraph);
+                        //document.getElementById("userAreaNarrationTitleDiv").innerHTML = narration.title;
+                    }
+                }
+            );
+        }
+
         app.narrations = [];
         app.recentNarrationTakes = [];
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
@@ -241,6 +270,11 @@
         //app.pageName = "registerPage";
         //app.pageName = "recordNarrationPage";
         //app.pageName = "userAreaPage";
+
+         //TODO: comment this out when you don't want to auto log in
+        //app.username = "Nalini";
+        //app.password = "Nalini123";
+        //app.login();
 
         stringify(object){
             return JSON.stringify(object, null, 4);
@@ -276,37 +310,19 @@
                 }
             );
         }
+
+        
+
+       
         
         loginConfirmedButtonClicked(e){
             console.log("Inside confirm login button clicked!");
             app.username = $("#usernameLoginInput").val();
             app.password = $("#passwordLoginInput").val();
             //app.welcomeParagraph = "<p style='color: purple'>Welcome " +app.username+ "</p><p align='left'>Here are your narrations.</p><p align='left'>Hover over and click to view.</p>";
-            $.post(
-                app.rootUrlWithSlashAtEnd + "login",
-                {
-                    username: app.username,
-                    password: app.password
-                },
-                function( data ) {
-                    console.log("data.narrations after login is " + JSON.stringify(data.narrations));
-                    if(data == "Invalid username or password"){
-                        app.invalidUsernameOrPasswordForLogin = true;
-                        app.update();
-                    }
-                    else{
-                        console.log("Inside ELSE VALID USERNAME AND PASSWORD");
-                        app.switchPageAndAddToHistory('userAreaPage');
-                        app.images = data.galleryItems;
-                        app.narrations = data.narrations;
-                        app.update();
-                        //$("#userAreaWelcomeMessageParagraph").html(app.welcomeParagraph);
-                        //console.log("userAreaWelcomeMessageParagraph " + $("#userAreaWelcomeMessageParagraph") + app.welcomeParagraph);
-                        //document.getElementById("userAreaNarrationTitleDiv").innerHTML = narration.title;
-                    }
-                }
-            );
+            app.login();
         }
+
         goToImageGalleryPage(e){
             app.switchPageAndAddToHistory('chooseImagesFromImageGalleryPage');
         }
@@ -703,7 +719,12 @@
             }
             */
         }
+
         publishButtonClicked(e){
+            //app.narrationSelected.published = true;
+
+            console.log('RECENT NARRATION TAKES IS NOW ' + JSON.stringify(app.recentNarrationTakes));
+
             $.post(
                 app.rootUrlWithSlashAtEnd + "publishNarration",
                 {
@@ -711,8 +732,16 @@
                 },
                 function( data ) {
                     console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = TRUE TO DATABASE " + JSON.stringify(data));
-                    if(data){
+                    if(data.published){
                         app.narrationSelected.published = true;
+                        console.log('RECENT NARRATION TAKES IS NOW ' + JSON.stringify(app.recentNarrationTakes));
+                    /*
+                        app.recentNarrationTakes
+                            .filter(
+                                narration=>narration=app.narrationSelected
+                            )
+                            .published = true; 
+                    */
                         app.update();
                     }
 
@@ -926,7 +955,7 @@
             }
         );
         
-        deleteCheckedNarrationsPermanently(e){
+        deleteSelectedNarrationsPermanently(e){
             if(app.pageName == 'userAreaPage'){
                 console.log("Narrations in user area app.narrations are " + JSON.stringify(app.narrations));
                 app.narrationsIdsToDelete =
@@ -950,18 +979,16 @@
             if(app.pageName=="recordNarrationPage"){
                 app.narrationsIdsToDelete =
                     app.recentNarrationTakes
-                        .filter(
-                            narration=>narration.isChecked
+                        .find(
+                            narration=>narration = app.narrationSelected
                         )
-                        .map(
-                            narration=>narration._id
-                        )
+                        ._id
                 ;
-                console.log("NARRATIONS IDs TO DELETE RECORD NARRATION PAGE ARE " + narrationsIdsToDelete);
+                //console.log("NARRATIONS IDs TO DELETE RECORD NARRATION PAGE ARE " + narrationsIdsToDelete);
                 app.recentNarrationTakes = 
                     app.recentNarrationTakes
                         .filter(
-                            narration=>narration.isChecked
+                            narration=>narration != app.narrationSelected
                         )
                 ;
             }
@@ -1032,13 +1059,13 @@
             )
             &&
             $.post(
-                app.rootUrlWithSlashAtEnd + "updateNarrationTitle",
+                app.rootUrlWithSlashAtEnd + "updateNarrationsTitle",
                 {
                     title: app.narrationTitle,
                     narrationIds: app.narrationsIdsOfNarrationsToUpdateTitle
                 },
                 function( data ) {
-                    console.log("Update narration title call returned data from server " + JSON.stringify(data));
+                    console.log("Update narration title call returned data from server Record Narration Page" + JSON.stringify(data));
                     app.update();
                 }
             )
@@ -1216,7 +1243,7 @@
     </style>
     <div class= "{ imageGallery: opts.smallnarrationgallery==true, viewNarrationsGallery: opts.smallnarrationgallery==false }">
         <div each="{narration, i in opts.narrationsimageslist}">
-            <div if="{narration.published && opts.smallnarrationgallery==true}" class="checkMark">
+            <div if="{narration.published && parent.opts.smallnarrationgallery}" class="checkMark">
                 <img src="images\checkMark.png" width="20px" height="20px"/>
             </div>
             <div if="{parent.opts.smallnarrationgallery}" class="thumbnailTitle">{app.narrationTitle}</div>
