@@ -66,9 +66,12 @@ input{
   flex-direction: row;
   justify-content: space-between;
 }
+/*
 #userAreaNarrationSelection:hover{
   background-color: rgba(0,0,255,0.4);
 }
+*/
+
 .userAreaViewAndSelectNarration{
   display: flex;
   flex-direction: row;

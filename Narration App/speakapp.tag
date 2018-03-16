@@ -164,7 +164,7 @@
                     <div if="{ app.playingButtonClicked }" class="pause" onclick="{pauseButtonClicked}"></div>
                     <div>&nbsp&nbsp&nbsp&nbsp</div>
                     <div style="font-family: RobotoCB; font-size: 50px">Edit Narration Title: </div>
-                    <div style="font-family: RobotoCB; font-size: 50px" contenteditable="true" onblur="{onNarrationTitleInput}">{app.narrationTitle}</div>
+                    <div style="font-family: RobotoCB; font-size: 50px" contenteditable="true" onblur="{onNarrationTitleInputRecordNarrationPage}">{app.narrationTitle}</div>
                 </div>
                 <div style="font-family: RobotoCR; flex-grow: 0;">Click on thumbnail to switch image while recording</div>
                 <div class="rowLayout">
@@ -198,19 +198,19 @@
         <div if="{app.pageName == 'userAreaPage'}">
             <p id="userAreaWelcomeMessageParagraph" style="font-family: RobotoCR; color: purple">Welcome {app.username}</p>
             <p style="align: left; font-family: RobotoCR">Here are your narrations</p>
-            <p style="align: left; font-family: RobotoCR">Hover over and click to view</p>
+            <p style="align: left; font-family: RobotoCR">Click on narration image to view</p>
             <div style="font-family: RobotoCR; font-size: 15px">select</div>
             <div style="display: flex; flex-direction: row">
                 <div style="margin-right: 20px">
                     <div class="userAreaViewAndSelectNarration" each="{narration, i in app.narrations}">
                         <input type="checkbox" onchange="{narrationCheckboxChanged}" class="selectNarrationCheckbox"/>
-                        <div id="userAreaNarrationSelection" onclick="{app.thumbnailClickedOnUserArea}" style="display: flex;flex-direction: row">
-                            <div><img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/></div>
-                            <div style="display: flex;flex-direction: column">
-                                <div style="font-family: RobotoCR" id="userAreaNarrationTitleDiv">{narration.title}</div>
-                                <div if="{narration.published}" class="checkMark">
-                                    <img src="images\checkMark.png" width="20px" height="20px"/>
-                                </div>
+                        <div onclick="{app.thumbnailClickedOnUserArea}">
+                            <img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/>
+                        </div>
+                        <div style="display: flex;flex-direction: column">
+                            <div style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">{narration.title}</div>
+                            <div if="{narration.published}" class="checkMark">
+                                <img src="images\checkMark.png" width="20px" height="20px"/>
                             </div>
                         </div>
                     </div>
@@ -1045,7 +1045,7 @@
             return diff;
             */
         }
-        onNarrationTitleInput(e){
+        onNarrationTitleInputRecordNarrationPage(e){
             console.log('NEW VALUE IS ' + e.currentTarget.textContent);
             app.narrationTitle = e.currentTarget.textContent;
             app.recentNarrationTakes.length
@@ -1065,11 +1065,28 @@
                     narrationIds: app.narrationsIdsOfNarrationsToUpdateTitle
                 },
                 function( data ) {
-                    console.log("Update narration title call returned data from server Record Narration Page" + JSON.stringify(data));
+                    console.log("Update narrations title call returned data from server Record Narration Page" + JSON.stringify(data));
                     app.update();
                 }
             )
             ;
+        }
+        onNarrationTitleInputUserAreaPage(e){
+            app.narrationTitle = e.currentTarget.textContent;
+            app.narrationSelected = e.item.narration;
+            $.post(
+                app.rootUrlWithSlashAtEnd + "updateNarrationTitle",
+                {
+                    title: app.narrationTitle,
+                    narrationId: app.narrationSelected._id
+                },
+                function( data ) {
+                    console.log("Update narration title call returned data from server User Area Page" + JSON.stringify(data));
+                    app.update();
+                }
+            )
+            ;
+
         }
 
         /*
