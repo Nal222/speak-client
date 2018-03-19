@@ -72,9 +72,40 @@
         <div if="{app.largeThumbnailClicked && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
             <audio id="myAudio"></audio>
             <viewvideo></viewvideo>
-            <p style="font-family: RobotoCR">Add comment</p>
-            <textarea id="commentTextarea"></textarea><br/><div class="circleButton2" style="width:50px;height:50px" onclick="{addCommentButtonClicked}">Add</div>
-            <p id="commentAddedParagraph" style="font-family: RobotoCR"></p>
+                <div if="{app.loginConfirmClickedCommentsPage}">
+                    <p style="font-family: RobotoCR">Add comment</p>
+                    <textarea id="commentTextarea"></textarea><br/><div class="circleButton2" style="width:50px;height:50px" onclick="{addCommentButtonClicked}">Add</div>
+                    <p id="commentAddedParagraph" style="font-family: RobotoCR"></p>
+                </div>
+                <div if="{!loggedIn}" style="display: flex; flex-direction: row">
+                    <div>
+                        Login to add comment
+                        <div class="circleButton2" onclick="{loginButtonClicked}">Login</div>
+                    </div>
+                    <div class="login loginForm">
+                        <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
+                        <div style="display: flex; flex-direction: row; margin-bottom: -50px; align-items: center">
+                            <p style="font-family: RobotoCR; font-size: 24px">
+                            Enter username
+                            </p>&nbsp
+                            <div>
+                                <input type="text" size="40" maxlength="100" id="usernameLoginInput"/>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: row; margin-bottom: -10px; align-items: center">
+                            <p style="font-family: RobotoCR; font-size: 24px">
+                            Enter password
+                            </p>&nbsp
+                            <div>
+                                <input type="text" size="40" maxlength="100" id="passwordLoginInput"/>
+                            </div>
+                            <div class="circleButton2" onclick="{loginConfirmedButtonClickedCommentsPage}" style="font-size: 19px">Confirm</div>
+                        </div>
+                        <div if="{app.invalidUsernameOrPasswordForLogin}" style="font-family: RobotoCR; font-size: 25px">Invalid username or password</div>
+                    </div>
+
+                </div>
+            
         </div>
 
         <div class="bottom page2" if="{ app.pageName == 'registerPage' }">
@@ -322,6 +353,37 @@
             //app.welcomeParagraph = "<p style='color: purple'>Welcome " +app.username+ "</p><p align='left'>Here are your narrations.</p><p align='left'>Hover over and click to view.</p>";
             app.login();
         }
+        loginConfirmedButtonClickedCommentsPage(e){
+            console.log("Inside confirm login button clicked comments page!");
+            app.username = $("#usernameLoginInput").val();
+            app.password = $("#passwordLoginInput").val();
+            $.post(
+                app.rootUrlWithSlashAtEnd + "loginCommentsPage",
+                {
+                    username: app.username,
+                    password: app.password
+                },
+                function( data ) {
+                    console.log("data.narrations after login is " + JSON.stringify(data.narrations));
+                    if(data == "Invalid username or password"){
+                        app.invalidUsernameOrPasswordForLogin = true;
+                        app.update();
+                    }
+                    else{
+                        console.log("Inside ELSE VALID USERNAME AND PASSWORD");
+                        app.userID = data;
+                        console.log("UserID of logged in user who wants to add comment is " + JSON.stringify(app.userID));
+                        app.loginConfirmClickedCommentsPage = true;
+                        app.loggedIn = true;
+                        app.update();
+                        //$("#userAreaWelcomeMessageParagraph").html(app.welcomeParagraph);
+                        //console.log("userAreaWelcomeMessageParagraph " + $("#userAreaWelcomeMessageParagraph") + app.welcomeParagraph);
+                        //document.getElementById("userAreaNarrationTitleDiv").innerHTML = narration.title;
+                    }
+                }
+            );
+
+        }
 
         goToImageGalleryPage(e){
             app.switchPageAndAddToHistory('chooseImagesFromImageGalleryPage');
@@ -360,10 +422,12 @@
             $.post(
                 app.rootUrlWithSlashAtEnd + "saveComment",
                 {
+                    userID: app.userID,
+                    narrationId: app.narrationSelectedOnPublicAreaId,
                     comment: comment
                 },
                 function( data ) {
-                    console.log("Inside function data returned is comments " + data)
+                    console.log("Inside function data returned is narration object with comment and userID saved " + JSON.stringify(data));
                     app.update();
 
                 }
@@ -776,7 +840,9 @@
                 app.switchPageAndAddToHistory('viewNarrationCommonAreaAndCommentsPage');
                 app.slideSwitches = e.item.narration.slideSwitches;
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
+                app.narrationSelectedOnPublicAreaId = e.item.narration._id;
                 console.log("NARRATION AUDIO FILE ID IS " + e.item.narration._id);
+                app.narrationTitle = e.item.narration.title;
                 app.currentImageUrl = 'showTitle';
                 app.update();
                 /*
@@ -793,7 +859,7 @@
                 $.post(
                     app.rootUrlWithSlashAtEnd + "getAllComments",
                     {
-                        
+                        narrationId: app.narrationSelectedOnPublicAreaId
                     },
                     function( data ) {
                         app.allComments = data;
@@ -811,6 +877,7 @@
                 console.log("Reached inside THUMBNAILCLICKEDONUSERAREA");
                 app.slideSwitches = e.item.narration.slideSwitches;
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
+                app.narrationTitle = e.item.narration.title;
                 app.currentImageUrl = 'showTitle';
                 /*
                 if(app.title){
@@ -1284,7 +1351,6 @@
         <!--<img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">-->
         <div
             if="{app.currentImageUrl=='showTitle'}"
-            class = "showTitleDiv"
             style=
                 "
                     font-family: RobotoCR;
@@ -1296,9 +1362,9 @@
                     justify-content: center;
                 "
             >
-            {app.newTitle}
+            {app.narrationTitle}
         </div>
-        <img class="showSlideSwitchesImages" if="{app.currentImageUrl!='showTitle'}" src="{app.currentImageUrl}" width="800" height="450">
+        <img if="{app.currentImageUrl!='showTitle'}" src="{app.currentImageUrl}" width="800" height="450">
     </div>
     <script>
     
