@@ -416,15 +416,15 @@
         }
         addCommentButtonClicked(e){
             console.log("ADD COMMENT BUTTON CLICKED");
-            var comment = $("#commentTextarea").val();
-            document.getElementById("commentAddedParagraph").innerHTML = comment;
+            app.comment = $("#commentTextarea").val();
+            document.getElementById("commentAddedParagraph").innerHTML = app.comment;
             console.log("commentAddedParagraph is " + document.getElementById("commentAddedParagraph"));
             $.post(
                 app.rootUrlWithSlashAtEnd + "saveComment",
                 {
                     userID: app.userID,
                     narrationId: app.narrationSelectedOnPublicAreaId,
-                    comment: comment
+                    comment: app.comment
                 },
                 function( data ) {
                     console.log("Inside function data returned is narration object with comment and userID saved " + JSON.stringify(data));
@@ -862,7 +862,7 @@
                         narrationId: app.narrationSelectedOnPublicAreaId
                     },
                     function( data ) {
-                        app.allComments = data;
+                        //app.allComments = data;
                         console.log("data VARIABLE CONTAINING ALL comments FROM SERVER IS " + JSON.stringify(data));
                         app.update();
 
