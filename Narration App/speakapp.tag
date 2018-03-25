@@ -857,13 +857,13 @@
                 
 
                 $.post(
-                    app.rootUrlWithSlashAtEnd + "getAllComments",
+                    app.rootUrlWithSlashAtEnd + "getAllCommentsForSelectedNarration",
                     {
                         narrationId: app.narrationSelectedOnPublicAreaId
                     },
                     function( data ) {
-                        //app.allComments = data;
-                        console.log("data VARIABLE CONTAINING ALL comments FROM SERVER IS " + JSON.stringify(data));
+                        app.allCommentsWithUsernamesForSelectedNarration = data;
+                        console.log("data VARIABLE CONTAINING ALL comments and usernames FROM SERVER IS " + JSON.stringify(data));
                         app.update();
 
                     }
