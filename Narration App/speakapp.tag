@@ -78,7 +78,7 @@
                     <p id="commentAddedParagraph" style="font-family: RobotoCR"></p>
                 </div>
                 <div if="{!loggedIn}" style="display: flex; flex-direction: row">
-                    <div>
+                    <div style="font-family: RobotoCR; font-weight: bold: font-size: 20px">
                         Login to add comment
                         <div class="circleButton2" onclick="{loginButtonClicked}">Login</div>
                     </div>
@@ -103,8 +103,16 @@
                         </div>
                         <div if="{app.invalidUsernameOrPasswordForLogin}" style="font-family: RobotoCR; font-size: 25px">Invalid username or password</div>
                     </div>
-
                 </div>
+                <div each="{commentObject, i in app.allCommentsWithUsernamesForSelectedNarration}">
+                    <hr class="hrLineStyle"/>
+                    <div style="display: flex; flex-direction: row">
+                        <div style="margin-left: 5px; font-family: RobotoCR; font-size: 15px">{commentObject.commentText}&nbsp&#45&nbsp</div>
+                        <div style="font-family: RobotoCR; font-size: 11px">{commentObject.username}</div>
+                    <hr class="hrLineStyle"/>
+                    </div>
+                </div>
+                
             
         </div>
 
@@ -171,7 +179,15 @@
 
                             <!--<img src="{previewImgSrc}" style="width: 50px; height: 50px"/>-->
             </div>
-
+            <div style="display: flex; flex-direction: row">
+                <div style="font-family: RobotoCR">Upload images</div>
+                <div>
+                    <input type="file" name="file" id="file" class="inputfile" onchange="{inputTypeFileUploadFiles}" multiple/>
+                    <label for="file"><span>Choose image files</span></label>
+                    <img src="" id="uploadedImage" height="200" alt="Image Preview...">
+                        <!--<div class="circleButton extraSmall" style="font-size: 15px;color: red" onclick="{loadImageFileAsUrl}">Load selected file</div>-->
+                </div>
+            </div>
             <imagegallery sortable="{true}" imagelist="{app.images}" columnorrow="{'row'}"></imagegallery>
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
@@ -414,6 +430,62 @@
             app.passwordTaken = app.usernameTaken = false;
 
         }
+                    
+        inputTypeFileUploadFiles(e) {
+            console.log("Inside first line of code for uploadig images");
+            app.input = $(".inputfile");
+            app.label = app.input.next('label');
+            app.labelVal = app.label.html();
+            app.uploadedImage = $('#uploadedImage');
+
+            var preview = document.querySelector('#uploadedImage');
+            var files   = document.querySelector('input[type=file]').files;
+
+            function readAndPreview(file) {
+
+                // Make sure `file.name` matches our extensions criteria
+                if ( /\.(jpe?g|png|gif)$/i.test(file.name) ) {
+                    var reader = new FileReader();
+
+                    reader.addEventListener("load", function () {
+                        var image = new Image();
+                        image.height = 100;
+                        image.title = file.name;
+                        image.src = this.result;
+                        preview.src = this.result;
+                        console.log("Images uploaded are " + image.src);
+                    }, false);
+
+                    reader.readAsDataURL(file);
+                    var fileName = '';
+        
+                    if( files && files.length > 1 ){
+                        app.filesChosen = files.length;
+                        fileName = app.filesChosen + " files selected";
+                    }
+                    else if(e.target.value){
+                        fileName = e.target.value.split( '\\' ).pop();
+                    }
+                    console.log("FILENAMES ARE " + fileName);
+                    app.label.find('span').html(fileName);
+                }
+            }
+
+            if (files) {
+                [].forEach.call(files, readAndPreview);
+            }
+            /*
+            function imageIsLoaded(){
+                $('#uploadedImage').src = app.reader.result;
+            }
+            */
+
+            // Firefox bug fix
+            app.input
+            .on( 'focus', function(){ app.input.addClass( 'has-focus' ); })
+            .on( 'blur', function(){ app.input.removeClass( 'has-focus' ); });
+        }
+
         addCommentButtonClicked(e){
             console.log("ADD COMMENT BUTTON CLICKED");
             app.comment = $("#commentTextarea").val();
