@@ -453,15 +453,45 @@
                         image.title = file.name;
                         image.src = this.result;
                         preview.src = this.result;
-                        console.log("Images uploaded are " + image.src);
+                        app.blockMouseForGallery = true;
+            
+                        const
+                            url = image.src,
+                            galleryItem = {url: url}
+                        ;
+
+
+                        app.images.push(galleryItem);
+
+                        console.log("Image add");
+                        
+                        //TODO: save to server under current user
+                    
+                        $.post(
+                            app.rootUrlWithSlashAtEnd + "addImage",
+                            {
+                                username: app.username,
+                                password: app.password,
+                                url: url
+                            },
+                            function( data ) {
+                                console.log("Image add response: " + JSON.stringify(data));
+                                galleryItem._id = data.galleryItemId;
+                                app.blockMouseForGallery = false;
+                                app.update();
+                            }
+                        );
+                        
+                        
+                        //console.log("Images uploaded are " + image.src);
                     }, false);
 
                     reader.readAsDataURL(file);
                     var fileName = '';
         
                     if( files && files.length > 1 ){
-                        app.filesChosen = files.length;
-                        fileName = app.filesChosen + " files selected";
+                        app.numberOfFilesChosen = files.length;
+                        fileName = app.numberOfFilesChosen + " files selected";
                     }
                     else if(e.target.value){
                         fileName = e.target.value.split( '\\' ).pop();
@@ -474,6 +504,7 @@
             if (files) {
                 [].forEach.call(files, readAndPreview);
             }
+            console.log("app.images array after adding uploaded image files urls is " + JSON.stringify(app.images));
             /*
             function imageIsLoaded(){
                 $('#uploadedImage').src = app.reader.result;
