@@ -27,11 +27,11 @@
             <div class="circleButton" onclick="{startButtonClicked}">START</div>
         </div>
     </div>
-    <div class="loginAndViewNarrations" if="{pageName == 'introPage'}">
+    <div class="loginAndViewNarrations" if="{app.pageName == 'introPage'}">
         <div class="circleButton2" onclick="{loginButtonClicked}">Login</div>
             <div class="login loginForm">
                 <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
-                <div style="display: flex; flex-direction: row; margin-bottom: -50px; align-items: center">
+                <div style="display: flex; flex-direction: row; margin-bottom: -10px; align-items: center">
                     <p style="font-family: RobotoCR; font-size: 24px">
                     Enter username
                     </p>&nbsp
@@ -179,15 +179,36 @@
 
                             <!--<img src="{previewImgSrc}" style="width: 50px; height: 50px"/>-->
             </div>
-            <div style="display: flex; flex-direction: row">
-                <div style="font-family: RobotoCR">Upload images</div>
+            <!--<div style="display: flex; flex-direction: row">-->
+
+            <form id="frmUploader" name="new_post" enctype="multipart/form-data" action="uploadImages" method="post">
+                <div style="font-family: RobotoCR" onclick="{fileInputClick}">Upload image</div>
+                <input
+                    type="file"
+                    onchange="{submitImageFile}"
+                    id="fileInput"
+                    name="image_file"
+                    style=
+                        "
+                            display:none;
+                        "
+                >
+            </form>
+        
+                <!--
                 <div>
-                    <input type="file" name="file" id="file" class="inputfile" onchange="{inputTypeFileUploadFiles}" multiple/>
-                    <label for="file"><span>Choose image files</span></label>
-                    <img src="" id="uploadedImage" height="200" alt="Image Preview...">
-                        <!--<div class="circleButton extraSmall" style="font-size: 15px;color: red" onclick="{loadImageFileAsUrl}">Load selected file</div>-->
+                    <form id="frmUploader" name="new_post" enctype="multipart/form-data" action="uploadImages" method="post">
+                        <input type="file" name="uploadedImages" id="fileUpload" multiple />
+                        <input type="hidden" value="{app.username}" name="username"/>
+                        <input type="hidden" value="{app.password}" name="password"/>
+                        <input type="submit" name="submit" id="btnSubmit" value="Upload" /> 
+                    </form>
+                        <label for="file"><span>Choose image files</span></label>
+                    <div class="circleButton extraSmall" style="font-size: 15px;color: red" onclick="{loadImageFileAsUrl}">Load selected file</div>
                 </div>
+                
             </div>
+            -->
             <imagegallery sortable="{true}" imagelist="{app.images}" columnorrow="{'row'}"></imagegallery>
             <!--<div class="imageGallery rcornersBorder">
                 <img class="galleryImage" each="{images}" src="{url}">
@@ -279,7 +300,8 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.13";
+        app.ipAddress = "192.168.1.117";
+        
         
         login(){
              $.post(
@@ -289,7 +311,7 @@
                     password: app.password
                 },
                 function( data ) {
-                    console.log("data.narrations after login is " + JSON.stringify(data.narrations));
+                    //console.log("data.narrations after login is " + JSON.stringify(data.narrations));
                     if(data == "Invalid username or password"){
                         app.invalidUsernameOrPasswordForLogin = true;
                         app.update();
@@ -311,9 +333,9 @@
         app.narrations = [];
         app.recentNarrationTakes = [];
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
-        app.pageName = "introPage";
+        //app.pageName = "introPage";
         //app.pageName = 'viewNarrationsPage';
-        //app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
+        app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
         //app.pageName = "registerPage";
         //app.pageName = "recordNarrationPage";
         //app.pageName = "userAreaPage";
@@ -322,6 +344,7 @@
         //app.username = "Nalini";
         //app.password = "Nalini123";
         //app.login();
+        
 
         stringify(object){
             return JSON.stringify(object, null, 4);
@@ -430,92 +453,272 @@
             app.passwordTaken = app.usernameTaken = false;
 
         }
-                    
-        inputTypeFileUploadFiles(e) {
-            console.log("Inside first line of code for uploadig images");
-            app.input = $(".inputfile");
-            app.label = app.input.next('label');
-            app.labelVal = app.label.html();
-            app.uploadedImage = $('#uploadedImage');
+        /*
+        if(app.pageName=='chooseImagesFromImageGalleryPage'){
+                var options = {
+                        beforeSubmit: showRequest
+                }
+        }       
+        
 
-            var preview = document.querySelector('#uploadedImage');
-            var files   = document.querySelector('input[type=file]').files;
+        var form = document.getElementById('frmUploader');
+        $(function(){
+            $('form[name=new_post]').submit(function(){
+                var formData = new FormData(form);
 
-            function readAndPreview(file) {
+                formData.append('file', file);
 
-                // Make sure `file.name` matches our extensions criteria
-                if ( /\.(jpe?g|png|gif)$/i.test(file.name) ) {
-                    var reader = new FileReader();
+                var xhr = new XMLHttpRequest();
+                // Add any event handlers here...
+                xhr.open('POST', form.getAttribute('action'), true);
+                xhr.send(formData);
 
-                    reader.addEventListener("load", function () {
-                        var image = new Image();
-                        image.height = 100;
-                        image.title = file.name;
-                        image.src = this.result;
-                        preview.src = this.result;
-                        app.blockMouseForGallery = true;
+                return false; // To avoid actual submission of the form
+            });
+        });
+        */
+        /*
+        $(function(){
+            let myFileInput = document.getElementById('fileUpload');
+            myFileInput.addEventListener("change", handleFiles, false);
+        });
+        function handleFiles() {
+            app.fileList = this.files;  now you can work with the file list 
+        
+        */
+        
+        fileInputClick(e){
+            document.getElementById('fileInput').click();
+        }
+        submitImageFile(e){
+            console.log("Inside submit image file");
+            //var form = document.getElementById('frmUploader');
+            var formData = new FormData();
+            formData.append('file', $('#fileInput')[0].files[0]);
+            for (var [key, value] of formData.entries()) { 
+                console.log(key, value);
+            }
+            console.log("FormData is " + JSON.stringify(formData));
+            $.ajax({
+                url : app.rootUrlWithSlashAtEnd + "uploadImages",
+                type : 'POST',
+                data : formData,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                success : function(data) {
+                    //Say done or something
+                    console.log(data);
+                }
+            });
+        }
+        
+        /*
+        $(function(){
+            $('form[name=new_post]').submit(function(){
+                console.log("Inside form submit function");
+                $.post(
+                    app.rootUrlWithSlashAtEnd + $(this).attr('action'), JSON.stringify(formData), function(data) 
+                    {
+                        console.log(data);
+                        alert(json);
+                    }, 
+                        
+                );
+                return false;
+            });
+        });
+        */
+        /*
+        $(function(){
+            $('form[name=new_post]').submit(function(){
+                console.log("Inside form submit function");
+               // var files = $('#fileUpload').get(0).files,
+                    formData = new FormData();
+                    formData.append('file', $('#fileInput')[0].files[0]);               
+                var myFileInput = document.getElementById('fileUpload');
+                
+                for (var i=0; i < files.length; i++) {
+                    var file = files[i];
+                    formData.append('images[]', file, file.name);
+                }
+                formData.append('uploadedFiles', app.fileList);
+                formData.append('username', app.username);
+                formData.append('password', app.password);
+                
+                console.log("FORMDATA IS " + JSON.stringify(formData));
+                $.post(
+                    app.rootUrlWithSlashAtEnd + $(this).attr('action'), JSON.stringify(formData), function(data) 
+                    {
+                        console.log(data);
+                        alert(json);
+                    }, 
+                        
+                );
+                return false;
+                
+                
+            });
+        });
+        */
+        
+    
+                
+                
+                
+                //$(this).serialize()
+                
+                
             
+        
+        /*
+        $.post(app.rootUrlWithSlashAtEnd + $(this).attr('action'), $(this).serialize(), function(json) {
+            alert(json);
+            }, 
+            'json');
+        return false;
+        
+        });
+                   
+        
+        
+        $('#btnSubmit').click(function(e){
+            $('#frmUploader').submit();
+        });
+            var formElement = document.querySelector("form");
+            var formData = new formData(formElement);
+            var files = $("#fileUpload")[0].files;
+
+            for (var i = 0; i < files.length; i++)
+            {
+                formData.append(files[i]);
+                //alert(files[i].name);
+            }
+            var obj = {
+                formData : formData,
+                username : app.username,
+                password: app.password
+            };
+            var request = new XMLHttpRequest();
+            request.open("POST", app.rootUrlWithSlashAtEnd + "uploadImages");
+            request.send(obj);
+            });
+            
+            
+            $.post(
+                app.rootUrlWithSlashAtEnd + "uploadImages",
+                {
+                    username: app.username,
+                    password: app.password
+                },
+                function( data ) {
+                    console.log("Uploaded Images add response: " + JSON.stringify(data));
+                    galleryItem._id = data.galleryItemId;
+                    //app.blockMouseForGallery = false;
+                    app.update();
+                }
+            );
+            
+        
+        
+                
+                
+                const files = new Array(document.querySelector('input[type=file]').files);
+                files.forEach(function(file){
                         const
-                            url = image.src,
+                            url = file,
                             galleryItem = {url: url}
                         ;
-
-
                         app.images.push(galleryItem);
 
                         console.log("Image add");
+                        console.log("Uploaded image file name is " + file.name);
+                    }
+                );
+                
+                
+                
+                console.log("Inside first line of code for uploading images");
+                app.input = $(".inputfile");
+                app.label = app.input.next('label');
+                app.labelVal = app.label.html();
+
+                var files = document.querySelector('input[type=file]').files;
+                
+                function readAndPreview(file) {
+
+                    // Make sure `file.name` matches our extensions criteria
+                    if ( /\.(jpe?g|png|gif)$/i.test(file.name) ) {
+                        var reader = new FileReader();
+
+                        reader.addEventListener("load", function () {
+                            var image = new Image();
+                            image.height = 100;
+                            image.title = file.name;
+                            image.src = this.result;
+                            preview.src = this.result;
+                            app.blockMouseForGallery = true;
+                
+                            const
+                                url = image.src,
+                                galleryItem = {url: url}
+                            ;
+
+
+                            app.images.push(galleryItem);
+
+                            console.log("Image add");
+                            console.log("Uploaded image file name is " + file.name);
+                            
+                            //TODO: save to server under current user
                         
-                        //TODO: save to server under current user
+                            $.post(
+                                app.rootUrlWithSlashAtEnd + "addUploadedImage",
+                                {
+                                    username: app.username,
+                                    password: app.password,
+                                    url: url
+                                },
+                                function( data ) {
+                                    console.log("Add uploaded image response: " + JSON.stringify(data));
+                                    galleryItem._id = data.galleryItemId;
+                                    app.blockMouseForGallery = false;
+                                    app.update();
+                                }
+                            );
+                            
+                            
+                            //console.log("Images uploaded are " + image.src);
+                        }, false);
+
+                        reader.readAsDataURL(file);
                     
-                        $.post(
-                            app.rootUrlWithSlashAtEnd + "addImage",
-                            {
-                                username: app.username,
-                                password: app.password,
-                                url: url
-                            },
-                            function( data ) {
-                                console.log("Image add response: " + JSON.stringify(data));
-                                galleryItem._id = data.galleryItemId;
-                                app.blockMouseForGallery = false;
-                                app.update();
-                            }
-                        );
-                        
-                        
-                        //console.log("Images uploaded are " + image.src);
-                    }, false);
-
-                    reader.readAsDataURL(file);
-                    var fileName = '';
-        
-                    if( files && files.length > 1 ){
-                        app.numberOfFilesChosen = files.length;
-                        fileName = app.numberOfFilesChosen + " files selected";
+                        var fileName = '';
+            
+                        if( files && files.length > 1 ){
+                            app.numberOfFilesChosen = files.length;
+                            fileName = app.numberOfFilesChosen + " files selected";
+                        }
+                        else if(e.target.value){
+                            fileName = e.target.value.split( '\\' ).pop();
+                        }
+                        console.log("FILENAMES ARE " + fileName);
+                        app.label.find('span').html(fileName);
                     }
-                    else if(e.target.value){
-                        fileName = e.target.value.split( '\\' ).pop();
-                    }
-                    console.log("FILENAMES ARE " + fileName);
-                    app.label.find('span').html(fileName);
+                
+                
+                console.log("app.images array after adding uploaded image files urls is " + JSON.stringify(app.images));
+                
+                function imageIsLoaded(){
+                    $('#uploadedImage').src = app.reader.result;
                 }
-            }
+                
 
-            if (files) {
-                [].forEach.call(files, readAndPreview);
-            }
-            console.log("app.images array after adding uploaded image files urls is " + JSON.stringify(app.images));
-            /*
-            function imageIsLoaded(){
-                $('#uploadedImage').src = app.reader.result;
-            }
+                //Firefox bug fix
+                app.input
+                .on( 'focus', function(){ app.input.addClass( 'has-focus' ); })
+                .on( 'blur', function(){ app.input.removeClass( 'has-focus' ); });
             */
 
-            // Firefox bug fix
-            app.input
-            .on( 'focus', function(){ app.input.addClass( 'has-focus' ); })
-            .on( 'blur', function(){ app.input.removeClass( 'has-focus' ); });
-        }
 
         addCommentButtonClicked(e){
             console.log("ADD COMMENT BUTTON CLICKED");
@@ -1254,9 +1457,7 @@
                     console.log("Update narration title call returned data from server User Area Page" + JSON.stringify(data));
                     app.update();
                 }
-            )
-            ;
-
+            );
         }
 
         /*
@@ -1285,7 +1486,9 @@
         ];
         */
 </script>
+
 </speak>
+/*
 <!--<flashinghello>
     <div if="{isOn}">hello</div>
     <button onclick="{stopflashing}">Stop</button>
@@ -1307,6 +1510,7 @@
         }
     </script>
 </flashinghello>-->
+*/
 
 
 <imagegallery>
@@ -1416,12 +1620,13 @@
             }
         );
     </script>
-</imagegallery>
+</imagegallery> 
+
 <narrationgallery>
+    
     <!--
     <div class="{imageGallery: opts.smallnarrationgallery, roundedCornersBorder: opts.smallnarrationgallery, viewNarrationsGallery: !opts.smallnarrationgallery}">
-    -->
-
+-->   
     <style>
         .thumbnailTitle{
             font-family: RobotoCR;
