@@ -182,7 +182,7 @@
             <!--<div style="display: flex; flex-direction: row">-->
 
             <form id="frmUploader" name="new_post" enctype="multipart/form-data" action="uploadImages" method="post">
-                <div style="font-family: RobotoCR" onclick="{fileInputClick}">Upload image</div>
+                <div class="circleButton extraSmall" style="font-size: 15px; text-align: center" onclick="{fileInputClick}">Upload image</div>
                 <input
                     type="file"
                     onchange="{submitImageFile}"
@@ -318,10 +318,19 @@
                     }
                     else{
                         console.log("Inside ELSE VALID USERNAME AND PASSWORD");
-                        app.switchPageAndAddToHistory('userAreaPage');
-                        app.images = data.galleryItems;
-                        app.narrations = data.narrations;
-                        app.update();
+                        if(data.narrations && data.galleryItems){
+                            app.switchPageAndAddToHistory('userAreaPage');
+                            app.images = data.galleryItems;
+                            app.narrations = data.narrations;
+                            //app.slideSwitches = data.slideSwitches;
+                            app.update();
+                        }
+                        else if(data.galleryItems && !data.narrations){
+                            app.switchPageAndAddToHistory('chooseImagesFromImageGalleryPage');
+                            console.log("DATA.GALLERYITEMS ARE " + JSON.stringify(data.galleryItems));
+                            app.images = data.galleryItems;
+                            app.update();
+                        }
                         //$("#userAreaWelcomeMessageParagraph").html(app.welcomeParagraph);
                         //console.log("userAreaWelcomeMessageParagraph " + $("#userAreaWelcomeMessageParagraph") + app.welcomeParagraph);
                         //document.getElementById("userAreaNarrationTitleDiv").innerHTML = narration.title;
@@ -333,9 +342,9 @@
         app.narrations = [];
         app.recentNarrationTakes = [];
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
-        //app.pageName = "introPage";
+        app.pageName = "introPage";
         //app.pageName = 'viewNarrationsPage';
-        app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
+        //app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
         //app.pageName = "registerPage";
         //app.pageName = "recordNarrationPage";
         //app.pageName = "userAreaPage";
@@ -495,6 +504,8 @@
             //var form = document.getElementById('frmUploader');
             var formData = new FormData();
             formData.append('file', $('#fileInput')[0].files[0]);
+            formData.append('username', app.username);
+            formData.append('password', app.password);
             for (var [key, value] of formData.entries()) { 
                 console.log(key, value);
             }
@@ -508,6 +519,14 @@
                 success : function(data) {
                     //Say done or something
                     console.log(data);
+                    //var path2 = data.replace(/\\/g, "/");
+                    //console.log(path2);
+                    const galleryItem = {
+                        _id: data.imageId,
+                        url: "http://localhost:3700/Images/" + data.fileName
+                    };
+                    app.images.push(galleryItem);
+                    app.update();
                 }
             });
         }
@@ -1584,8 +1603,8 @@
                             console.log("App.images array before slice and splice method applied " + JSON.stringify(app.images));
 
                             var arrayClone = app.images.slice();
-                            arrayClone.splice(startIndex-1, 1);
-                            arrayClone.splice(stopIndex-1, 0, app.images[startIndex-1]);
+                            arrayClone.splice(startIndex, 1);
+                            arrayClone.splice(stopIndex, 0, app.images[startIndex]);
                             app.images = arrayClone;
 
                             console.log("app.images array after splice method applied " + JSON.stringify(app.images));
