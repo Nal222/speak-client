@@ -31,6 +31,8 @@
         <div class="circleButton2" onclick="{loginButtonClicked}">Login</div>
             <div class="login loginForm">
                 <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
+                <div if="{app.invalidUsernameOrPasswordForLogin}" style="font-family: RobotoCR; font-size: 25px">Invalid username or password</div>
+                <div if="{app.emptyUsernameOrPassword}" style="font-family: RobotoCR; font-size: 25px">Please enter username and password</div>
                 <div style="display: flex; flex-direction: row; margin-bottom: -10px; align-items: center">
                     <p style="font-family: RobotoCR; font-size: 24px">
                     Enter username
@@ -48,7 +50,7 @@
                     </div>
                     <div class="circleButton2" onclick="{loginConfirmedButtonClicked}" style="font-size: 19px">Confirm</div>
                 </div>
-                <div if="{app.invalidUsernameOrPasswordForLogin}" style="font-family: RobotoCR; font-size: 25px">Invalid username or password</div>
+                
             </div>
             <div style="display: flex; flex-direction: column">
                 <div>&nbsp &nbsp &nbsp &nbsp</div>
@@ -66,7 +68,10 @@
             </div>
         </div>
         <div if="{app.pageName == 'viewNarrationsPage'}">
-            <input type="text" size="40" maxlength="100" id="narrationsSearchInput"/>
+        <div style="display: flex; flex-direction: row">
+            <input type="text" size="40" maxlength="100" id="searchInput" oninput="{narrationsSearchInput}"/>
+            <div class="circleButton2" style="width:25px:height:25px">Search</div>
+        </div>
             <narrationgallery smallnarrationgallery="{false}" narrationsimageslist="{app.allPublishedNarrations}"></narrationgallery>
         </div>
         <div if="{app.largeThumbnailClicked && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
@@ -276,12 +281,23 @@
                             <img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/>
                         </div>
                         <div style="display: flex;flex-direction: column">
-                            <div style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">{narration.title}</div>
-                            <div if="{narration.published}" class="checkMark">
+                            <div if="{narration.narration.title}" style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">{narration.narration.title}</div>
+                            <div if="{!narration.narration.title}" style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">Enter title</div>
+                            <div if="{narration.published}"  class="checkMark">
                                 <img src="images\checkMark.png" width="20px" height="20px"/>
                             </div>
+
                         </div>
-                    </div>
+                        
+                        
+                    </div>     
+                    <div each="{publishedNarration, i in app.publishedNarrationObjects}">
+                        <div if="{publishedNarration.published && app.narrationSelected}" class="checkMark">
+                            <img src="images\checkMark.png" width="20px" height="20px"/>
+                        </div>
+                    </div>   
+                        
+                        
                 </div>
                 <div>
                     <div style="font-family: RobotoCR; font-size: 15px">To delete, publish or unpublish a narration, select it by clicking on select box then press the relevant button. If delete is chosen the narration will be permanently deleted and neither you or the public can view it</div>
@@ -312,11 +328,12 @@
                 },
                 function( data ) {
                     //console.log("data.narrations after login is " + JSON.stringify(data.narrations));
-                    if(data == "Invalid username or password"){
+                    if(data == "Invalid username or password" && app.username && app.password){
                         app.invalidUsernameOrPasswordForLogin = true;
+                        app.emptyUsernameOrPassword = false;
                         app.update();
                     }
-                    else{
+                    if(data != "Invalid username or password"){
                         console.log("Inside ELSE VALID USERNAME AND PASSWORD");
                         if(data.narrations && data.galleryItems){
                             app.switchPageAndAddToHistory('userAreaPage');
@@ -334,9 +351,13 @@
                         //$("#userAreaWelcomeMessageParagraph").html(app.welcomeParagraph);
                         //console.log("userAreaWelcomeMessageParagraph " + $("#userAreaWelcomeMessageParagraph") + app.welcomeParagraph);
                         //document.getElementById("userAreaNarrationTitleDiv").innerHTML = narration.title;
-                    }
+                    }   
                 }
             );
+            if(!app.username || !app.password){
+                app.emptyUsernameOrPassword = true;
+                app.invalidUsernameOrPasswordForLogin = false;
+            }
         }
 
         app.narrations = [];
@@ -390,7 +411,22 @@
             );
         }
 
-        
+        narrationsSearchInput(e){
+            app.searchNarrationsInput = $('#searchInput').val();
+            $.post(
+                app.rootUrlWithSlashAtEnd + "getNarrationsMatchingSearchInput",
+                {
+                    searchInput: app.searchNarrationsInput
+                },
+                function( data ) {
+                    app.searchedNarrations = data;
+                    console.log("data VARIABLE CONTAINING SEARCHED NARRATIONS FROM SERVER IS " + JSON.stringify(data));
+                    app.update();
+
+                }
+            );
+
+        }
 
        
         
@@ -1111,19 +1147,45 @@
 
         publishButtonClicked(e){
             //app.narrationSelected.published = true;
-
+            console.log("app.username is " + app.username + " app.password is " + app.password);
             console.log('RECENT NARRATION TAKES IS NOW ' + JSON.stringify(app.recentNarrationTakes));
-
+            if(app.pageName == 'userAreaPage'){
+                console.log("Narrations in user area app.narrations are " + JSON.stringify(app.narrations));
+                app.narrationsIdsToPublish =
+                    app.narrations
+                        .filter(
+                            narration=>narration && narration.isChecked //Fix narrations sometimes being null
+                        )
+                        .map(
+                            narration=>narration._id
+                        )
+                ;
+            }
+            if(app.pageName=="recordNarrationPage"){
+                app.narrationsIdsToPublish =
+                    app.recentNarrationTakes
+                        .find(
+                            narration=>narration = app.narrationSelected
+                        )
+                        ._id
+                ;
+            }
             $.post(
-                app.rootUrlWithSlashAtEnd + "publishNarration",
+                app.rootUrlWithSlashAtEnd + "publishNarrations",
                 {
-                    narrationId: app.narrationSelected._id
+                    username: app.username,
+                    password: app.password,
+                    narrationIds: app.narrationsIdsToPublish
                 },
                 function( data ) {
                     console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = TRUE TO DATABASE " + JSON.stringify(data));
+                    app.narrations = data;
+                    app.update();
+                    /*
                     if(data.published){
                         app.narrationSelected.published = true;
                         console.log('RECENT NARRATION TAKES IS NOW ' + JSON.stringify(app.recentNarrationTakes));
+                    */
                     /*
                         app.recentNarrationTakes
                             .filter(
@@ -1131,32 +1193,44 @@
                             )
                             .published = true; 
                     */
-                        app.update();
-                    }
-
                 }
             );
-
         }
         unpublishButtonClicked(e){
+            if(app.pageName == 'userAreaPage'){
+                console.log("Narrations in user area app.narrations are " + JSON.stringify(app.narrations));
+                app.narrationsIdsToUnpublish =
+                    app.narrations
+                        .filter(
+                            narration=>narration && narration.isChecked //Fix narrations sometimes being null
+                        )
+                        .map(
+                            narration=>narration._id
+                        )
+                ;
+            }
+            if(app.pageName=="recordNarrationPage"){
+                app.narrationsIdsToUnpublish =
+                    app.recentNarrationTakes
+                        .find(
+                            narration=>narration = app.narrationSelected
+                        )
+                        ._id
+                ;
+            }
             $.post(
-                app.rootUrlWithSlashAtEnd + "unpublishNarration",
+                app.rootUrlWithSlashAtEnd + "unpublishNarrations",
                 {
-                    narrationId: app.narrationSelected._id
+                    username: app.username,
+                    password: app.password,
+                    narrationIds: app.narrationsIdsToUnpublish
                 },
                 function( data ) {
                     console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = FALSE TO DATABASE " + JSON.stringify(data));
-                    if(data){
-                        app.narrationSelected.published = false;
-                        app.update();
-                    }
-
+                    app.narrations = data;
+                    app.update();
                 }
             );
-
-
-
-
         }
 
         app.largethumbnailclickedonpublicarea = (
@@ -1658,7 +1732,7 @@
                 <img src="images\checkMark.png" width="20px" height="20px"/>
             </div>
             <div if="{parent.opts.smallnarrationgallery}" class="thumbnailTitle">{app.narrationTitle}</div>
-            <div if="{!parent.opts.smallnarrationgallery}" class="thumbnailTitle">{narration.title}</div>
+            <div if="{!parent.opts.smallnarrationgallery}" class="thumbnailTitle">{narration.narration.title}</div>
             <img src="{narration.slideSwitches[0].imageUrl}"  class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.narrationSelected }"
             onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
         </div>
