@@ -29,30 +29,37 @@
     </div>
     <div class="loginAndViewNarrations" if="{app.pageName == 'introPage'}">
         <div class="circleButton2" onclick="{loginButtonClicked}">Login</div>
-            <div class="login loginForm">
-                <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
-                <div if="{app.invalidUsernameOrPasswordForLogin}" style="font-family: RobotoCR; font-size: 25px">Invalid username or password</div>
-                <div if="{app.emptyUsernameOrPassword}" style="font-family: RobotoCR; font-size: 25px">Please enter username and password</div>
-                <div style="display: flex; flex-direction: row; margin-bottom: -10px; align-items: center">
-                    <p style="font-family: RobotoCR; font-size: 24px">
-                    Enter username
-                    </p>&nbsp
-                    <div>
-                        <input type="text" size="40" maxlength="100" id="usernameLoginInput"/>
-                    </div>
+        <div style="display: flex; flex-direction: column" class="loginForm">
+            <div style="display: flex; flex-direction: row">
+                <div class="login loginForm">
+                        <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
+                        <div if="{app.invalidUsernameOrPasswordForLogin}" style="font-family: RobotoCR; font-size: 25px">Invalid username or password</div>
+                        <div if="{app.emptyUsernameOrPassword}" style="font-family: RobotoCR; font-size: 25px">Please enter username and password</div>
+                        <div style="display: flex; flex-direction: row; margin-bottom: -10px; align-items: center">
+                            <p style="font-family: RobotoCR; font-size: 24px">
+                            Enter username
+                            </p>&nbsp
+                            <div>
+                                <input type="text" size="40" maxlength="100" id="usernameLoginInput"/>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: row; margin-bottom: -10px; align-items: center">
+                            <p style="font-family: RobotoCR; font-size: 24px">
+                            Enter password
+                            </p>&nbsp
+                            <div>
+                                <input type="text" size="40" maxlength="100" id="passwordLoginInput"/>
+                            </div>
+                        </div>   
                 </div>
-                <div style="display: flex; flex-direction: row; margin-bottom: -10px; align-items: center">
-                    <p style="font-family: RobotoCR; font-size: 24px">
-                    Enter password
-                    </p>&nbsp
-                    <div>
-                        <input type="text" size="40" maxlength="100" id="passwordLoginInput"/>
-                    </div>
-                    <div class="circleButton2" onclick="{loginConfirmedButtonClicked}" style="font-size: 19px">Confirm</div>
-                </div>
-                
+                <div class="circleButton2" onclick="{loginConfirmedButtonClicked}" style="font-size: 19px">Confirm</div>
             </div>
-            <div style="display: flex; flex-direction: column">
+            <div style="display: flex; flex-direction: row">
+                <div style="font-family: RobotoCR; font-size: 18px">Forgotton username or password.</div>&nbsp
+                <div style="font-family: RobotoCR; font-size: 18px; color: purple" onclick="{linkToForgotUsernameOrPasswordPageClicked}">Click here.</div>
+            </div>        
+        </div>
+        <div style="display: flex; flex-direction: column">
                 <div>&nbsp &nbsp &nbsp &nbsp</div>
                 <div
                     class="circleButton2"
@@ -65,14 +72,14 @@
                     >
                     View Narrations
                 </div>
-            </div>
         </div>
+    </div>
         <div if="{app.pageName == 'viewNarrationsPage'}">
-        <div style="display: flex; flex-direction: row">
-            <input type="text" size="40" maxlength="100" id="searchInput" oninput="{narrationsSearchInput}"/>
-            <div class="circleButton2" style="width:25px:height:25px">Search</div>
-        </div>
-            <narrationgallery smallnarrationgallery="{false}" narrationsimageslist="{app.allPublishedNarrations}"></narrationgallery>
+            <div style="display: flex; flex-direction: row">
+                <input type="text" size="40" maxlength="100" id="inputSearch" oninput="{narrationsSearchInput}"/>
+                <div class="circleButton2" style="width:25px:height:25px">Search</div>
+            </div>
+            <narrationgallery smallnarrationgallery="{false}" narrationsimageslist="{app.searchedNarrations}"></narrationgallery>
         </div>
         <div if="{app.largeThumbnailClicked && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
             <audio id="myAudio"></audio>
@@ -281,8 +288,8 @@
                             <img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/>
                         </div>
                         <div style="display: flex;flex-direction: column">
-                            <div if="{narration.narration.title}" style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">{narration.narration.title}</div>
-                            <div if="{!narration.narration.title}" style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">Enter title</div>
+                            <div if="{narration.title}" style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">{narration.narration.title}</div>
+                            <div if="{!narration.title}" style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">Enter title</div>
                             <div if="{narration.published}"  class="checkMark">
                                 <img src="images\checkMark.png" width="20px" height="20px"/>
                             </div>
@@ -396,7 +403,8 @@
 
         viewNarrationsButtonClicked(e){
             app.switchPageAndAddToHistory('viewNarrationsPage');
-            //app.smallnarrationgallery = false;
+            app.smallnarrationgallery = false;
+            /*
             $.post(
                 app.rootUrlWithSlashAtEnd + "getAllPublishedNarrations",
                 {
@@ -409,10 +417,12 @@
 
                 }
             );
+            */
         }
 
         narrationsSearchInput(e){
-            app.searchNarrationsInput = $('#searchInput').val();
+            app.searchNarrationsInput = $('#inputSearch').val();
+            console.log("Search input is " + app.searchNarrationsInput);
             $.post(
                 app.rootUrlWithSlashAtEnd + "getNarrationsMatchingSearchInput",
                 {
@@ -927,7 +937,7 @@
                         $.post(
                             app.rootUrlWithSlashAtEnd + "Narrations",
                             {
-                                narration: {title: app.narrationTitle},
+                                title: app.narrationTitle,
                                 username: app.username,
                                 password: app.password
                             },
@@ -1732,7 +1742,7 @@
                 <img src="images\checkMark.png" width="20px" height="20px"/>
             </div>
             <div if="{parent.opts.smallnarrationgallery}" class="thumbnailTitle">{app.narrationTitle}</div>
-            <div if="{!parent.opts.smallnarrationgallery}" class="thumbnailTitle">{narration.narration.title}</div>
+            <div if="{!parent.opts.smallnarrationgallery}" class="thumbnailTitle">{narration.title}</div>
             <img src="{narration.slideSwitches[0].imageUrl}"  class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.narrationSelected }"
             onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
         </div>
