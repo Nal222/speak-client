@@ -29,8 +29,7 @@
     </div>
     <div class="loginAndViewNarrations" if="{app.pageName == 'introPage'}">
         <div class="circleButton2" onclick="{loginButtonClicked}">Login</div>
-        <div style="display: flex; flex-direction: column" class="loginForm">
-            <div style="display: flex; flex-direction: row">
+            <div style="display: flex; flex-direction: row" class="loginForm">
                 <div class="login loginForm">
                         <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
                         <div if="{app.invalidUsernameOrPasswordForLogin}" style="font-family: RobotoCR; font-size: 25px">Invalid username or password</div>
@@ -52,13 +51,12 @@
                             </div>
                         </div>   
                 </div>
-                <div class="circleButton2" onclick="{loginConfirmedButtonClicked}" style="font-size: 19px">Confirm</div>
-            </div>
-            <div style="display: flex; flex-direction: row">
-                <div style="font-family: RobotoCR; font-size: 18px">Forgotton username or password.</div>&nbsp
-                <div style="font-family: RobotoCR; font-size: 18px; color: purple" onclick="{linkToForgotUsernameOrPasswordPageClicked}">Click here.</div>
-            </div>        
-        </div>
+                <div class="circleButton2" onclick="{loginConfirmedButtonClicked}" style="font-size: 19px; align-items: center; justify-content: center">Confirm</div>  
+                <div style="display: flex; flex-direction: row; align-items: center; justify-content: center">
+                    <div style="font-family: RobotoCR; font-size: 18px">Forgot your password?</div>&nbsp
+                    <div style="font-family: RobotoCR; font-size: 18px; color: purple" onclick="{linkToForgotUsernameOrPasswordPageClicked}">Reset your password online</div>
+                </div>
+            </div>  
         <div style="display: flex; flex-direction: column">
                 <div>&nbsp &nbsp &nbsp &nbsp</div>
                 <div
