@@ -150,6 +150,16 @@
             </div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
                 <p style="font-family: RobotoCR">
+                    Enter your email address
+                </p>&nbsp
+                <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
+                    <input oninput="{onLogInInput}" type="text" size="40" maxlength="100" id="emailInput"/>
+                    <div if="{confirmClicked && !email}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter your email</div>
+                    <div if="{confirmClicked && app.emailTaken}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Email taken, please enter another</div>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: row; margin-bottom: -50px">
+                <p style="font-family: RobotoCR">
                     Enter your password
                 </p>&nbsp
                 <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
@@ -811,6 +821,7 @@
             app.confirmClicked = true;
             app.narrationTitleOnRegistration = ($("#titleInput").val())
             app.username = $("#usernameInput").val();
+            app.email = $("#emailInput").val();
             app.password = $("#passwordInputFirst").val();
             app.passwordSecond = $("#passwordInputSecond").val();
 
