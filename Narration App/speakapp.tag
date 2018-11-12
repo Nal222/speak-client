@@ -155,6 +155,7 @@
                 <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input oninput="{onLogInInput}" type="text" size="40" maxlength="100" id="emailInput"/>
                     <div if="{confirmClicked && !email}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter your email</div>
+                    <div if="{confirmClicked && app.email && app.wrongEmail}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a valid email address</div>
                     <div if="{confirmClicked && app.emailTaken}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Email taken, please enter another</div>
                 </div>
             </div>
@@ -164,8 +165,8 @@
                 </p>&nbsp
                 <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input oninput="{onLogInInput}" type="text" size="40" maxlength="100" id="passwordInputFirst"/>
-                    <div if="{confirmClicked && !passwordFirst}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a password</div>
-                    <div if="{confirmClicked && app.wrongPassword}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Password should be between 8 and 20 characters long and contain at least 1 lowercase letter, at least 1 uppercase letter and at least 1 number</div>
+                    <div if="{confirmClicked && !app.password}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a password</div>
+                    <div if="{confirmClicked && app.password && app.wrongPassword}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Password should be minimum 6 characters long</div>
                     <div if="{confirmClicked && app.passwordTaken}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Password taken, please enter another</div>
                 </div>
             </div>
@@ -825,10 +826,26 @@
             app.password = $("#passwordInputFirst").val();
             app.passwordSecond = $("#passwordInputSecond").val();
 
-
+            var regularExpressionEmail = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            
+            if(!regularExpressionEmail.test(app.email)){
+                console.log(app.email);
+                app.wrongEmail = true;
+            }
+            else{
+                app.wrongEmail = false;
+                console.log(app.email);
+            }
+            /*
+            if(!app.email){
+                app.wrongEmail = false;
+            }
+            */
+            
             //TODO: Message to request user to enter password with letters and numbers of 8 characters minimum
-            var regularExpression = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,20})/;
-            if(!regularExpression.test(app.password)){
+            var regularExpressionPassword = /^.{6,}$/
+            //var regularExpressionPassword = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,20})/;
+            if(!regularExpressionPassword.test(app.password)){
                 console.log(app.password);
                 app.wrongPassword = true;
             }
@@ -843,13 +860,14 @@
                 app.passwordsMatching = true;
             }
 
-            if(app.username && app.password && app.passwordSecond && app.passwordsMatching && !app.wrongPassword){
+            if(app.username && app.password && app.passwordSecond && app.passwordsMatching && !app.wrongPassword && app.email && !app.wrongEmail){
                 console.log("I have reached where post is");
                 $.post(
                     app.rootUrlWithSlashAtEnd + "register",
                     {
                         username: app.username,
-                        password: app.password
+                        password: app.password,
+                        email: app.email
                     },
                     function(data) {
                         console.log("Inside funtion(data)")
