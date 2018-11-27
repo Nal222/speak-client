@@ -72,6 +72,35 @@
                 </div>
         </div>
     </div>
+        <div class="bottom page2" if="{app.pageName == 'enterEmailForResettingPasswordPage'}">
+            <div style="font-family: RobotoCB; color:green; font-size: 50px">Enter email you registered with and a link will be sent to you to click and create a new password</div>
+            <div style="display: flex; flex-direction: row; margin-bottom: -50px">
+                <p style="font-family: RobotoCR">
+                    Enter email
+                </p>&nbsp
+                <!-- TODO: Factor these out into a separate tag -->
+                <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
+                    <input type="text" size="40" maxlength="100" id="emailInputResetPassword"/>
+                    <!--<div if="{confirmClicked && !title}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter your title</div>-->
+                </div>
+                <div if="{submitClickedEnterEmailForResettingPasswordPage && !app.emailForPasswordReset}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter your email</div>
+                <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailForPasswordReset && app.wrongEmailForPasswordReset}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a valid email address</div>
+                <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailDoesNotExistInRecords}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Email not found, please enter your correct email you registered with</div>
+            </div>
+            <div style="display: flex; flex-direction: row; margin-bottom: -50px">
+                <p style="font-family: RobotoCR">
+                    Confirm email
+                </p>&nbsp
+                <!-- TODO: Factor these out into a separate tag -->
+                <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
+                    <input type="text" size="40" maxlength="100" id="emailInputResetPassword2"/>
+                    <div if="{submitClickedEnterEmailForResettingPasswordPage && !app.emailReenterForPasswordReset}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please confirm your email</div>
+                    <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailReenterForPasswordReset && !app.emailsMatching}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Your emails don't match please enter correctly</div>                    
+                    <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailReenterForPasswordReset && app.wrongEmailReenteredForPasswordReset}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">You have entered an invald email</div>                
+                </div>
+            </div>
+            <div class="circleButton2" style="width:25px:height:25px" onclick="{submitClickedEnterEmailForResettingPasswordPage}">SUBMIT</div>
+        </div>
         <div if="{app.pageName == 'viewNarrationsPage'}">
             <div style="display: flex; flex-direction: row">
                 <input type="text" size="40" maxlength="100" id="inputSearch" oninput="{narrationsSearchInput}"/>
@@ -332,7 +361,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.117";
+        app.ipAddress = "192.168.1.48";
         
         
         login(){
@@ -485,6 +514,10 @@
                     }
                 }
             );
+
+        }
+        linkToForgotUsernameOrPasswordPageClicked(e){
+            app.switchPageAndAddToHistory('enterEmailForResettingPasswordPage');
 
         }
 
@@ -891,6 +924,7 @@
 
                         app.usernameTaken = data.includes("Username");
                         app.passwordTaken = data.includes("Password");
+                        app.emailTaken = data.includes("Email");
                         /*
                         if(data.includes("Password")){
                             app.passwordTaken = true;  
@@ -923,6 +957,11 @@
             else{
                 console.log("some empty input");
             }
+        }
+        submitClickedEnterEmailForResettingPasswordPage(e){
+            app.emailForPasswordReset = emailInputResetPassword.val();
+            app.emailReenterForPasswordReset = emailInputResetPassword2.val();
+
         }
 
         pushPageNameToHistory(){
