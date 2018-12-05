@@ -73,7 +73,7 @@
         </div>
     </div>
         <div class="bottom page2" if="{app.pageName == 'enterEmailForResettingPasswordPage'}">
-            <div style="font-family: RobotoCB; color:green; font-size: 50px">Enter email you registered with and a link will be sent to you to click and create a new password</div>
+            <div style="font-family: RobotoCB; color:green; font-size: 25px">Enter email you registered with and a link will be sent to create a new password</div>
             <div style="display: flex; flex-direction: row; margin-bottom: -50px">
                 <p style="font-family: RobotoCR">
                     Enter email
@@ -81,13 +81,13 @@
                 <!-- TODO: Factor these out into a separate tag -->
                 <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input type="text" size="40" maxlength="100" id="emailInputResetPassword"/>
+                    <div if="{submitClickedEnterEmailForResettingPasswordPage && !app.emailForPasswordReset}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter your email</div>
+                    <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailForPasswordReset && app.wrongEmailFirstInputEnterEmailForResettingPasswordPage}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a valid email address</div>
+                    <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailDoesNotExistInRecords}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Email not found, please enter your correct email you registered with</div>
                     <!--<div if="{confirmClicked && !title}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter your title</div>-->
                 </div>
-                <div if="{submitClickedEnterEmailForResettingPasswordPage && !app.emailForPasswordReset}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter your email</div>
-                <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailForPasswordReset && app.wrongEmailForPasswordReset}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a valid email address</div>
-                <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailDoesNotExistInRecords}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Email not found, please enter your correct email you registered with</div>
             </div>
-            <div style="display: flex; flex-direction: row; margin-bottom: -50px">
+            <div style="display: flex; flex-direction: row; margin-bottom: -30px">
                 <p style="font-family: RobotoCR">
                     Confirm email
                 </p>&nbsp
@@ -95,8 +95,8 @@
                 <div class="inputTextDiv" style="display: flex; flex-direction: row; align-items: center;">
                     <input type="text" size="40" maxlength="100" id="emailInputResetPassword2"/>
                     <div if="{submitClickedEnterEmailForResettingPasswordPage && !app.emailReenterForPasswordReset}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please confirm your email</div>
-                    <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailReenterForPasswordReset && !app.emailsMatching}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Your emails don't match please enter correctly</div>                    
-                    <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailReenterForPasswordReset && app.wrongEmailReenteredForPasswordReset}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">You have entered an invald email</div>                
+                    <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailReenterForPasswordReset && app.emailForPasswordReset && !app.wrongEmailFirstInputEnterEmailForResettingPasswordPage && !app.wrongEmailSecondInputEnterEmailForResettingPasswordPage && !app.emailsMatching}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Your emails don't match please enter correctly</div>                    
+                    <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailReenterForPasswordReset && app.wrongEmailSecondInputEnterEmailForResettingPasswordPage}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a valid email address</div>                
                 </div>
             </div>
             <div class="circleButton2" style="width:25px:height:25px" onclick="{submitClickedEnterEmailForResettingPasswordPage}">SUBMIT</div>
@@ -361,7 +361,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.48";
+        app.ipAddress = "192.168.1.9";
         
         
         login(){
@@ -958,10 +958,68 @@
                 console.log("some empty input");
             }
         }
+        /*
+        app.emailValidTest = function(emailEntered){
+                var regularExpressionEmail = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                if(!regularExpressionEmail.test(emailEntered)){
+                    console.log(emailEntered);
+                    app.wrongEmailEnterEmailForResettingPasswordPage = true;
+                }
+                else{
+                    app.wrongEmailEnterEmailForResettingPasswordPage = false;
+                    console.log(emailEntered);
+                }
+        }
+        */
         submitClickedEnterEmailForResettingPasswordPage(e){
-            app.emailForPasswordReset = emailInputResetPassword.val();
-            app.emailReenterForPasswordReset = emailInputResetPassword2.val();
+            app.emailForPasswordReset = $("#emailInputResetPassword").val();
+            app.emailReenterForPasswordReset = $("#emailInputResetPassword2").val();
+            if(app.emailForPasswordReset != app.emailReenterForPasswordReset){
+                app.emailsMatching = false;
+            }
+            else{
+                app.emailsMatching = true;
+            }
+            var regularExpressionEmail = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if(!regularExpressionEmail.test(app.emailForPasswordReset)){
+                console.log("Wrong format for 1st inputted email");
+                app.wrongEmailFirstInputEnterEmailForResettingPasswordPage = true;
+            }
+            else{
+                app.wrongEmailFirstInputEnterEmailForResettingPasswordPage = false;
+                console.log("Correct email format for 1st input");
+            }
 
+            if(!regularExpressionEmail.test(app.emailReenterForPasswordReset)){
+                console.log("Wrong format for 2nd inputted email");
+                app.wrongEmailSecondInputEnterEmailForResettingPasswordPage = true;
+            }
+            else{
+                app.wrongEmailSecondInputEnterEmailForResettingPasswordPage = false;
+                console.log("Correct email format for 2nd input");
+            }
+            /*
+            app.emailValidTest(app.emailForPasswordReset);
+            app.emailValidTest(app.emailReenterForPasswordReset);
+            if(app.emailValidTest(app.emailForPasswordReset) == !app.wrongEmailEnterEmailForResettingPasswordPage && app.emailValidTest(app.emailReenterForPasswordReset) == !app.wrongEmailEnterEmailForResettingPasswordPage){
+                app.correctEmailFormatEnteredInBothInputs = true;
+                console.log("app.correctEmailFormatEnteredInBothInputs");
+            } 
+            */
+            
+
+            if(app.emailForPasswordReset && app.emailReenterForPasswordReset && app.emailsMatching && app.wrongEmailFirstInputEnterEmailForResettingPasswordPage && app.wrongEmailSecondInputEnterEmailForResettingPasswordPage){
+                $.post(
+                        app.rootUrlWithSlashAtEnd + "checkEmailExists",
+                        {
+                            email: app.emailForPasswordReset
+                        },
+                        function(data) {
+                    
+
+                        }
+                );
+            }
         }
 
         pushPageNameToHistory(){
