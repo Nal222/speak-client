@@ -83,7 +83,7 @@
                     <input type="text" size="40" maxlength="100" id="emailInputResetPassword"/>
                     <div if="{submitClickedEnterEmailForResettingPasswordPage && !app.emailForPasswordReset}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter your email</div>
                     <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailForPasswordReset && app.wrongEmailFirstInputEnterEmailForResettingPasswordPage}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a valid email address</div>
-                    <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailDoesNotExistInRecords}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Email not found, please enter your correct email you registered with</div>
+                    <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailForPasswordReset && app.emailReenterForPasswordReset && app.emailDoesNotExistInRecords}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Email not found, please enter your correct email you registered with</div>
                     <!--<div if="{confirmClicked && !title}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter your title</div>-->
                 </div>
             </div>
@@ -903,7 +903,7 @@
                         email: app.email
                     },
                     function(data) {
-                        console.log("Inside funtion(data)")
+                        console.log("Inside funtion(data)");
                         //alert("data " + data);
                         //TODO: only do this if server-side has found user name or password to be not taken.
                         if(data.includes("ImageGalleryPage")){
@@ -1008,15 +1008,18 @@
             */
             
 
-            if(app.emailForPasswordReset && app.emailReenterForPasswordReset && app.emailsMatching && app.wrongEmailFirstInputEnterEmailForResettingPasswordPage && app.wrongEmailSecondInputEnterEmailForResettingPasswordPage){
+            if(app.emailForPasswordReset && app.emailReenterForPasswordReset && app.emailsMatching && !app.wrongEmailFirstInputEnterEmailForResettingPasswordPage && !app.wrongEmailSecondInputEnterEmailForResettingPasswordPage){
+                console.log("I have reached where post checkEmailExists is");
                 $.post(
                         app.rootUrlWithSlashAtEnd + "checkEmailExists",
                         {
                             email: app.emailForPasswordReset
                         },
                         function(data) {
-                    
-
+                            console.log("Inside function data enter email page for password reset");
+                            console.log(data);
+                            app.emailDoesNotExistInRecords = data.includes("exist");
+                            app.update();
                         }
                 );
             }
