@@ -313,6 +313,10 @@
                 -->
             </div>
         </div>
+        <div if="{app.pageName == 'newUserWithoutAnyImagesOrNarrationsSavedPage'}">
+            <p style="font-family: RobotoCR; color: purple">Welcome {app.username}. You have no narrations saved.</p>
+            <div class="circleButton" onclick="{app.goToImageGalleryPage}" style="font-size: 20px; text-align: center">Create new narration</div>
+        </div>
         <div if="{app.pageName == 'userAreaPage'}">
             <p id="userAreaWelcomeMessageParagraph" style="font-family: RobotoCR; color: purple">Welcome {app.username}</p>
             <p style="align: left; font-family: RobotoCR">Here are your narrations</p>
@@ -361,7 +365,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.9";
+        app.ipAddress = "192.168.1.55";
         
         
         login(){
@@ -392,6 +396,10 @@
                             console.log("DATA.GALLERYITEMS ARE " + JSON.stringify(data.galleryItems));
                             app.images = data.galleryItems;
                             app.update();
+                        }
+                        else if(!data.galleryItems && !data.narrations){
+                            app.switchPageAndAddToHistory('newUserWithoutAnyImagesOrNarrationsSavedPage');
+                            app.update();    
                         }
                         //$("#userAreaWelcomeMessageParagraph").html(app.welcomeParagraph);
                         //console.log("userAreaWelcomeMessageParagraph " + $("#userAreaWelcomeMessageParagraph") + app.welcomeParagraph);
