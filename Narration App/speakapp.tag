@@ -99,7 +99,11 @@
                     <div if="{submitClickedEnterEmailForResettingPasswordPage && app.emailReenterForPasswordReset && app.wrongEmailSecondInputEnterEmailForResettingPasswordPage}" style="margin-left: 4px; white-space:nowrap;font-family: RobotoCR">Please enter a valid email address</div>                
                 </div>
             </div>
-            <div class="circleButton2" style="width:25px:height:25px" onclick="{submitClickedEnterEmailForResettingPasswordPage}">SUBMIT</div>
+            <div style="position: relative">
+                <div id="divReplacingSubmitButton" style="position: absolute; width: 0px; height: 0px" onclick="{divReplacingSubmitButtonClicked}"></div>
+                <div class="circleButton2" style="width:25px:height:25px" onclick="{submitClickedEnterEmailForResettingPasswordPage}" id="submitButton">SUBMIT</div>
+            </div>
+            <div if="{app.divReplacingSubmitButtonDisabled}" style="font-family: RobotoCB; color:green; font-size: 20px" id="messageDiv">An email has already been sent to you</div>
         </div>
         <div if="{app.pageName == 'viewNarrationsPage'}">
             <div style="display: flex; flex-direction: row">
@@ -1027,10 +1031,20 @@
                             console.log("Inside function data enter email page for password reset");
                             console.log(data);
                             app.emailDoesNotExistInRecords = data.includes("exist");
+                            if(data.includes("link")){
+                                document.getElementById('submitButton').style.pointerEvents = 'none';
+                                //$('#submitButton').attr('disabled', true);
+                                $('#divReplacingSubmitButton').css({'width': '100px', 'height': '100px'});
+                            }
                             app.update();
                         }
                 );
             }
+        }
+        divReplacingSubmitButtonClicked(e){
+            document.getElementById('divReplacingSubmitButton').style.pointerEvents = 'none';
+            app.divReplacingSubmitButtonDisabled = true;
+            //$('#divForReplacingSubmitButton').attr('disabled', true);
         }
 
         pushPageNameToHistory(){
