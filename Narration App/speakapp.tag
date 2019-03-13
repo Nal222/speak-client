@@ -268,7 +268,7 @@
                 <img class="galleryImage" each="{images}" src="{url}">
             </div>-->
             <div style="display: flex; flex-direction: row">
-                <div style="font-family: RobotoCR">If you want to delete an image select it and click the delete button</div>
+                <div style="font-family: RobotoCR">If you want to delete an image select it and click the delete button. Select ones you want to show in your narration.</div>
                 <div class="circleButton extraSmall" style="font-family: RobotoCR; font-size: 15px" onclick="{deleteSelectedImages}">Delete</div>
             </div>
             <div style="font-family: RobotoCR">Drag and drop individual images for ordering images the way you want to show in your narration</div>
@@ -369,7 +369,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.55";
+        app.ipAddress = "192.168.1.48";
         
         
         login(){
@@ -1236,13 +1236,16 @@
         );
         
         function onAudioStop(){
-            console.log("setTimeoutIDArray is " + JSON.stringify(app.setTimeoutIDArray));
+            //console.log("setTimeoutIDArray is " + JSON.stringify(app.setTimeoutIDArray));
+            /*
             app.setTimeoutIDArray.forEach(
                 function(setTimeoutID){
-                    clearTimeout(setTimeoutID);
+                    clearInterval(setTimeoutID);
                 }
             );
             app.setTimeoutIDArray.length = 0;
+            */
+            clearTimeout(app.setIntervalSlideSwitches);
         }
         playButtonOrThumbnailClicked(e, audioFileId){
             //app.audioFileId = audioFileId;
@@ -1305,11 +1308,13 @@
         }
 
         publishButtonClicked(e){
+            //var page = "";
             //app.narrationSelected.published = true;
             console.log("app.username is " + app.username + " app.password is " + app.password);
             console.log('RECENT NARRATION TAKES IS NOW ' + JSON.stringify(app.recentNarrationTakes));
             if(app.pageName == 'userAreaPage'){
                 console.log("Narrations in user area app.narrations are " + JSON.stringify(app.narrations));
+                //page= userArea;
                 app.narrationsIdsToPublish =
                     app.narrations
                         .filter(
@@ -1320,25 +1325,32 @@
                         )
                 ;
             }
-            if(app.pageName=="recordNarrationPage"){
+            if(app.pageName == "recordNarrationPage"){
+                //page =  recordNarration;
                 app.narrationsIdsToPublish =
                     app.recentNarrationTakes
-                        .find(
+                        .filter(
                             narration=>narration = app.narrationSelected
                         )
-                        ._id
+                        .map(
+                            narration=>narration._id
+                        )
                 ;
+                console.log("Narration ids to publish are " + app.narrationsIdsToPublish);
             }
             $.post(
                 app.rootUrlWithSlashAtEnd + "publishNarrations",
                 {
                     username: app.username,
                     password: app.password,
-                    narrationIds: app.narrationsIdsToPublish
+                    narrationIds: app.narrationsIdsToPublish,
+                    pageName: app.pageName
                 },
                 function( data ) {
                     console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = TRUE TO DATABASE " + JSON.stringify(data));
-                    app.narrations = data;
+                    if(app.pageName == userAreaPage){
+                        app.narrations = data;
+                    }
                     app.update();
                     /*
                     if(data.published){
@@ -1482,7 +1494,7 @@
                     console.log("If statement entered");
                     console.log("milliseconds from START is " + slideSwitch.millisecondsfromStart);
                     console.log("Total duration audio played is " + totalDurationAudioPlayed);
-                    app.setTimeoutIDArray.push(
+                    app.setIntervalSlideSwitches = 
                         setTimeout(
                             function(){
                                 console.log("setTimeout function entered");
@@ -1494,7 +1506,7 @@
 
                             },
                             slideSwitch.millisecondsfromStart - totalDurationAudioPlayed
-                            )
+                            
                         );
                     }
                 }
