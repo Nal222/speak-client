@@ -334,8 +334,9 @@
                             <img src="{narration.slideSwitches[0].imageUrl}" style="width:150px;height:150px"/>
                         </div>
                         <div style="display: flex;flex-direction: column">
-                            <div if="{narration.title}" style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">{narration.narration.title}</div>
+                            <div if="{narration.title}" style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">{narration.title}</div>
                             <div if="{!narration.title}" style="font-family: RobotoCR" id="userAreaNarrationTitleDiv" contenteditable="true" onblur="{onNarrationTitleInputUserAreaPage}">Enter title</div>
+                            <div if="{(!narration.title || narration.title == "Enter Title") && (app.publishNarrationButtonClicked==true && narration.isChecked)}" style="font-family: RobotoCR; color: purple">Enter title before publishing</div>
                             <div if="{narration.published}"  class="checkMark">
                                 <img src="images\checkMark.png" width="20px" height="20px"/>
                             </div>
@@ -343,12 +344,14 @@
                         </div>
                         
                         
-                    </div>     
+                    </div>
+                    
                     <div each="{publishedNarration, i in app.publishedNarrationObjects}">
                         <div if="{publishedNarration.published && app.narrationSelected}" class="checkMark">
                             <img src="images\checkMark.png" width="20px" height="20px"/>
                         </div>
-                    </div>   
+                    </div>
+                      
                         
                         
                 </div>
@@ -369,7 +372,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.48";
+        app.ipAddress = "192.168.1.55";
         
         
         login(){
@@ -487,8 +490,6 @@
             );
 
         }
-
-       
         
         loginConfirmedButtonClicked(e){
             console.log("Inside confirm login button clicked!");
@@ -1306,8 +1307,9 @@
             }
             */
         }
-
+        app.narrationsIdsToPublish = [];
         publishButtonClicked(e){
+            app.publishNarrationButtonClicked = true;
             //var page = "";
             //app.narrationSelected.published = true;
             console.log("app.username is " + app.username + " app.password is " + app.password);
@@ -1318,55 +1320,102 @@
                 app.narrationsIdsToPublish =
                     app.narrations
                         .filter(
-                            narration=>narration && narration.isChecked //Fix narrations sometimes being null
+                            narration=>narration && narration.isChecked && narration.title && narration.title != "Enter Title"//Fix narrations sometimes being null
                         )
                         .map(
                             narration=>narration._id
                         )
                 ;
+                console.log("Narration title is " + app.narrationTitle);
+                console.log("Narration ids to publish are " + app.narrationsIdsToPublish);
             }
             if(app.pageName == "recordNarrationPage"){
                 //page =  recordNarration;
                 app.narrationsIdsToPublish =
                     app.recentNarrationTakes
                         .filter(
-                            narration=>narration = app.narrationSelected
+                            narration=>narration 
+                            
+                            && 
+
+                            app.narrationSelected == narration
+
+                            &&
+                            
+                            narration.title 
+                            
+                            && 
+                            
+                            narration.title != "Enter Title"
                         )
                         .map(
                             narration=>narration._id
                         )
                 ;
                 console.log("Narration ids to publish are " + app.narrationsIdsToPublish);
+                console.log("Narration selected title is " + app.narrationSelected.title + " " + app.narrationTitle);
             }
-            $.post(
-                app.rootUrlWithSlashAtEnd + "publishNarrations",
-                {
-                    username: app.username,
-                    password: app.password,
-                    narrationIds: app.narrationsIdsToPublish,
-                    pageName: app.pageName
-                },
-                function( data ) {
-                    console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = TRUE TO DATABASE " + JSON.stringify(data));
-                    if(app.pageName == userAreaPage){
-                        app.narrations = data;
+            console.log("Narration ids to publish are " + app.narrationsIdsToPublish);
+            if(app.narrationsIdsToPublish){
+                $.post(
+                    app.rootUrlWithSlashAtEnd + "publishNarrations",
+                    {
+                        username: app.username,
+                        password: app.password,
+                        narrationIds: app.narrationsIdsToPublish,
+                        pageName: app.pageName
+                    },
+                    function( data ) {
+                        //console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = TRUE TO DATABASE " + JSON.stringify(data));
+                        if(app.pageName == "userAreaPage"){
+                            app.narrations = data;
+                            console.log("User narrations are " + JSON.stringify(data));
+                        }
+                        if(app.pageName == "recordNarrationPage"){
+                            console.log("published narrations are " + JSON.stringify(data));
+                            console.log("recent narration takes before updation are " + JSON.stringify(app.recentNarrationTakes));
+                            /*
+                            app.publishedNarrations.forEach(function(publishedNarration){
+
+                                app.recentNarrationTakes.forEach(function(narration){
+                                    app.recentNarrationTakes
+                                        .filter(
+                                            narration=>narration._id = publishedNarration._id
+                                        )
+                                        .published = true;    
+                                });
+                            });
+                            */
+                            if(data){
+                                app.narrationSelected.published = true;
+                                console.log("Recent narration takes before updation are " + JSON.stringify(app.recentNarrationTakes));
+                                app.recentNarrationTakes
+                                    .filter(
+                                        narration=>narration=app.narrationSelected
+                                    )
+                                    .published = true;
+                                    console.log("Recent narration takes is now " + JSON.stringify(app.recentNarrationTakes));
+                            }
+                            
+                        }
+                        app.update();
+                        /*
+                        if(data.published){
+                            app.narrationSelected.published = true;
+                            console.log('RECENT NARRATION TAKES IS NOW ' + JSON.stringify(app.recentNarrationTakes));
+                        */
+                        /*
+                            app.recentNarrationTakes
+                                .filter(
+                                    narration=>narration=app.narrationSelected
+                                )
+                                .published = true; 
+                        */
                     }
-                    app.update();
-                    /*
-                    if(data.published){
-                        app.narrationSelected.published = true;
-                        console.log('RECENT NARRATION TAKES IS NOW ' + JSON.stringify(app.recentNarrationTakes));
-                    */
-                    /*
-                        app.recentNarrationTakes
-                            .filter(
-                                narration=>narration=app.narrationSelected
-                            )
-                            .published = true; 
-                    */
-                }
-            );
+                );
+            }   
         }
+
         unpublishButtonClicked(e){
             if(app.pageName == 'userAreaPage'){
                 console.log("Narrations in user area app.narrations are " + JSON.stringify(app.narrations));
@@ -1682,14 +1731,36 @@
             return diff;
             */
         }
+        app.narrationsIdsOfNarrationsToUpdateTitle = [];
         onNarrationTitleInputRecordNarrationPage(e){
             console.log('NEW VALUE IS ' + e.currentTarget.textContent);
             app.narrationTitle = e.currentTarget.textContent;
+            
+            /*
+            app.recentNarrationTakes
+                .filter(
+                    narration => narration.published == false    
+                )
+                .map(
+                    narration=>narration.title = e.currentTarget.textContent;
+                )
+            ;
+            
+            narrationsToUpdateTitleWhichHaveNotBeenPublished
+                .forEach(
+                    narration => app.narrationTitle = e.currentTarget.textContent
+                )
+            ;
+            */
+
             app.recentNarrationTakes.length
             &&
             (
             app.narrationsIdsOfNarrationsToUpdateTitle =
                 app.recentNarrationTakes
+                    .filter(
+                        narration=>!narration.published
+                    )
                     .map(
                         narration=>narration._id
                     )
@@ -1701,12 +1772,19 @@
                     title: app.narrationTitle,
                     narrationIds: app.narrationsIdsOfNarrationsToUpdateTitle
                 },
-                function( data ) {
+                function(data) {
                     console.log("Update narrations title call returned data from server Record Narration Page" + JSON.stringify(data));
+                    for(var i in app.recentNarrationTakes){
+                        for(var j in data){
+                            if(app.recentNarrationTakes[i]._id == data[j]._id){
+                                app.recentNarrationTakes[i].title = app.narrationTitle;
+                            }
+                        }
+                    }
                     app.update();
                 }
-            )
-            ;
+            );
+            console.log("Narration ids of narrations to update title are " + app.narrationsIdsOfNarrationsToUpdateTitle);
         }
         onNarrationTitleInputUserAreaPage(e){
             app.narrationTitle = e.currentTarget.textContent;
@@ -1902,11 +1980,12 @@
             <div if="{narration.published && parent.opts.smallnarrationgallery}" class="checkMark">
                 <img src="images\checkMark.png" width="20px" height="20px"/>
             </div>
-            <div if="{parent.opts.smallnarrationgallery}" class="thumbnailTitle">{app.narrationTitle}</div>
+            <div if="{parent.opts.smallnarrationgallery}" class="thumbnailTitle">{narration.title}</div>
             <div if="{!parent.opts.smallnarrationgallery}" class="thumbnailTitle">{narration.title}</div>
-            <img src="{narration.slideSwitches[0].imageUrl}"  class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.narrationSelected }"
+            <img src="{narration.slideSwitches[0].imageUrl}"  id="narrationImage" class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.narrationSelected }"
             onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
         </div>
+        <div if="{app.publishNarrationButtonClicked==true && (!app.narrationTitle || app.narrationTitle == "Enter Title")}">Please enter title before publishing</div>
     </div>
 </narrationgallery>
 <!--
