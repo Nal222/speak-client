@@ -304,8 +304,8 @@
                         </div>
                         <div style="display: flex; flex-direction: row">
                             <div>
-                                <div if="{ !app.narrationSelected.published }" class="circleButton" onclick="{publishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Publish this narration</div>
-                                <div if="{ app.narrationSelected.published }" class="circleButton" onclick="{unpublishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Unpublish</div>
+                                <div if="{app.publishButtonVisible == true}" class="circleButton" onclick="{publishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Publish this narration</div>
+                                <div if="{app.publishButtonVisible == false}" class="circleButton" onclick="{unpublishButtonClicked}" style="font-size: 10px; width: 60px; height: 60px">Unpublish</div>
                             </div>
                             <div if="{app.narrationSelected}" class="circleButton" style="font-size: 10px; width: 60px; height: 60px" onclick="{app.deleteSelectedNarrationsPermanently}">Delete</div>
                         </div>
@@ -1203,6 +1203,8 @@
                         app.narrations.push(narrationAdded);
                         app.recentNarrationTakes.push(narrationAdded);
                         app.narrationSelected = narrationAdded;
+                        app.narrationSelected.published = false;
+                        app.publishButtonVisible = true;
 
                         console.log('AFTER STOP, RECENT NARRATION TAKES IS NOW ' + app.stringify(app.recentNarrationTakes));
                         //console.log("SMALLNARRATIONGALLERY IS " + smallnarrationgallery);
@@ -1274,6 +1276,16 @@
                 app.slideSwitches = app.narrationSelected.slideSwitches;
                 //app.narrationIdOfThumbnailClicked = e.item.narration._id;
                 console.log("INSIDE THUMBNAIL CLICKED NARRATION ID IS " + e.item.narration._id);
+                if(app.narrationSelected.published == true){
+                    console.log("Inside app.narrationSelected.published == true. Narration selected publish status is " + app.narrationSelected.published);
+                    app.publishButtonVisible = false;
+                    app.update();
+                }
+                if(app.narrationSelected.published == false){
+                    console.log("Inside app.narrationSelected.published == false. Narration selected publish status is " + app.narrationSelected.published);
+                    app.publishButtonVisible = true;
+                    app.update();
+                }
                 //app.playButtonOrThumbnailClicked(e, e.item.narration._id);
                 //app.currentImageUrl = 'showTitle';
                 //app.update();
@@ -1388,17 +1400,23 @@
                             */
                             if(data){
                                 app.narrationSelected.published = true;
+                                app.publishButtonVisible = false;
                                 console.log("Recent narration takes before updation are " + JSON.stringify(app.recentNarrationTakes));
+                                /*
                                 app.recentNarrationTakes
                                     .filter(
-                                        narration=>narration=app.narrationSelected
+                                        narration=>app.narrationSelected == narration
                                     )
-                                    .published = true;
-                                    console.log("Recent narration takes is now " + JSON.stringify(app.recentNarrationTakes));
+                                    .published = true
+                                ;
+                                */
+                                app.update();
+                                console.log("Recent narration takes is now " + JSON.stringify(app.recentNarrationTakes));
+                                
                             }
                             
                         }
-                        app.update();
+                        
                         /*
                         if(data.published){
                             app.narrationSelected.published = true;
@@ -1432,10 +1450,12 @@
             if(app.pageName=="recordNarrationPage"){
                 app.narrationsIdsToUnpublish =
                     app.recentNarrationTakes
-                        .find(
-                            narration=>narration = app.narrationSelected
+                        .filter(
+                            narration=>narration && app.narrationSelected == narration
                         )
-                        ._id
+                        .map(
+                            narration=>narration._id
+                        )
                 ;
             }
             $.post(
@@ -1443,12 +1463,30 @@
                 {
                     username: app.username,
                     password: app.password,
-                    narrationIds: app.narrationsIdsToUnpublish
+                    narrationIds: app.narrationsIdsToUnpublish,
+                    pageName: app.pageName
                 },
                 function( data ) {
                     console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = FALSE TO DATABASE " + JSON.stringify(data));
-                    app.narrations = data;
-                    app.update();
+                    if(app.pageName == "userAreaPage"){
+                        app.narrations = data;
+                    }
+                    if(app.pageName == "recordNarrationPage"){
+                        if(data){
+                            app.narrationSelected.published = false;
+                            app.publishButtonVisible = true;
+                            /*
+                            app.recentNarrationTakes
+                                    .filter(
+                                        narration=>app.narrationSelected == narration
+                                    )
+                                    .published = false
+                            ;
+                            */
+                            app.update();
+                            console.log("Recent narration takes is now " + JSON.stringify(app.recentNarrationTakes));           
+                        }
+                    }
                 }
             );
         }
@@ -1653,30 +1691,20 @@
                             narration=>narration._id
                         )
                 ;
-                //console.log("NARRATIONS IDS TO DELETE USER AREA PAGE ARE " + narrationsIdsToDelete);
-                app.narrations = 
-                    app.narrations
-                        .filter(
-                            narration=>narration && !narration.isChecked
-                        )
-                ;
+                console.log("NARRATIONS IDS TO DELETE USER AREA PAGE ARE " + app.narrationsIdsToDelete);
             }
 
             if(app.pageName=="recordNarrationPage"){
                 app.narrationsIdsToDelete =
                     app.recentNarrationTakes
-                        .find(
-                            narration=>narration = app.narrationSelected
-                        )
-                        ._id
-                ;
-                //console.log("NARRATIONS IDs TO DELETE RECORD NARRATION PAGE ARE " + narrationsIdsToDelete);
-                app.recentNarrationTakes = 
-                    app.recentNarrationTakes
                         .filter(
-                            narration=>narration != app.narrationSelected
+                            narration=>narration == app.narrationSelected
+                        )
+                        .map(
+                            narration=>narration._id
                         )
                 ;
+                console.log("NARRATIONS IDs TO DELETE RECORD NARRATION PAGE ARE " + app.narrationsIdsToDelete);
             }
 
             $.post(
@@ -1685,8 +1713,26 @@
                     narrationIds: app.narrationsIdsToDelete
                 },
                 data=>{
-                    //console.log("Inside function data returned after deletion of narration from database is confirmation deleted " + data)
-                    //app.update();
+                    if(data){
+                        console.log("Inside function data returned after deletion of narration from database is confirmation deleted " + data)
+                        if(app.pageName == "userAreaPage"){
+                            app.narrations = 
+                                app.narrations
+                                    .filter(
+                                        narration=>narration && !narration.isChecked
+                                    )
+                            ;
+                        }
+                        if(app.pageName == "recordNarrationPage"){
+                            app.recentNarrationTakes = 
+                                app.recentNarrationTakes
+                                    .filter(
+                                        narration=>narration != app.narrationSelected
+                                    )
+                            ;
+                        }
+                        app.update();
+                    }
                 }
             );
         } 
@@ -1950,7 +1996,7 @@
                                     galleryItemIds: galleryItemIds
                                 },
                                 function( data ) {
-                                    alert( "Data Loaded: " + JSON.stringify(data) );
+                                    //alert( "Data Loaded: " + JSON.stringify(data) );
                                     app.update();
                                 }
                             );
