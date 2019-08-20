@@ -125,6 +125,7 @@
                         Login to add comment
                         <div class="circleButton2" onclick="{loginButtonClicked}">Login</div>
                     </div>
+                    <div>&nbsp &nbsp</div>
                     <div class="login loginForm">
                         <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
                         <div style="display: flex; flex-direction: row; margin-bottom: -50px; align-items: center">
@@ -234,20 +235,28 @@
                             <!--<img src="{previewImgSrc}" style="width: 50px; height: 50px"/>-->
             </div>
             <!--<div style="display: flex; flex-direction: row">-->
-
-            <form id="frmUploader" name="new_post" enctype="multipart/form-data" action="uploadImages" method="post">
-                <div class="circleButton extraSmall" style="font-size: 15px; text-align: center" onclick="{fileInputClick}">Upload image</div>
-                <input
-                    type="file"
-                    onchange="{submitImageFile}"
-                    id="fileInput"
-                    name="image_file"
-                    style=
-                        "
-                            display:none;
-                        "
-                >
-            </form>
+            <div style="display: flex; flex-direction: row">
+                <div style="margin-right:10px">
+                    <form id="frmUploader" name="new_post" enctype="multipart/form-data" action="uploadImages" method="post">
+                        <div class="circleButton extraSmall" style="font-size: 15px; text-align: center" onclick="{fileInputClick}">Upload image</div>
+                        <input
+                            type="file"
+                            onchange="{submitImageFile}"
+                            id="fileInput"
+                            name="image_file"
+                            style=
+                                "
+                                    display:none;
+                                "
+                        >
+                    </form>
+                </div>
+                <div style="display: flex; flex-direction: row">
+                    <img src="images\rotate90DegreesRightIcon.svg" style="height: 50px; width: 50px" id="right" onclick="{rotateImage}"/>
+                    <div style="width: 5px"></div>
+                    <img src="images\rotate90DegreesLeftIcon.svg" style="height: 50px; width: 50px" id="left" onclick="{rotateImage}"/>
+                </div>
+            </div>
         
                 <!--
                 <div>
@@ -340,17 +349,17 @@
                             <div if="{narration.published}"  class="checkMark">
                                 <img src="images\checkMark.png" width="20px" height="20px"/>
                             </div>
-
                         </div>
                         
                         
                     </div>
-                    
+                    <!--
                     <div each="{publishedNarration, i in app.publishedNarrationObjects}">
                         <div if="{publishedNarration.published && app.narrationSelected}" class="checkMark">
                             <img src="images\checkMark.png" width="20px" height="20px"/>
                         </div>
                     </div>
+                    -->
                       
                         
                         
@@ -372,7 +381,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.55";
+        app.ipAddress = "192.168.1.48";
         
         
         login(){
@@ -424,6 +433,7 @@
         app.recentNarrationTakes = [];
         app.rootUrlWithSlashAtEnd = "http://"+app.ipAddress+":5000/";
         app.pageName = "introPage";
+        
         //app.pageName = 'viewNarrationsPage';
         //app.pageName = "chooseImagesFromImageGalleryPage"; //"recordNarrationPage";
         //app.pageName = "registerPage";
@@ -471,6 +481,22 @@
                 }
             );
             */
+        }
+        
+        rotateImage(e){
+            if($(this).is("#left")){
+                app.deg = app.deg - 90;
+            }
+            else{
+                app.deg = app.deg + 90;
+            }
+            $(":image.galleryImage,.highlight").css({
+                "-webkit-transform": "rotate(" + app.deg + "deg)",
+                "-moz-transform": "rotate(" + app.deg + "deg)",
+                transform: "rotate(" + app.deg + "deg)"
+            }); 
+            console.log("Degrees rotated are " + app.deg);
+            app.update();      
         }
 
         narrationsSearchInput(e){
@@ -603,8 +629,53 @@
         submitImageFile(e){
             console.log("Inside submit image file");
             //var form = document.getElementById('frmUploader');
+            //parse meta data
+            /*
+            loadImage(
+                    e.target.files[0],
+                    function(canvas) {
+                        //here's the base64 data result
+                        var base64data = canvas.toDataURL('image/jpeg');
+                        //here's example to show it as on imae preview
+                        var img_src = base64data.replace(/^data\:image\/\w+\;base64\,/, '');
+                        $('#result-preview').attr('src', base64data);
+                    }, {
+                        //should be set to canvas : true to activate auto fix orientation
+                        canvas: true,
+                        orientation: true
+                    }
+                );
+            */
+            /*
+            var fileInputResult = document.getElementById("fileInput");
+            console.log("File name is " + fileInputResult.value)
+            const
+                url = fileInputResult.value,
+                galleryItem = {url: url}
+            ;
+            */
+            /*
+            var correctedImage = loadImage.parseMetaData(
+                e.target.files[0],
+                function(data){
+                    //document.body.appendChild(img);
+                    app.orientationExif = data.exif.get("Orientation");
+                    console.log("ORIENTATION IS " + JSON.stringify(app.orientationExif));
+                },
+                {
+                    orientation: true,
+                    maxWidth: 600
+                }
+            );
+            */
+
+            //console.log("rotated image is " + correctRotationImage);
+            //console.log("CORRECTED IMAGE IS " + JSON.stringify(correctedImage));
+            //console.log("Original image before correction is " + $('#fileInput')[0].files[0]);
+            
             var formData = new FormData();
             formData.append('file', $('#fileInput')[0].files[0]);
+            //formData.append('orientation', app.orientationExif);
             formData.append('username', app.username);
             formData.append('password', app.password);
             for (var [key, value] of formData.entries()) { 
@@ -622,12 +693,58 @@
                     console.log(data);
                     //var path2 = data.replace(/\\/g, "/");
                     //console.log(path2);
-                    const galleryItem = {
+                    app.galleryItem = {
                         _id: data.imageId,
                         url: "http://localhost:3700/Images/" + data.fileName
                     };
-                    app.images.push(galleryItem);
-                    app.update();
+                    app.images.push(app.galleryItem);
+                    //document.getElementById("imageGalleryImage").src = "http://localhost:3700/Images/" + data.fileName;
+                    setTimeout(()=>
+                        {
+                            app.update();
+                        },
+                        10000
+                    );
+                    
+                    /*
+                    var correctedImageAfterSavingOrientationDataToDatabase = loadImage(
+                        "http://localhost:3700/Images/" + data.fileName,
+                        function(){
+                            app.images.push(app.galleryItem);    
+                        },
+                        {
+                            orientation: true
+                        }
+                    );
+                    */
+                    /*
+                    loadImage.parseMetaData($('#fileInput')[0].files[0], function(data) {
+    //default image orientation
+                        var orientation = 0;
+                        //if exif data available, update orientation
+                        if (data.exif) {
+                            orientation = data.exif.get('Orientation');
+                        }
+                        var loadingImage = loadImage(
+                            $('#fileInput')[0].files[0],
+                            function(canvas) {
+                                //here's the base64 data result
+                                //var base64data = canvas.toDataURL('image/jpeg');
+                                //here's example to show it as on imae preview
+                                //var img_src = base64data.replace(/^data\:image\/\w+\;base64\,/, '');
+                                var base64data = canvas.toDataURL($('#fileInput')[0].files[0]);
+                                var img_src = base64data.replace(/^data\:image\/\w+\;base64\,/, '');
+                                galleryItem.url = "http://localhost:3700/Images/" + base64data;
+                                app.images.push(galleryItem);
+                                //$('#result-preview').attr('src', base64data);
+                            }, {
+                                //should be set to canvas : true to activate auto fix orientation
+                                canvas: true,
+                                orientation: orientation
+                            }
+                        );
+                    });
+                    */
                 }
             });
         }
@@ -1117,6 +1234,15 @@
 
                 var mediaConstraints = {
                     audio: {
+                            echoCancellation: false,
+                            autoGainControl: true,
+                            noiseSuppression: true,
+                        },
+                        video: false    
+                };
+                /*
+                var mediaConstraints = {
+                    audio: {
                         "mandatory": {
                             "googEchoCancellation": "false",
                             "googAutoGainControl": "false",
@@ -1126,6 +1252,7 @@
                         "optional": []
                     }
                 };
+                */
 
                 (
                     async ()=>{
@@ -1381,6 +1508,7 @@
                         //console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = TRUE TO DATABASE " + JSON.stringify(data));
                         if(app.pageName == "userAreaPage"){
                             app.narrations = data;
+                            app.update();
                             console.log("User narrations are " + JSON.stringify(data));
                         }
                         if(app.pageName == "recordNarrationPage"){
@@ -1433,7 +1561,7 @@
                 );
             }   
         }
-
+        app.narrationsIdsToUnpublish = [];
         unpublishButtonClicked(e){
             if(app.pageName == 'userAreaPage'){
                 console.log("Narrations in user area app.narrations are " + JSON.stringify(app.narrations));
@@ -1470,6 +1598,7 @@
                     console.log("RESPONSE FROM SERVER, NARRATION OBJECT AFTER SAVING PUBLISHED = FALSE TO DATABASE " + JSON.stringify(data));
                     if(app.pageName == "userAreaPage"){
                         app.narrations = data;
+                        app.update();
                     }
                     if(app.pageName == "recordNarrationPage"){
                         if(data){
@@ -1650,9 +1779,6 @@
                 galleryItem = {url: url}
             ;
 
-
-            app.images.push(galleryItem);
-
             console.log("Image add");
             
             //TODO: save to server under current user
@@ -1667,6 +1793,7 @@
                 function( data ) {
                     console.log("Image add response: " + JSON.stringify(data));
                     galleryItem._id = data.galleryItemId;
+                    app.images.push(galleryItem);
                     app.blockMouseForGallery = false;
                     app.update();
                 }
@@ -1937,6 +2064,7 @@
             }
             else if(app.pageName=="chooseImagesFromImageGalleryPage"){
                 //app.pageNumberFromImageGallery=e.item.i;
+                app.deg = 0;
                 e.item.image.selected = !e.item.image.selected;
 
             }
