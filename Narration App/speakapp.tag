@@ -252,9 +252,11 @@
                     </form>
                 </div>
                 <div style="display: flex; flex-direction: row">
-                    <img src="images\rotate90DegreesRightIcon.svg" style="height: 50px; width: 50px" id="right" onclick="{rotateImage}"/>
+                    <img src="images\rotate90DegreesRightIcon.svg" style="height: 50px; width: 50px" id="right" onclick="{rotateImageRight}"/>
                     <div style="width: 5px"></div>
-                    <img src="images\rotate90DegreesLeftIcon.svg" style="height: 50px; width: 50px" id="left" onclick="{rotateImage}"/>
+                    <img src="images\rotate90DegreesLeftIcon.svg" style="height: 50px; width: 50px" id="left" onclick="{rotateImageLeft}"/>
+                    <div style="width: 15px"></div>
+                    <div class="circleButton extraSmall" style="font-size: 12px; text-align: center" onclick="{saveImageRotation}">Save Rotation</div>
                 </div>
             </div>
         
@@ -381,7 +383,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.48";
+        app.ipAddress = "192.168.1.51";
         
         
         login(){
@@ -483,13 +485,16 @@
             */
         }
         
-        rotateImage(e){
-            if($(this).is("#left")){
-                app.deg = app.deg - 90;
-            }
-            else{
-                app.deg = app.deg + 90;
-            }
+        rotateImageRight(e){
+            app.deg = app.deg + 90;
+            rotateImage();
+        }
+        rotateImageLeft(e){
+            app.deg = app.deg - 90;
+            rotateImage();
+        }
+        
+        function rotateImage(){
             $(":image.galleryImage,.highlight").css({
                 "-webkit-transform": "rotate(" + app.deg + "deg)",
                 "-moz-transform": "rotate(" + app.deg + "deg)",
@@ -498,7 +503,52 @@
             console.log("Degrees rotated are " + app.deg);
             app.update();      
         }
+        
+        saveImageRotation(e){
+            //var imageSrcs = [];
+            var galleryItemIds = [];
+            var imageUrls = [];
+            app.chosenImages = app.images.filter(
+                galleryItem=>galleryItem.selected
+            );
+            galleryItemIds = app.chosenImages.map(galleryItem=>galleryItem._id);
+            imageUrls = app.chosenImages.map(galleryItem=>galleryItem.url);
+            /*
+            app.chosenImages.forEach(function(chosenImage){
+                console.log("Chosen Image id is " + chosenImage._id);
+                console.log("Chosen Image url is " + chosenImage.url);
+                galleryItemIds.push(chosenImage._id);
+                imageUrls.push(chosenImage.url);
 
+            });
+            */
+            console.log("IMAGE IDS ARE " + galleryItemIds);
+            console.log("IMAGE URLS ARE " + imageUrls);
+            //console.log("IMAGE URLS ARE " + imageUrls);
+            $.post(
+                app.rootUrlWithSlashAtEnd + "saveRotatedImages",
+                {
+                    urls: imageUrls,
+                    degrees: app.deg
+                },
+                function( data ) {
+                    app.chosenImages = data;
+                    console.log("data VARIABLE CONTAINING chosen Images is " + JSON.stringify(data));
+                    app.update();
+                    app.imagesRotated = true;
+
+                }
+            );
+            /*
+            $(":image.galleryImage,.highlight").each(function(){
+                console.log("IMAGE URL " + $(this).attr("src"));
+                imageSrcs.push($(this).attr("src"));
+            });
+            console.log("URL Array is " + imageSrcs);
+            */
+
+        }
+        
         narrationsSearchInput(e){
             app.searchNarrationsInput = $('#inputSearch').val();
             console.log("Search input is " + app.searchNarrationsInput);
@@ -698,13 +748,16 @@
                         url: "http://localhost:3700/Images/" + data.fileName
                     };
                     app.images.push(app.galleryItem);
+                    app.update();
                     //document.getElementById("imageGalleryImage").src = "http://localhost:3700/Images/" + data.fileName;
+                    /*
                     setTimeout(()=>
                         {
                             app.update();
                         },
                         10000
                     );
+                    */
                     
                     /*
                     var correctedImageAfterSavingOrientationDataToDatabase = loadImage(
@@ -1170,9 +1223,11 @@
         }
 
         nextButtonClicked(e){
-            app.chosenImages = app.images.filter(
-                galleryItem=>galleryItem.selected
-            );
+            if(app.imagesRotated == false){
+                app.chosenImages = app.images.filter(
+                    galleryItem=>galleryItem.selected
+                );
+            }
             app.switchPageAndAddToHistory("recordNarrationPage");
             if(app.narrationTitleOnRegistration){
                 app.narrationTitle = app.narrationTitleOnRegistration;
