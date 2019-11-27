@@ -383,7 +383,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.51";
+        app.ipAddress = "192.168.1.49";
         
         
         login(){
@@ -508,11 +508,11 @@
             //var imageSrcs = [];
             var galleryItemIds = [];
             var imageUrls = [];
-            app.chosenImages = app.images.filter(
+            app.imagesSelectedForRotation = app.images.filter(
                 galleryItem=>galleryItem.selected
             );
-            galleryItemIds = app.chosenImages.map(galleryItem=>galleryItem._id);
-            imageUrls = app.chosenImages.map(galleryItem=>galleryItem.url);
+            galleryItemIds = app.imagesSelectedForRotation.map(galleryItem=>galleryItem._id);
+            imageUrls = app.imagesSelectedForRotation.map(galleryItem=>galleryItem.url);
             /*
             app.chosenImages.forEach(function(chosenImage){
                 console.log("Chosen Image id is " + chosenImage._id);
@@ -531,11 +531,64 @@
                     urls: imageUrls,
                     degrees: app.deg
                 },
-                function( data ) {
-                    app.chosenImages = data;
-                    console.log("data VARIABLE CONTAINING chosen Images is " + JSON.stringify(data));
+                function( rotatedImages ) {
+                    //app.rotatedImages = rotatedImages;
+                    console.log("rotatedImages VARIABLE CONTAINING chosen Images is " + JSON.stringify(rotatedImages));
+                    //app.imagesRotated = true;
+
+                    //Creating a map: rotated images by id
+                    const
+                        rotatedImagesById =
+                            rotatedImages
+                                .reduce(
+                                    (accumulator, currentValue)=>{
+                                        accumulator[currentValue._id] = currentValue;
+                                        return accumulator;
+                                    }
+                                    ,
+                                    {}
+                                )
+                    ;
+
+                    for(
+                        let i = 0;
+                        i<app.images.length;
+                        i++
+                    ){
+                        const
+                            id = 
+                                app.images[i]._id
+                            ,
+                            rotatedImageFoundWithThisIdOrNothing =
+                                //Checking the map
+                                rotatedImagesById[id]
+                        ;
+
+                        if(
+                            rotatedImageFoundWithThisIdOrNothing
+                        ){
+                            app.images[i] = rotatedImageFoundWithThisIdOrNothing;
+                            console.log("ID USED FOR REPLACEMENT: " + id + ' / ' + rotatedImageFoundWithThisIdOrNothing._id);
+                        }
+                    }
+
+                    /*
+                    app.images.forEach(
+                        unrotatedImage => 
+                            if(rotatedImages!=null){
+                                rotatedImages.forEach(
+                                    rotatedImage =>
+                                    if(unrotatedImage._id === rotatedImage._id){
+                                        unrotatedImage = rotatedImage;
+                                        console.log("UNROTATED IMAGE ID IS " + unrotatedImage._id + "ROTATED IMAGE ID IS " + rotatedImage._id);
+                                    }
+                                
+                                );
+                            }
+                    );
+                    */
+
                     app.update();
-                    app.imagesRotated = true;
 
                 }
             );
@@ -1223,11 +1276,25 @@
         }
 
         nextButtonClicked(e){
-            if(app.imagesRotated == false){
+
+            /*
+            if(app.imagesRotated == true){
+                app.chosenImages = 
+                        app.images.filter(
+                            galleryItem => galleryItem.selected && galleryItem.rotated == true
+                        );
+            }
+            else{
                 app.chosenImages = app.images.filter(
                     galleryItem=>galleryItem.selected
                 );
             }
+            */
+        
+            app.chosenImages = app.images.filter(
+                galleryItem=>galleryItem.selected
+            );
+            
             app.switchPageAndAddToHistory("recordNarrationPage");
             if(app.narrationTitleOnRegistration){
                 app.narrationTitle = app.narrationTitleOnRegistration;
