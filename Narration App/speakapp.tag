@@ -108,7 +108,7 @@
         <div if="{app.pageName == 'viewNarrationsPage'}">
             <div style="display: flex; flex-direction: row">
                 <input type="text" size="40" maxlength="100" id="inputSearch" oninput="{narrationsSearchInput}"/>
-                <div class="circleButton2" style="width:25px:height:25px">Search</div>
+                <div class="circleButton2" style="width:25px:height:25px" onclick="{searchNarrationsButtonClicked}">Search</div>
             </div>
             <narrationgallery smallnarrationgallery="{false}" narrationsimageslist="{app.searchedNarrations}"></narrationgallery>
         </div>
@@ -602,7 +602,7 @@
 
         }
         
-        narrationsSearchInput(e){
+        searchNarrationsButtonClicked(e){
             app.searchNarrationsInput = $('#inputSearch').val();
             console.log("Search input is " + app.searchNarrationsInput);
             $.post(
@@ -1814,8 +1814,9 @@
         }
         var totalDurationAudioPlayed = 0;
         function stopEvent(){
-            onAudioStop();
+            //onAudioStop();
             if(playing){
+                console.log("Inside if playing in stopEvent function");
                 var lastDurationAudioPlayedToAdd = Date.now() - audioStartTime;
                 totalDurationAudioPlayed += lastDurationAudioPlayedToAdd;
             }
@@ -2281,7 +2282,8 @@
             <img src="{narration.slideSwitches[0].imageUrl}"  id="narrationImage" class="{ galleryImage : parent.opts.smallnarrationgallery==true, narrationImage : parent.opts.smallnarrationgallery==false, selectedThumbnail: narration==app.narrationSelected }"
             onclick="{parent.opts.smallnarrationgallery ? app.thumbnailClicked : app.largethumbnailclickedonpublicarea}"/>
         </div>
-        <div if="{app.publishNarrationButtonClicked==true && (!app.narrationTitle || app.narrationTitle == "Enter Title")}">Please enter title before publishing</div>
+        <div>&nbsp&nbsp</div>
+        <div if="{app.publishNarrationButtonClicked==true && (!app.narrationTitle || app.narrationTitle == "Enter Title")}" style="font-family: RobotoCR">Please enter title before publishing</div>
     </div>
 </narrationgallery>
 <!--
