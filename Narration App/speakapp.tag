@@ -118,17 +118,18 @@
                 <div if="{app.loginConfirmClickedCommentsPage}">
                     <p style="font-family: RobotoCR">Add comment</p>
                     <textarea id="commentTextarea"></textarea><br/><div class="circleButton2" style="width:50px;height:50px" onclick="{addCommentButtonClicked}">Add</div>
+                    <div if="{app.emptyComment}" style="font-family: RobotoCR"><p>Please enter comment</p></div>
                     <p id="commentAddedParagraph" style="font-family: RobotoCR"></p>
                 </div>
                 <div if="{!loggedIn}" style="display: flex; flex-direction: row">
                     <div style="font-family: RobotoCR; font-weight: bold: font-size: 20px">
-                        Login to add comment
+                        Login to add comment, edit comment or remove comment
                         <div class="circleButton2" onclick="{loginButtonClicked}">Login</div>
                     </div>
                     <div>&nbsp &nbsp</div>
                     <div class="login loginForm">
                         <!--<div style="font-family: RobotoCB; color:green; font-size: 45px">Login</div>-->
-                        <div style="display: flex; flex-direction: row; margin-bottom: -50px; align-items: center">
+                        <div style="display: flex; flex-direction: row; margin-bottom: 1px; align-items: center">
                             <p style="font-family: RobotoCR; font-size: 24px">
                             Enter username
                             </p>&nbsp
@@ -150,9 +151,14 @@
                 </div>
                 <div each="{commentObject, i in app.allCommentsWithUsernamesForSelectedNarration}">
                     <hr class="hrLineStyle"/>
-                    <div style="display: flex; flex-direction: row">
-                        <div style="margin-left: 5px; font-family: RobotoCR; font-size: 15px">{commentObject.commentText}&nbsp&#45&nbsp</div>
+                    <div style="display: flex; flex-direction: row; justify-content: space-between">
+                        <div style="margin-left: 5px; font-family: RobotoCR; font-size: 15px" id="commentTextDiv" onblur="{onCommentTextEditedInput}">{commentObject.commentText}&nbsp&#45&nbsp</div>
                         <div style="font-family: RobotoCR; font-size: 11px">{commentObject.username}</div>
+                        <div>&nbsp&nbsp</div>
+                        <div if="{app.loggedIn}" style="display: flex; flex-direction: column; font-family: RobotoCR; font-size: 11px">
+                            <div onclick="{editCommentClicked}">Edit Comment</div>
+                            <div onclick="{removeCommentClicked}">Remove</div>
+                        </div>
                     <hr class="hrLineStyle"/>
                     </div>
                 </div>
@@ -383,7 +389,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.49";
+        app.ipAddress = "192.168.1.109";
         
         
         login(){
@@ -1068,19 +1074,29 @@
             app.comment = $("#commentTextarea").val();
             document.getElementById("commentAddedParagraph").innerHTML = app.comment;
             console.log("commentAddedParagraph is " + document.getElementById("commentAddedParagraph"));
-            $.post(
-                app.rootUrlWithSlashAtEnd + "saveComment",
-                {
-                    userID: app.userID,
-                    narrationId: app.narrationSelectedOnPublicAreaId,
-                    comment: app.comment
-                },
-                function( data ) {
-                    console.log("Inside function data returned is narration object with comment and userID saved " + JSON.stringify(data));
-                    app.update();
+            if(app.comment){
+                app.emptyComment = false;
+                $.post(
+                    app.rootUrlWithSlashAtEnd + "saveComment",
+                    {
+                        userID: app.userID,
+                        narrationId: app.narrationSelectedOnPublicAreaId,
+                        username: app.username,
+                        comment: app.comment
+                    },
+                    function( data ) {
+                        console.log("Inside function data returned is narration object with comment, userID, username, narrationId saved " + JSON.stringify(data));
+                        newCommentObjectSaved = data;
+                        app.allCommentsWithUsernamesForSelectedNarration.unshift(newCommentObjectSaved);
+                        app.update();
 
-                }
-            );
+                    }
+                );
+            }
+            else if(!app.comment){
+                app.emptyComment = true;
+                app.update();
+            }
         }
 
         //app.title = 'wonderfull';
