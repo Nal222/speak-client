@@ -152,7 +152,7 @@
                 <div each="{commentObject, i in app.allCommentsWithUsernamesForSelectedNarration}">
                     <hr class="hrLineStyle"/>
                     <div style="display: flex; flex-direction: row; justify-content: space-between">
-                        <div style="margin-left: 5px; font-family: RobotoCR; font-size: 15px" id="commentTextDiv" onblur="{onCommentTextEditedInput}">{commentObject.commentText}&nbsp&#45&nbsp</div>
+                        <div style="margin-left: 5px; font-family: RobotoCR; font-size: 15px" contenteditable="{editableCommentInCommentList}" id="commentTextDiv" onblur="{onCommentTextEditedInput}">{commentObject.commentText}&nbsp&#45&nbsp</div>
                         <div style="font-family: RobotoCR; font-size: 11px">{commentObject.username}</div>
                         <div>&nbsp&nbsp</div>
                         <div if="{app.loggedIn}" style="display: flex; flex-direction: column; font-family: RobotoCR; font-size: 11px">
@@ -389,7 +389,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.109";
+        app.ipAddress = "192.168.1.113";
         
         
         login(){
@@ -1068,37 +1068,6 @@
                 .on( 'blur', function(){ app.input.removeClass( 'has-focus' ); });
             */
 
-
-        addCommentButtonClicked(e){
-            console.log("ADD COMMENT BUTTON CLICKED");
-            app.comment = $("#commentTextarea").val();
-            document.getElementById("commentAddedParagraph").innerHTML = app.comment;
-            console.log("commentAddedParagraph is " + document.getElementById("commentAddedParagraph"));
-            if(app.comment){
-                app.emptyComment = false;
-                $.post(
-                    app.rootUrlWithSlashAtEnd + "saveComment",
-                    {
-                        userID: app.userID,
-                        narrationId: app.narrationSelectedOnPublicAreaId,
-                        username: app.username,
-                        comment: app.comment
-                    },
-                    function( data ) {
-                        console.log("Inside function data returned is narration object with comment, userID, username, narrationId saved " + JSON.stringify(data));
-                        newCommentObjectSaved = data;
-                        app.allCommentsWithUsernamesForSelectedNarration.unshift(newCommentObjectSaved);
-                        app.update();
-
-                    }
-                );
-            }
-            else if(!app.comment){
-                app.emptyComment = true;
-                app.update();
-            }
-        }
-
         //app.title = 'wonderfull';
 
         confirmButtonClicked(e){
@@ -1223,6 +1192,72 @@
                 }
         }
         */
+        editCommentClicked(e){
+            editableCommentInCommentList = true;
+        }
+        
+        onCommentTextEditedInput(e){
+            app.editedCommentText = $(e.target).text();
+            app.editedCommentId = e.item.commentObject._id;
+            console.log("EDITED COMMENT IS " + app.editedCommentText + "EDITED COMMENT ID IS " + app.editedCommentId);
+            if(app.editedCommentText != ""){
+                app.emptyComment = false;
+                $.post(
+                    app.rootUrlWithSlashAtEnd + "updateComment",
+                    {
+                        editedCommentId: app.editedCommentId,
+                        editedCommentText: app.editedCommentText
+                    },
+                    function( data ) {
+                        console.log("Inside function data returned is updated comment object with comment, userID, username, narrationId saved " + JSON.stringify(data));
+                        updatedCommentObjectSaved = data;
+                        //TODO: Find comment object with updated comment id and replace with updated comment 
+                        //app.allCommentsWithUsernamesForSelectedNarration.unshift(updatedCommentObjectSaved);
+                        app.update();
+
+                    }
+                );
+            }
+            else if(app.editedCommentText == ""){
+                app.emptyComment = true;
+                app.update();
+            }
+        } 
+        
+
+        addCommentButtonClicked(e){
+            console.log("ADD COMMENT BUTTON CLICKED");
+            //app.editedCommentInCommentList = $("#commentTextDiv").text();
+            
+            app.comment = $("#commentTextarea").val();
+            document.getElementById("commentAddedParagraph").innerHTML = app.comment;
+            console.log("commentAddedParagraph is " + document.getElementById("commentAddedParagraph"));
+            
+            if(app.comment){
+                app.emptyComment = false;
+                $.post(
+                    app.rootUrlWithSlashAtEnd + "saveComment",
+                    {
+                        userID: app.userID,
+                        narrationId: app.narrationSelectedOnPublicAreaId,
+                        username: app.username,
+                        comment: app.comment
+                    },
+                    function( data ) {
+                        console.log("Inside function data returned is comment object with comment, userID, username, narrationId saved " + JSON.stringify(data));
+                        newCommentObjectSaved = data;
+                        app.allCommentsWithUsernamesForSelectedNarration.unshift(newCommentObjectSaved);
+                        app.update();
+
+                    }
+                );
+            }
+            else if(!app.comment){
+                app.emptyComment = true;
+                app.update();
+            }
+        }
+        
         submitClickedEnterEmailForResettingPasswordPage(e){
             app.emailForPasswordReset = $("#emailInputResetPassword").val();
             app.emailReenterForPasswordReset = $("#emailInputResetPassword2").val();
