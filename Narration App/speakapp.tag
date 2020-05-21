@@ -152,7 +152,7 @@
                 <div each="{commentObject, i in app.allCommentsWithUsernamesForSelectedNarration}">
                     <hr class="hrLineStyle"/>
                     <div style="display: flex; flex-direction: row; justify-content: space-between">
-                        <div style="margin-left: 5px; font-family: RobotoCR; font-size: 15px" contenteditable="{editableCommentInCommentList}" id="commentTextDiv" onblur="{onCommentTextEditedInput}">{commentObject.commentText}&nbsp&#45&nbsp</div>
+                        <div style="margin-left: 5px; font-family: RobotoCR; font-size: 15px; min-width: 2px" contenteditable="{editableCommentInCommentList}" id="commentTextDiv" onblur="{onCommentTextEditedInput}">{commentObject.commentText}&nbsp&#45&nbsp</div>
                         <div style="font-family: RobotoCR; font-size: 11px">{commentObject.username}</div>
                         <div>&nbsp&nbsp</div>
                         <div if="{app.loggedIn}" style="display: flex; flex-direction: column; font-family: RobotoCR; font-size: 11px">
@@ -389,7 +389,7 @@
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.113";
+        app.ipAddress = "192.168.1.108";
         
         
         login(){
@@ -1537,7 +1537,7 @@
                 );
             }
         );
-        
+        /*
         function onAudioStop(){
             //console.log("setTimeoutIDArray is " + JSON.stringify(app.setTimeoutIDArray));
             /*
@@ -1547,9 +1547,10 @@
                 }
             );
             app.setTimeoutIDArray.length = 0;
-            */
+            
             clearTimeout(app.setIntervalSlideSwitches);
         }
+        */
         playButtonOrThumbnailClicked(e, audioFileId){
             //app.audioFileId = audioFileId;
             app.playingButtonClicked = true;
@@ -1850,15 +1851,11 @@
             }
         );
 
-        pauseButtonClicked(e){
-            app.playingButtonClicked = false;
-            app.pausingButtonClicked = true;
-        }
         var audioStartTime = 0;
-        var playing = false;
+        app.playing = false;
         function playEvent(){
             audioStartTime = Date.now();
-            playing = true;
+            app.playing = true;
             console.log("PLAY EVENT USED");
             onAudioStart();
 
@@ -1866,12 +1863,12 @@
         var totalDurationAudioPlayed = 0;
         function stopEvent(){
             //onAudioStop();
-            if(playing){
+            if(app.playing){
                 console.log("Inside if playing in stopEvent function");
                 var lastDurationAudioPlayedToAdd = Date.now() - audioStartTime;
                 totalDurationAudioPlayed += lastDurationAudioPlayedToAdd;
             }
-            playing = false;
+            app.playing = false;
         }
         app.setTimeoutIDArray = [];
         function onAudioStart(){
@@ -1901,6 +1898,40 @@
                     }
                 }
             );
+        }
+
+        pauseButtonClicked(e){
+            console.log("Inside pause button clicked");
+            app.playingButtonClicked = false;
+            app.pausingButtonClicked = true;
+            app.aud = document.getElementById("myAudio");
+            app.aud.pause();
+            app.timeElapsedSincePaused = Date.now() - app.startTime;
+            stopEvent();
+            
+            for(var i = app.slideSwitches.length - 1; i >= 0; i--){
+                if(app.slideSwitches[i].millisecondsfromStart >= app.timeElapsedSincePaused){
+                    clearTimeout(app.setIntervalSlideSwitches);
+                }
+                break;
+            }
+            
+            app.setIntervalSlideSwitches = null;
+            if(app.timeElapsedSincePaused >= app.slideSwitches[0].millisecondsfromStart){
+                console.log("Inside if statement pause time more than 1st slideswitch time");
+                for(var i = app.slideSwitches.length - 1; i >= 0; i--){
+                    console.log("Inside for loop " + i);
+                    if(app.slideSwitches[i].millisecondsfromStart <= app.timeElapsedSincePaused){
+                        app.currentImageUrl = app.slideSwitches[i].imageUrl;
+                        break;
+                        
+                    }
+                }
+            }
+            else{
+                app.currentImageUrl = 'showTitle';
+            }
+            app.update();
         }
             
         /*
