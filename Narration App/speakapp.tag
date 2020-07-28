@@ -1,5 +1,8 @@
 <speak>
-    <audio id="myAudio"></audio>
+    <audio
+        id="myAudio"
+        >
+    </audio>
 <!--Written by Nalini Chawla 14/05/2017-->
     <div class="homePageOuterMostDiv" >
         <div hide="{app.pageName == 'recordNarrationPage' || app.pageName == 'viewNarrationCommonAreaAndCommentsPage' || app.pageName == 'userAreaPage'}" class="top" style="background: #d5da26">
@@ -113,7 +116,7 @@
             <narrationgallery smallnarrationgallery="{false}" narrationsimageslist="{app.searchedNarrations}"></narrationgallery>
         </div>
         <div if="{app.largeThumbnailClicked && app.pageName == 'viewNarrationCommonAreaAndCommentsPage'}">
-            <audio id="myAudio"></audio>
+            <!--<audio id="myAudio"></audio>-->
             <viewvideo></viewvideo>
                 <div if="{app.loginConfirmClickedCommentsPage}">
                     <p style="font-family: RobotoCR">Add comment</p>
@@ -384,12 +387,12 @@
         </div>
     </div>
     <div if="{app.largeThumbnailClickedOnUserArea && app.pageName == 'viewNarrationUserAreaWithoutCommentAddingPage'}">
-        <audio id="myAudio"></audio>
+        <!--<audio id="myAudio"></audio>-->
         <viewvideo></viewvideo>
     </div>
 <script>
         app = this;
-        app.ipAddress = "192.168.1.108";
+        app.ipAddress = "192.168.1.105";
         
         
         login(){
@@ -1387,32 +1390,22 @@
                                 console.log("AUDIO FILE ID IS " + data);
 
                                 window.Stream = client.createStream(data);
-                                    /*{
-                                        audio: {
-                                            "mandatory": {
-                                                "googEchoCancellation": "false",
-                                                "googAutoGainControl": "true",
-                                                "googNoiseSuppression": "true",
-                                                "googHighpassFilter": "true"
-                                            },
-                                            "optional": []
-                                        }
-                                    }
-                                ; */
+                                
                                 
                             }
                         );
                     }
                 );
-
+                /*
                 var mediaConstraints = {
                     audio: {
-                            echoCancellation: false,
-                            autoGainControl: true,
+                            echoCancellation: true,
+                            autoGainControl: false,
                             noiseSuppression: true,
                         },
                         video: false    
                 };
+                */
                 /*
                 var mediaConstraints = {
                     audio: {
@@ -1426,6 +1419,18 @@
                     }
                 };
                 */
+                var mediaConstraints = {
+                        audio: {
+                            mandatory: {
+                                googEchoCancellation: true,
+                                googAutoGainControl: false,
+                                googNoiseSuppression: true,
+                                googHighpassFilter: true
+                            },
+                            optional: []
+                        }
+                    }
+                ; 
 
                 (
                     async ()=>{
@@ -1486,6 +1491,8 @@
                 
                 app.stopButtonClicked = (
                     function(){
+                        app.playing = false;
+                        stopEvent();
                         console.log("Stop button clicked");
                         app.stopButtonWasClicked = true;
                         app.recordingButtonClicked = false;
@@ -1553,20 +1560,33 @@
         */
         playButtonOrThumbnailClicked(e, audioFileId){
             //app.audioFileId = audioFileId;
+            var intendedAudioSrc = "http://localhost:3700/audio/" + audioFileId + '.wav';
             app.playingButtonClicked = true;
             app.aud = document.getElementById("myAudio");
-            app.aud.src = "http://localhost:3700/audio/" + audioFileId + '.wav';
+            if(app.aud.src != intendedAudioSrc){
+                app.aud.src = intendedAudioSrc;
+            }
             console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src);
             app.aud.play();
             app.aud.onplay = playEvent;
             console.log("onplay event reached");
             app.aud.onplaying = playEvent;
             console.log("onplaying event reached");
-            app.aud.onpause = app.aud.onsuspend = app.aud.onabort = app.aud.onerror = app.aud.onstalled = app.aud.onwaiting = app.aud.onended = stopEvent;
+            app.aud.onpause =
+                app.aud.onsuspend =
+                    app.aud.onabort =
+                        app.aud.onerror =
+                            app.aud.onstalled =
+                                app.aud.onwaiting =
+                                    app.aud.onended =
+                stopEvent
+            ;
+            
             console.log("stop events reached");
+            app.update();
             //aud.src = url;
-            totalDurationAudioPlayed = 0;
-            console.log("total duration audio played RESET " + totalDurationAudioPlayed);
+            //totalDurationAudioPlayed = 0;
+            //console.log("total duration audio played RESET " + totalDurationAudioPlayed);
         }
         
 
@@ -1604,7 +1624,7 @@
         
         playButtonClicked(e){
             //app.slideSwitches = e.item.narration.slideSwitches;
-            app.currentImageUrl = 'showTitle';
+            //app.showImage = 'showTitle';
             if(app.narrationSelected){
                 //app.slideSwitches = app.narrationSelected.slideSwitches;
                 app.playButtonOrThumbnailClicked(e, app.narrationSelected._id);
@@ -1803,7 +1823,7 @@
                 app.narrationSelectedOnPublicAreaId = e.item.narration._id;
                 console.log("NARRATION AUDIO FILE ID IS " + e.item.narration._id);
                 app.narrationTitle = e.item.narration.title;
-                app.currentImageUrl = 'showTitle';
+                app.showImage = 'showTitle';
                 app.update();
                 /*
                 if(app.title){
@@ -1813,7 +1833,7 @@
                     app.currentImageUrl!='showTitleSlideForAMoment';
                 }
                 */
-                console.log("APP.currentImageUrl IS " + app.currentImageUrl);
+                console.log("APP.currentImageUrl IS " + app.showImage);
                 
 
                 $.post(
@@ -1838,7 +1858,7 @@
                 app.slideSwitches = e.item.narration.slideSwitches;
                 app.playButtonOrThumbnailClicked(e, e.item.narration._id);
                 app.narrationTitle = e.item.narration.title;
-                app.currentImageUrl = 'showTitle';
+                app.showImage = 'showTitle';
                 /*
                 if(app.title){
                     app.currentImageUrl='showTitleSlideForAMoment';
@@ -1851,88 +1871,117 @@
             }
         );
 
-        var audioStartTime = 0;
+        //var audioStartTime = 0;
         app.playing = false;
         function playEvent(){
-            audioStartTime = Date.now();
+            app.audioStartTime = Date.now();
             app.playing = true;
             console.log("PLAY EVENT USED");
             onAudioStart();
 
         }
-        var totalDurationAudioPlayed = 0;
-        function stopEvent(){
+        app.totalDurationAudioPlayed = 0;
+        function stopEvent(e){
+            console.log("INSIDE STOPEVENT");
+            var intendedNarration = app.narrationSelected;
             //onAudioStop();
-            if(app.playing){
+            if(app.playing && intendedNarration){
                 console.log("Inside if playing in stopEvent function");
-                var lastDurationAudioPlayedToAdd = Date.now() - audioStartTime;
-                totalDurationAudioPlayed += lastDurationAudioPlayedToAdd;
+                var lastDurationAudioPlayedToAdd = Date.now() - app.audioStartTime;
+                console.log("last duration audio played to add is " + lastDurationAudioPlayedToAdd);
+                app.totalDurationAudioPlayed += lastDurationAudioPlayedToAdd;
+                console.log("total duration audio played is " + app.totalDurationAudioPlayed);
             }
             app.playing = false;
         }
-        app.setTimeoutIDArray = [];
+        function goToBeginningEvent(e){
+           app.totalDurationAudioPlayed = 0;
+           
+        }
+        app.slideSwitchesSetTimeoutIDArray = [];
         function onAudioStart(){
             console.log("onAudioStart() entered");
             console.log("APP.SLIDESWITCHES IS " + JSON.stringify(app.slideSwitches));
             app.slideSwitches.forEach(
                 function(slideSwitch){
-                console.log("forEach entered");
-                if(slideSwitch.millisecondsfromStart>totalDurationAudioPlayed){
-                    console.log("If statement entered");
+                    console.log("forEach entered");
                     console.log("milliseconds from START is " + slideSwitch.millisecondsfromStart);
-                    console.log("Total duration audio played is " + totalDurationAudioPlayed);
-                    app.setIntervalSlideSwitches = 
-                        setTimeout(
-                            function(){
-                                console.log("setTimeout function entered");
-            //$("#videoPlace").add(slideSwitch.imageUrl);
-            //app.currentImageIndex = i;
-                                app.currentImageUrl = slideSwitch.imageUrl;
-                                console.log("slide image url is " + slideSwitch.imageUrl);
-                                app.update();
+                    console.log("Total duration audio played is " + app.totalDurationAudioPlayed);
+                    if(slideSwitch.millisecondsfromStart>app.totalDurationAudioPlayed){
+                        console.log("If statement entered");
+                        console.log("milliseconds from START is " + slideSwitch.millisecondsfromStart);
+                        console.log("Total duration audio played is " + app.totalDurationAudioPlayed);
+                        app.slideSwitchSetTimeoutID = 
+                            setTimeout(
+                                function(){
+                                    console.log("setTimeout function entered");
+                //$("#videoPlace").add(slideSwitch.imageUrl);
+                //app.currentImageIndex = i;
+                                    app.showImage = slideSwitch.imageUrl;
+                                    console.log("slide image url is " + slideSwitch.imageUrl);
+                                    app.update();
 
-                            },
-                            slideSwitch.millisecondsfromStart - totalDurationAudioPlayed
-                            
-                        );
+                                },
+                                //slideSwitch.millisecondsfromStart
+                                slideSwitch.millisecondsfromStart - app.totalDurationAudioPlayed
+                            );
+                        app.slideSwitchesSetTimeoutIDArray.push(app.slideSwitchSetTimeoutID);
+                        //app.update();
                     }
-                }
+                }   
             );
+            app.update();
+            
         }
 
         pauseButtonClicked(e){
+            //app.timeElapsedSincePaused = Date.now() - app.startTime;
             console.log("Inside pause button clicked");
             app.playingButtonClicked = false;
-            app.pausingButtonClicked = true;
+            //app.pausingButtonClicked = true;
             app.aud = document.getElementById("myAudio");
             app.aud.pause();
-            app.timeElapsedSincePaused = Date.now() - app.startTime;
+            //app.timeElapsedSincePaused = Date.now() - app.startTime;
+            app.playing = false;
             stopEvent();
-            
-            for(var i = app.slideSwitches.length - 1; i >= 0; i--){
-                if(app.slideSwitches[i].millisecondsfromStart >= app.timeElapsedSincePaused){
-                    clearTimeout(app.setIntervalSlideSwitches);
-                }
-                break;
+
+            app.slideSwitchesSetTimeoutIDArray.forEach(
+                slideSwitchSetTimeoutID => clearTimeout(slideSwitchSetTimeoutID)
+            );
+            app.update();
+            /*
+            if(app.showImage != "showTitle"){
+                app.showImage = app.showImage.imageUrl;
             }
-            
-            app.setIntervalSlideSwitches = null;
+            else{
+                app.showImage = "showTitle";
+            }
+            */
+        }
+            /*
+            console.log("Time elapsed since paused is " + app.timeElapsedSincePaused);
+            //app.setIntervalSlideSwitches = null;
             if(app.timeElapsedSincePaused >= app.slideSwitches[0].millisecondsfromStart){
                 console.log("Inside if statement pause time more than 1st slideswitch time");
-                for(var i = app.slideSwitches.length - 1; i >= 0; i--){
+                for(var i = app.slideSwitches.length-1; i>=0; i--){
+                    console.log("LENGTH OF APP.SLIDESWITCHES -1 IS " + (app.slideSwitches.length-1));
                     console.log("Inside for loop " + i);
+                    console.log("Time elapsed since paused is " + app.timeElapsedSincePaused);
                     if(app.slideSwitches[i].millisecondsfromStart <= app.timeElapsedSincePaused){
+                        console.log("current image url paused on is index " + i + "image url is " + JSON.stringify(app.slideSwitches[i].imageUrl));
+                        console.log("slideSwitch milliseconds from start is " + app.slideSwitches[i].millisecondsfromStart);
                         app.currentImageUrl = app.slideSwitches[i].imageUrl;
                         break;
-                        
-                    }
+                        app.update();
+                    }         
                 }
             }
             else{
-                app.currentImageUrl = 'showTitle';
+                app.showImage = 'showTitle';
             }
             app.update();
-        }
+        */
+        
             
         /*
         makeFileNameShowFromFakeInput(e){
@@ -2251,7 +2300,7 @@
 
             //alert("Image Clicked! " +  i);
             if(app.pageName=="recordNarrationPage"){
-                app.currentImageUrl = e.item.image.url;
+                app.showImage = e.item.image.url;
                 
 
                 if(app.recording){
@@ -2381,7 +2430,7 @@
     <div id="videoPlace" class="roundedCornersBorder videoBorderNewSize">
         <!--<img src="{image.url}" each="{image, i in images}" show="{currentImageUrl==image.url}" width="800" height="450">-->
         <div
-            if="{app.currentImageUrl=='showTitle'}"
+            if="{app.showImage=='showTitle'}"
             style=
                 "
                     font-family: RobotoCR;
@@ -2395,7 +2444,7 @@
             >
             {app.narrationTitle}
         </div>
-        <img if="{app.currentImageUrl!='showTitle'}" src="{app.currentImageUrl}" width="800" height="450">
+        <img if="{app.showImage!='showTitle'}" src="{app.showImage}" width="800" height="450">
     </div>
     <script>
     
