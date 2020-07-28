@@ -1492,7 +1492,7 @@
                 app.stopButtonClicked = (
                     function(){
                         app.playing = false;
-                        stopEvent();
+                        pauseEvent();
                         console.log("Stop button clicked");
                         app.stopButtonWasClicked = true;
                         app.recordingButtonClicked = false;
@@ -1573,15 +1573,15 @@
             app.aud.onplaying = playEvent;
             console.log("onplaying event reached");
             app.aud.onpause =
-                app.aud.onsuspend =
-                    app.aud.onabort =
-                        app.aud.onerror =
-                            app.aud.onstalled =
-                                app.aud.onwaiting =
-                                    app.aud.onended =
-                stopEvent
+                //app.aud.onsuspend =
+                //    app.aud.onabort =
+                //        app.aud.onerror =
+                //            app.aud.onstalled =
+                //                app.aud.onwaiting =
+                //                    app.aud.onended =
+                pauseEvent
             ;
-            
+
             console.log("stop events reached");
             app.update();
             //aud.src = url;
@@ -1881,12 +1881,12 @@
 
         }
         app.totalDurationAudioPlayed = 0;
-        function stopEvent(e){
+        function pauseEvent(e){
             console.log("INSIDE STOPEVENT");
             var intendedNarration = app.narrationSelected;
             //onAudioStop();
             if(app.playing && intendedNarration){
-                console.log("Inside if playing in stopEvent function");
+                console.log("Inside if playing in pauseEvent function");
                 var lastDurationAudioPlayedToAdd = Date.now() - app.audioStartTime;
                 console.log("last duration audio played to add is " + lastDurationAudioPlayedToAdd);
                 app.totalDurationAudioPlayed += lastDurationAudioPlayedToAdd;
@@ -1943,7 +1943,7 @@
             app.aud.pause();
             //app.timeElapsedSincePaused = Date.now() - app.startTime;
             app.playing = false;
-            stopEvent();
+            pauseEvent();
 
             app.slideSwitchesSetTimeoutIDArray.forEach(
                 slideSwitchSetTimeoutID => clearTimeout(slideSwitchSetTimeoutID)
