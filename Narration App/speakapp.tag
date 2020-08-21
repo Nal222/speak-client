@@ -1419,6 +1419,8 @@
                     }
                 };
                 */
+            
+                //latest
                 var mediaConstraints = {
                         audio: {
                             mandatory: {
@@ -1430,7 +1432,13 @@
                             optional: []
                         }
                     }
-                ; 
+                ;
+                /*
+                var mediaConstraints = {
+                    audio: true,
+                    video: false
+                }
+                */ 
 
                 (
                     async ()=>{
@@ -1512,6 +1520,7 @@
                         app.narrationSelected = narrationAdded;
                         app.narrationSelected.published = false;
                         app.publishButtonVisible = true;
+                        app.update();
 
                         console.log('AFTER STOP, RECENT NARRATION TAKES IS NOW ' + app.stringify(app.recentNarrationTakes));
                         //console.log("SMALLNARRATIONGALLERY IS " + smallnarrationgallery);
@@ -1564,6 +1573,7 @@
             app.playingButtonClicked = true;
             app.aud = document.getElementById("myAudio");
             if(app.aud.src != intendedAudioSrc){
+                app.totalDurationAudioPlayed = 0;
                 app.aud.src = intendedAudioSrc;
             }
             console.log("audio variable = " + app.aud + " audio SRC IS " + app.aud.src);
@@ -1580,6 +1590,15 @@
                 //                app.aud.onwaiting =
                 //                    app.aud.onended =
                 pauseEvent
+            ;
+
+            app.aud.onended =
+                function(){
+                    app.totalDurationAudioPlayed = 0;
+                    app.playing = false;
+                    app.playingButtonClicked = false;
+                    app.update();
+                }
             ;
 
             console.log("stop events reached");
@@ -1881,11 +1900,18 @@
 
         }
         app.totalDurationAudioPlayed = 0;
+
         function pauseEvent(e){
             console.log("INSIDE STOPEVENT");
-            var intendedNarration = app.narrationSelected;
+            
+            //var intendedNarration = app.narrationSelected;
+            
             //onAudioStop();
-            if(app.playing && intendedNarration){
+            if(
+                app.playing
+                //&& 
+                //intendedNarration
+            ){
                 console.log("Inside if playing in pauseEvent function");
                 var lastDurationAudioPlayedToAdd = Date.now() - app.audioStartTime;
                 console.log("last duration audio played to add is " + lastDurationAudioPlayedToAdd);
@@ -1893,7 +1919,9 @@
                 console.log("total duration audio played is " + app.totalDurationAudioPlayed);
             }
             app.playing = false;
+            app.update();
         }
+
         function goToBeginningEvent(e){
            app.totalDurationAudioPlayed = 0;
            
@@ -1942,7 +1970,8 @@
             app.aud = document.getElementById("myAudio");
             app.aud.pause();
             //app.timeElapsedSincePaused = Date.now() - app.startTime;
-            app.playing = false;
+            //app.playing = false;
+            
             pauseEvent();
 
             app.slideSwitchesSetTimeoutIDArray.forEach(
